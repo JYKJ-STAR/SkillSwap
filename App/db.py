@@ -1,22 +1,20 @@
+import sqlite3
 import os
-import mysql.connector
-from mysql.connector import Error
+from flask import g
+
+# Validated absolute path to the database file in 'Class db' folder
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DATABASE = os.path.join(BASE_DIR, 'Class db', 'skillswap.db')
 
 def get_db_connection():
-    """Create and return a MySQL connection using .env settings."""
-    try:
-        conn = mysql.connector.connect(
-            host=os.getenv("DB_HOST", "localhost"),
-            port=int(os.getenv("DB_PORT", "3306")),
-            user=os.getenv("DB_USER"),
-            password=os.getenv("DB_PASSWORD"),
-            database=os.getenv("DB_NAME"),
-        )
-        return conn
-    except Error as e:
-        print(f"Error connecting to MySQL: {e}")
-        raise RuntimeError(f"Database connection failed: {e}")
+    """Create and return a SQLite connection."""
+    conn = sqlite3.connect(DATABASE)
+    conn.row_factory = sqlite3.Row
+    return conn
 
+def close_db(e=None):
+    """Close the database connection if it exists."""
+    db = g.pop('db', None)
 
-
-        
+    if db is not None:
+        db.close()

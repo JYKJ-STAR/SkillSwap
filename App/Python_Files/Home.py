@@ -1,7 +1,11 @@
 from flask import Blueprint
+from App.db import get_db_connection
 
 home_bp = Blueprint("home", __name__)
 
 @home_bp.route("/")
 def home():
-    return "<h1>SkillSwap Application</h1><p>Welcome! This is the Home page served from Python_Files/Home.py</p>"
+    conn = get_db_connection()
+    user_count = conn.execute('SELECT COUNT(*) FROM users').fetchone()[0]
+    conn.close()
+    return f"<h1>SkillSwap Application</h1><p>Welcome! SQLite Connection Successful.</p>"
