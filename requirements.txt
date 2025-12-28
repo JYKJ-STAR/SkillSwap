@@ -1,4 +1,4 @@
-flask
-mysql-connector-python
-python-dotenv
-email-validator
+Flask==3.0.3
+mysql-connector-python==9.0.0
+python-dotenv==1.0.1
+email-validator==2.0.0
