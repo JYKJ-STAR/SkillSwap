@@ -11,10 +11,10 @@ INSERT INTO grc (name, region) VALUES
 ('Jurong', 'West');
 
 -- USERS (Admin, Youth, Senior)
-INSERT INTO user (grc_id, name, password_hash, age, phone, email, role, verification_status, total_points) VALUES
-(1, 'Admin User', 'demo_hash', 30, '91234567', 'admin@skillswap.local', 'admin', 'verified', 0),
-(1, 'Jayden Yip', 'demo_hash', 17, '91234568', 'youth@skillswap.local', 'youth', 'verified', 50),
-(1, 'Mdm Tan', 'demo_hash', 68, '91234569', 'senior@skillswap.local', 'senior', 'verified', 100);
+INSERT INTO user (grc_id, name, role, password_hash, age, phone, email, verification_status, total_points) VALUES
+(1, 'Admin User',  'admin','demo_hash', 30, '91234567', 'admin@skillswap.local', 'verified', 0),
+(1, 'Jayden Yip', 'youth', 'demo_hash', 17, '91234568', 'youth@skillswap.local', 'verified', 50),
+(1, 'Mdm Tan',  'senior', 'demo_hash', 68, '91234569', 'senior@skillswap.local', 'verified', 100);
 
 -- SKILLS
 INSERT INTO skill (name, category, description) VALUES
