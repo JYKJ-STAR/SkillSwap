@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkillSwap - Authentication</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+
+    <style>
+        .auth-form {
+            display: none;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .auth-form.active {
+            display: block;
+        }
+
+        .password-hints.valid .password-hint.valid {
+            color: #14b8a6;
+            background: rgba(20, 184, 166, 0.2);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Background Shapes -->
+    <div class="bg-shapes">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+        <div class="shape shape-3"></div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <div class="container py-4">
+            <!-- Header -->
+            <header class="mb-5">
+                <a href="{{ url_for('home.home') }}" class="logo">
+                    <span class="logo-icon"><i class="bi bi-arrow-left-right"></i></span>
+                    SkillSwap
+                </a>
+            </header>
+
+            <!-- Main Content -->
+            <div class="row align-items-center min-vh-75">
+                <div class="col-lg-6 position-relative">
+                    <!-- Decorations -->
+                    <div class="decoration deco-circle"></div>
+                    <div class="decoration deco-dots">
+                        <span></span><span></span><span></span><span></span>
+                        <span></span><span></span><span></span><span></span>
+                        <span></span><span></span><span></span><span></span>
+                    </div>
+
+                    <div class="welcome-section">
+                        <h1 class="welcome-title">
+                            Welcome to<br>
+                            <span class="highlight">SkillSwap</span>
+                        </h1>
+                        <p class="welcome-desc">
+                            Bridge the generation gap through meaningful skill exchange.
+                            Connect with mentors and learners in your community—share your
+                            expertise, learn something new, and build lasting connections.
+                        </p>
+                        <div class="feature-badges">
+                            <span class="feature-badge">
+                                <i class="bi bi-people-fill"></i>
+                                Connect Generations
+                            </span>
+                            <span class="feature-badge">
+                                <i class="bi bi-lightbulb-fill"></i>
+                                Share Skills
+                            </span>
+                            <span class="feature-badge">
+                                <i class="bi bi-heart-fill"></i>
+                                Build Community
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-6 d-flex justify-content-center justify-content-lg-end">
+                    <div class="auth-card">
+                        <!-- Flash Messages -->
+                        {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                        {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">
+                            {{ message }}
+                        </div>
+                        {% endfor %}
+                        {% endif %}
+                        {% endwith %}
+
+                        <!-- Tabs -->
+                        <div class="auth-tabs">
+                            <button class="auth-tab {{ 'active' if active_tab == 'login' else '' }}"
+                                onclick="switchTab('login')">
+                                <i class="bi bi-box-arrow-in-right"></i>
+                                Log In
+                            </button>
+                            <button class="auth-tab {{ 'active' if active_tab == 'signup' else '' }}"
+                                onclick="switchTab('signup')">
+                                <i class="bi bi-person-plus"></i>
+                                Join Us
+                            </button>
+                        </div>
+
+                        <!-- Login Form -->
+                        <div id="loginSection" class="auth-form {{ 'active' if active_tab == 'login' else '' }}">
+                            <form id="loginForm" action="{{ url_for('home.login_submit') }}" method="POST">
+                                <div class="form-group">
+                                    <label class="form-label-custom">
+                                        <i class="bi bi-envelope-fill"></i>
+                                        Email Address
+                                    </label>
+                                    <input type="email" name="email" class="form-input"
+                                        placeholder="Enter your email address" required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label-custom">
+                                        <i class="bi bi-key-fill"></i>
+                                        Password
+                                    </label>
+                                    <input type="password" name="password" class="form-input"
+                                        placeholder="Enter your password" required>
+                                </div>
+
+                                <div class="form-options">
+                                    <label class="remember-check">
+                                        <input type="checkbox" name="remember">
+                                        Remember Me
+                                    </label>
+                                    <a href="#" class="forgot-link">Forgot Password?</a>
+                                </div>
+
+                                <button type="submit" class="btn-primary-custom">
+                                    Log In
+                                </button>
+                            </form>
+
+                            <!-- Divider -->
+                            <div class="divider">Or Continue With</div>
+
+                            <!-- Social Login -->
+                            <a href="{{ url_for('home.google_login') }}" class="btn-social">
+                                <svg width="20" height="20" viewBox="0 0 24 24">
+                                    <path fill="#4285F4"
+                                        d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                                    <path fill="#34A853"
+                                        d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                                    <path fill="#FBBC05"
+                                        d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+                                    <path fill="#EA4335"
+                                        d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+                                </svg>
+                                Continue with Google
+                            </a>
+                        </div>
+
+                        <!-- Sign Up Form -->
+                        <div id="signupSection" class="auth-form {{ 'active' if active_tab == 'signup' else '' }}">
+                            <!-- Signup Header with Progress -->
+                            <div class="mb-4">
+                                <h3 class="step-title" id="stepTitle">Create Account (1/4)</h3>
+                                <div class="progress-container mt-3 px-0">
+                                    <div class="progress-bar-custom">
+                                        <div class="progress-fill" id="progressFill" style="width: 25%;"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <form id="signupForm" onsubmit="event.preventDefault();">
+                                <!-- STEP 1: Account Type & Credentials -->
+                                <div class="step-content active" id="step1">
+                                    <!-- Role Selection -->
+                                    <div class="role-section">
+                                        <span class="role-label">I am a...</span>
+                                        <div class="role-cards">
+                                            <label class="role-card youth" id="youthCard">
+                                                <input type="radio" name="role" value="youth" required>
+                                                <div class="role-check">
+                                                    <i class="bi bi-check"></i>
+                                                </div>
+                                                <div class="role-icon">
+                                                    <i class="bi bi-mortarboard-fill"></i>
+                                                </div>
+                                                <div class="role-title">Youth</div>
+                                                <div class="role-subtitle">Student / Young Adult</div>
+                                            </label>
+                                            <label class="role-card elderly" id="elderlyCard">
+                                                <input type="radio" name="role" value="senior">
+                                                <div class="role-check">
+                                                    <i class="bi bi-check"></i>
+                                                </div>
+                                                <div class="role-icon">
+                                                    <i class="bi bi-award-fill"></i>
+                                                </div>
+                                                <div class="role-title">Senior</div>
+                                                <div class="role-subtitle">Mentor / Expert</div>
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="form-label-custom">
+                                            <i class="bi bi-envelope-fill"></i>
+                                            Email Address
+                                        </label>
+                                        <input type="email" id="email" class="form-input"
+                                            placeholder="Enter your email address" required>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="form-label-custom">
+                                            <i class="bi bi-key-fill"></i>
+                                            Password
+                                        </label>
+                                        <input type="password" id="password" class="form-input"
+                                            placeholder="Create a strong password" required>
+                                        <div class="password-hints">
+                                            <span class="password-hint">8+ characters</span>
+                                            <span class="password-hint">1 uppercase</span>
+                                            <span class="password-hint">1 number</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="btn-group" style="justify-content: flex-start;">
+                                        <button type="button" class="btn-primary-custom" onclick="nextStep(1)">
+                                            Next
+                                            <i class="bi bi-arrow-right"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- STEP 2: Personal Details -->
+                                <div class="step-content" id="step2">
+                                    <button type="button" class="back-btn" onclick="prevStep(2)">
+                                        <i class="bi bi-arrow-left"></i> Back
+                                    </button>
+
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label class="form-label-custom">
+                                                <i class="bi bi-person-fill"></i>
+                                                First Name
+                                            </label>
+                                            <input type="text" id="firstName" class="form-input"
+                                                placeholder="Enter First Name" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label-custom" id="schoolProfessionLabel">
+                                                <i class="bi bi-mortarboard"></i>
+                                                School / Profession
+                                            </label>
+                                            <input type="text" id="schoolProfession" class="form-input"
+                                                placeholder="School / Profession" required>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label class="form-label-custom">
+                                                <i class="bi bi-person-badge-fill"></i>
+                                                Last Name
+                                            </label>
+                                            <input type="text" id="lastName" class="form-input"
+                                                placeholder="Enter Last Name" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label-custom">
+                                                <i class="bi bi-translate"></i>
+                                                Language
+                                            </label>
+                                            <input type="text" id="language" class="form-input"
+                                                placeholder="Preferred Language" required>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label class="form-label-custom">
+                                                <i class="bi bi-calendar-heart"></i>
+                                                Age
+                                            </label>
+                                            <input type="number" id="age" class="form-input" placeholder="Your Age"
+                                                min="13" max="120" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label-custom">
+                                                <i class="bi bi-telephone-fill"></i>
+                                                Phone Number
+                                            </label>
+                                            <input type="tel" id="phone" class="form-input"
+                                                placeholder="8-digit Phone Number" pattern="[0-9]{8}" required>
+                                        </div>
+                                    </div>
+
+
+
+                                    <div class="btn-group">
+                                        <button type="button" class="btn-primary-custom" onclick="nextStep(2)">
+                                            Next
+                                            <i class="bi bi-arrow-right"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- STEP 3: Skills Selection -->
+                                <div class="step-content" id="step3">
+                                    <button type="button" class="back-btn" onclick="prevStep(3)">
+                                        <i class="bi bi-arrow-left"></i> Back
+                                    </button>
+
+                                    <div class="skills-container">
+                                        <!-- Teach Column -->
+                                        <div class="skill-column teach">
+                                            <div class="skill-header">
+                                                <div class="skill-header-icon">
+                                                    <i class="bi bi-book"></i>
+                                                </div>
+                                                <span class="skill-header-text">I want to TEACH</span>
+                                            </div>
+                                            <div class="suggestions-label">Suggestions</div>
+                                            <div class="skill-tags" id="teachTags">
+                                                <span class="skill-tag" data-skill="Cooking">Cooking</span>
+                                                <span class="skill-tag" data-skill="Gardening">Gardening</span>
+                                                <span class="skill-tag" data-skill="Crafts">Crafts</span>
+                                                <span class="skill-tag" data-skill="Music">Music</span>
+                                                <span class="skill-tag" data-skill="Languages">Languages</span>
+                                                <span class="skill-tag" data-skill="Photography">Photography</span>
+                                            </div>
+                                            <div class="custom-skill-label">Write Your Own</div>
+                                            <input type="text" class="custom-skill-input" id="teachCustom"
+                                                placeholder="What are you good at?">
+                                        </div>
+
+                                        <!-- Learn Column -->
+                                        <div class="skill-column learn">
+                                            <div class="skill-header">
+                                                <div class="skill-header-icon">
+                                                    <i class="bi bi-lightbulb"></i>
+                                                </div>
+                                                <span class="skill-header-text">I want to LEARN</span>
+                                            </div>
+                                            <div class="suggestions-label">Suggestions</div>
+                                            <div class="skill-tags" id="learnTags">
+                                                <span class="skill-tag" data-skill="Technology">Technology</span>
+                                                <span class="skill-tag" data-skill="Social Media">Social Media</span>
+                                                <span class="skill-tag" data-skill="Coding">Coding</span>
+                                                <span class="skill-tag" data-skill="Design">Design</span>
+                                                <span class="skill-tag" data-skill="Finance">Finance</span>
+                                                <span class="skill-tag" data-skill="Fitness">Fitness</span>
+                                            </div>
+                                            <div class="custom-skill-label">Write Your Own</div>
+                                            <input type="text" class="custom-skill-input" id="learnCustom"
+                                                placeholder="What would you like to learn?">
+                                        </div>
+                                    </div>
+
+                                    <div class="btn-group">
+                                        <button type="button" class="btn-primary-custom" onclick="nextStep(3)">
+                                            Next
+                                            <i class="bi bi-arrow-right"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- STEP 4: Verification -->
+                                <div class="step-content" id="step4">
+                                    <button type="button" class="back-btn" onclick="prevStep(4)">
+                                        <i class="bi bi-arrow-left"></i> Back
+                                    </button>
+
+                                    <div class="verification-notice">
+                                        <div class="notice-title">Verification Required for <span>FULL ACCESS</span>
+                                        </div>
+                                        <div class="notice-text">To ensure you are a real person, please upload a valid
+                                            photo ID.</div>
+                                    </div>
+
+                                    <div class="upload-zone" id="uploadZone">
+                                        <input type="file" id="fileInput" accept="image/jpeg,image/png">
+                                        <div class="upload-icon"><i class="bi bi-camera"></i></div>
+                                        <div class="upload-text">Click to upload photo ID</div>
+                                        <div class="upload-hint">JPG or PNG (Max 5MB)</div>
+                                        <div class="file-name" id="fileName"></div>
+                                    </div>
+
+                                    <div class="btn-group">
+                                        <button type="button" class="btn-secondary-custom"
+                                            onclick="submitForm(false)">Skip for now</button>
+                                        <button type="button" class="btn-primary-custom" onclick="submitForm(true)">
+                                            Submit and Finish
+                                            <i class="bi bi-check-lg"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Define API URLs for use in external JS
+        const API_URLS = {
+            checkEmail: "{{ url_for('home.check_email') }}",
+            checkPhone: "{{ url_for('home.check_phone') }}",
+            register: "{{ url_for('home.register') }}",
+            loginPage: "{{ url_for('home.login_page') }}"
+        };
+    </script>
+    <script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+</body>
+
+</html>

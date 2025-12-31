@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complete Signup - SkillSwap</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.1/font/bootstrap-icons.min.css"
+        rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+    <style>
+        .google-signup-wrapper {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="bg-shapes">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+        <div class="shape shape-3"></div>
+    </div>
+
+    <div class="google-signup-wrapper">
+        <div class="auth-card">
+            <div class="text-center mb-4">
+                <h2>Welcome to SkillSwap!</h2>
+                <p class="text-muted">Please select your role to continue.</p>
+            </div>
+
+            <form action="{{ url_for('home.complete_google_signup') }}" method="POST">
+
+                <div class="role-selection mb-4">
+                    <div class="role-grid">
+                        <label class="role-card">
+                            <input type="radio" name="role" value="youth" required>
+                            <div class="role-content">
+                                <div class="role-icon-wrapper youth-icon">
+                                    <i class="bi bi-backpack2"></i>
+                                </div>
+                                <h3>Youth</h3>
+                                <p>Learn skills and assist seniors</p>
+                            </div>
+                            <div class="selection-indicator">
+                                <i class="bi bi-check-circle-fill"></i>
+                            </div>
+                        </label>
+
+                        <label class="role-card">
+                            <input type="radio" name="role" value="senior" required>
+                            <div class="role-content">
+                                <div class="role-icon-wrapper senior-icon">
+                                    <i class="bi bi-eyeglasses"></i>
+                                </div>
+                                <h3>Senior</h3>
+                                <p>Share wisdom and receive help</p>
+                            </div>
+                            <div class="selection-indicator">
+                                <i class="bi bi-check-circle-fill"></i>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-primary-custom w-100">
+                    Finish Setup <i class="bi bi-arrow-right"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Simple script to handle role card selection UI
+        document.querySelectorAll('.role-card').forEach(card => {
+            card.addEventListener('click', function () {
+                document.querySelectorAll('.role-card').forEach(c => c.classList.remove('selected'));
+                this.classList.add('selected');
+                this.querySelector('input').checked = true;
+            });
+        });
+    </script>
+</body>
+
+</html>

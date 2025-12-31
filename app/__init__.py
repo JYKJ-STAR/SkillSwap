@@ -1,6 +1,11 @@
+from datetime import timedelta
 import os
 from flask import Flask
 from dotenv import load_dotenv
+
+from authlib.integrations.flask_client import OAuth
+
+oauth = OAuth()
 
 def create_app():
     # Force loading of .env file to override system variables if valid
@@ -8,6 +13,20 @@ def create_app():
 
     app = Flask(__name__, template_folder='HTML_Files', static_folder='Styling')
     app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "dev-secret")
+    app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=31)
+    
+    # OAuth Configuration
+    app.config['GOOGLE_CLIENT_ID'] = os.getenv('GOOGLE_CLIENT_ID', 'YOUR_GOOGLE_CLIENT_ID')
+    app.config['GOOGLE_CLIENT_SECRET'] = os.getenv('GOOGLE_CLIENT_SECRET', 'YOUR_GOOGLE_CLIENT_SECRET')
+
+    oauth.init_app(app)
+    oauth.register(
+        name='google',
+        client_id=app.config['GOOGLE_CLIENT_ID'],
+        client_secret=app.config['GOOGLE_CLIENT_SECRET'],
+        server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
+        client_kwargs={'scope': 'openid email profile'}
+    )
 
     # Register blueprints
     from .Python_Files.Home import home_bp
@@ -19,3 +38,4 @@ def create_app():
     app.register_blueprint(admin_bp)
 
     return app
+
