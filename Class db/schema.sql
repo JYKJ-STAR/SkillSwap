@@ -23,6 +23,7 @@ CREATE TABLE IF NOT EXISTS user (
   verification_token TEXT,
   
   role TEXT NOT NULL CHECK (role IN ('youth','senior','admin')),
+  display_name TEXT GENERATED ALWAYS AS (name || ' (' || role || ')') VIRTUAL,
   verification_status TEXT NOT NULL DEFAULT 'unverified' CHECK (verification_status IN ('unverified','pending','verified')),
   language_pref TEXT DEFAULT 'English',
   total_points INTEGER NOT NULL DEFAULT 0,

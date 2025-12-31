@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Youth Dashboard - SkillSwap</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 25px;
+            background: white;
+            border-radius: 16px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        h1 {
+            color: #065f46;
+            font-size: 1.6em;
+        }
+
+        .points-badge {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-weight: 600;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+            transition: all 0.3s;
+            border: 1px solid #d1fae5;
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 30px rgba(16, 185, 129, 0.15);
+            border-color: #10b981;
+        }
+
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            background: #ecfdf5;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+
+        .card h3 {
+            color: #1f2937;
+            margin-bottom: 8px;
+            font-size: 1.1em;
+        }
+
+        .card p {
+            color: #6b7280;
+            font-size: 0.9em;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #10b981;
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: 500;
+            font-size: 0.9em;
+            transition: background 0.2s;
+        }
+
+        .btn:hover {
+            background: #059669;
+        }
+
+        .logout {
+            display: block;
+            text-align: center;
+            margin-top: 30px;
+            color: #6b7280;
+            text-decoration: none;
+            font-size: 0.95em;
+        }
+
+        .logout:hover {
+            color: #10b981;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Hey, {{ user_name }}! 👋</h1>
+            <span class="points-badge">⭐ 50 Points</span>
+        </div>
+
+        <div class="grid">
+            <div class="card">
+                <div class="card-icon">🔍</div>
+                <h3>Find Skills</h3>
+                <p>Discover skills from seniors in your community.</p>
+                <a href="#" class="btn">Browse</a>
+            </div>
+            <div class="card">
+                <div class="card-icon">📅</div>
+                <h3>My Events</h3>
+                <p>Check your upcoming sessions and bookings.</p>
+                <a href="#" class="btn">View</a>
+            </div>
+            <div class="card">
+                <div class="card-icon">🎁</div>
+                <h3>Rewards</h3>
+                <p>Redeem your points for vouchers and prizes.</p>
+                <a href="#" class="btn">Redeem</a>
+            </div>
+            <div class="card">
+                <div class="card-icon">📚</div>
+                <h3>Teach a Skill</h3>
+                <p>Share your knowledge with others.</p>
+                <a href="#" class="btn">Start</a>
+            </div>
+            <div class="card">
+                <div class="card-icon">💬</div>
+                <h3>Support</h3>
+                <p>Get help or report an issue.</p>
+                <a href="#" class="btn">Help</a>
+            </div>
+        </div>
+
+        <a href="{{ url_for('dashboard.logout') }}" class="logout">Log Out</a>
+    </div>
+</body>
+
+</html>
