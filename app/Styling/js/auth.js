@@ -75,7 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (e.target.files.length) {
                 const file = e.target.files[0];
                 if (file.size > 5 * 1024 * 1024) {
-                    alert('File too large (>5MB)'); return;
+                    showToast('File too large. Maximum size is 5MB.', 'error'); return;
                 }
                 fileName.textContent = file.name;
                 uploadZone.classList.add('has-file');
@@ -102,17 +102,17 @@ async function validateStep(step) {
         const password = document.getElementById('password').value;
 
         if (!selectedRole) {
-            alert('Please select whether you are a Youth or Senior'); return false;
+            showToast('Please select whether you are a Youth or Senior.', 'warning'); return false;
         }
         if (!email || !password) {
-            alert('Please enter email and password'); return false;
+            showToast('Please enter your email and password.', 'warning'); return false;
         }
 
         // Password Complexity Check
         const strongRegex = /^(?=.*[A-Z])(?=.*[!@#$&*]).{8,}$/;
 
         if (!strongRegex.test(password)) {
-            alert('Password must have at least 8 characters, 1 Uppercase letter, and 1 Special character.');
+            showToast('Password must have at least 8 characters, 1 uppercase letter, and 1 special character.', 'error');
             return false;
         }
 
@@ -125,28 +125,35 @@ async function validateStep(step) {
             });
             const data = await response.json();
             if (data.exists) {
-                alert('This email is already registered. Please log in or use a different email.');
+                showToast('This email is already registered. Please log in or use a different email.', 'warning');
                 return false;
             }
         } catch (e) {
             console.error("Email check failed", e);
-            alert('Unable to verify email availability. Please try again.');
+            showToast('Unable to verify email availability. Please try again.', 'error');
             return false;
         }
 
     } else if (step === 2) {
         const phone = document.getElementById('phone').value;
         if (!document.getElementById('firstName').value || !document.getElementById('lastName').value) {
-            alert('Please enter your name'); return false;
+            showToast('Please enter your name.', 'warning'); return false;
         }
         if (!document.getElementById('age').value || !document.getElementById('schoolProfession').value || !document.getElementById('language').value) {
-            alert('Please complete all fields'); return false;
+            showToast('Please complete all required fields.', 'warning'); return false;
         }
 
-        // Phone Validation (8 digits)
-        const phoneRegex = /^\d{8}$/;
+        // Age validation (12-80)
+        const age = parseInt(document.getElementById('age').value);
+        if (age < 12 || age > 80) {
+            showToast('Age must be between 12 and 80 years.', 'error');
+            return false;
+        }
+
+        // Phone Validation (8 digits, starts with 6 or 9)
+        const phoneRegex = /^[69]\d{7}$/;
         if (!phone || !phoneRegex.test(phone)) {
-            alert('Phone number must be exactly 8 digits.'); return false;
+            showToast('Phone number must be 8 digits and start with 6 or 9.', 'error'); return false;
         }
 
         // Check phone uniqueness
@@ -158,12 +165,22 @@ async function validateStep(step) {
             });
             const data = await response.json();
             if (data.exists) {
-                alert('This phone number is already registered. Please use a different number.');
+                showToast('This phone number is already registered. Please use a different number.', 'warning');
                 return false;
             }
         } catch (e) {
             console.error("Phone check failed", e);
-            alert('Unable to verify phone availability. Please try again.');
+            showToast('Unable to verify phone availability. Please try again.', 'error');
+            return false;
+        }
+    } else if (step === 3) {
+        // Check if at least one skill is selected (teach or learn)
+        const customTeach = document.getElementById('teachCustom').value.trim();
+        const customLearn = document.getElementById('learnCustom').value.trim();
+        const totalSkills = teachSkills.length + learnSkills.length + (customTeach ? 1 : 0) + (customLearn ? 1 : 0);
+
+        if (totalSkills === 0) {
+            showToast('Please select at least one skill to teach or learn.', 'warning');
             return false;
         }
     }
@@ -197,11 +214,15 @@ function prevStep(step) {
 }
 
 async function submitForm(hasVerification) {
+    // Validate step 3 (skills) before submitting
+    const isValid = await validateStep(3);
+    if (!isValid) return;
+
     // Require photo if user clicked "Submit and Finish" (hasVerification = true)
     if (hasVerification) {
         const fileInput = document.getElementById('fileInput');
         if (!fileInput.files || fileInput.files.length === 0) {
-            alert('Please upload a photo ID to complete verification.');
+            showToast('Please upload a photo ID to complete verification.', 'warning');
             return;
         }
     }
@@ -236,7 +257,7 @@ async function submitForm(hasVerification) {
         } else {
             const resData = await response.json();
             if (resData.error) {
-                alert('Registration failed: ' + resData.error);
+                showToast('Registration failed: ' + resData.error, 'error');
             } else {
                 // Success -> Redirect to Login
                 window.location.href = API_URLS.loginPage;
@@ -244,6 +265,6 @@ async function submitForm(hasVerification) {
         }
     } catch (error) {
         console.error('Error:', error);
-        alert('An error occurred during registration.');
+        showToast('An error occurred during registration. Please try again.', 'error');
     }
 }

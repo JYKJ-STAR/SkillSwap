@@ -241,36 +241,82 @@ def google_signup():
     """Show role selection for new Google users."""
     if 'google_info' not in session:
         return redirect(url_for('home.home'))
-    return render_template('google_signup.html')
+    
+    google_info = session['google_info']
+    full_name = google_info.get('name', '')
+    # Basic Name Splitting
+    parts = full_name.split(' ', 1)
+    first_name = parts[0]
+    last_name = parts[1] if len(parts) > 1 else ''
+
+    return render_template('google_signup.html', 
+                          google_name=full_name,
+                          google_first_name=first_name,
+                          google_last_name=last_name)
 
 @home_bp.route('/google/complete', methods=['POST'])
 def complete_google_signup():
-    """Create account for new Google user."""
+    """Create account for new Google user with full details."""
     if 'google_info' not in session:
-        return redirect(url_for('home.home'))
+        return jsonify({'error': 'Session expired. Please login again.'}), 401
         
     google_info = session['google_info']
-    role = request.form.get('role')
+    data = request.get_json()
     
+    role = data.get('role')
+    first_name = data.get('firstName')
+    last_name = data.get('lastName')
+    age = data.get('age')
+    phone = data.get('phone')
+    language = data.get('language')
+    teach_skills = data.get('teachSkills', [])
+    learn_skills = data.get('learnSkills', [])
+    
+    # Construct full name from form if provided, otherwise fallback to Google name
+    name = f"{first_name} {last_name}".strip()
+    if not name:
+        name = google_info['name']
+
     if role not in ['youth', 'senior']:
-        flash("Invalid role selected", "error")
-        return redirect(url_for('home.google_signup'))
+         return jsonify({'error': 'Invalid role selected'}), 400
     
     conn = get_db_connection()
     try:
-        # Insert with verified status
         cur = conn.cursor()
+        
+        # Insert User with all details
         cur.execute(
-            """INSERT INTO user (name, email, role, verification_status, password_hash, language_pref)
-               VALUES (?, ?, ?, 'verified', 'google_oauth', 'English')""",
-            (google_info['name'], google_info['email'], role)
+            """INSERT INTO user (name, email, role, verification_status, password_hash, language_pref, age, phone)
+               VALUES (?, ?, ?, 'verified', 'google_oauth', ?, ?, ?)""",
+            (name, google_info['email'], role, language, age, phone)
         )
         user_id = cur.lastrowid
+        
+        # Helper to process skills (duplicated locally to ensure self-contained logic)
+        def process_skills_local(skills, table_name):
+            for skill_name in skills:
+                if not skill_name: continue
+                # Find or Insert Skill
+                skill_row = cur.execute("SELECT skill_id FROM skill WHERE name = ?", (skill_name,)).fetchone()
+                if skill_row:
+                    skill_id = skill_row['skill_id']
+                else:
+                    cur.execute("INSERT INTO skill (name, category) VALUES (?, 'General')", (skill_name,))
+                    skill_id = cur.lastrowid
+                
+                # Link User to Skill
+                cur.execute(f"INSERT OR IGNORE INTO {table_name} (user_id, skill_id) VALUES (?, ?)", (user_id, skill_id))
+
+        if teach_skills:
+            process_skills_local(teach_skills, 'user_skill_offered')
+        if learn_skills:
+            process_skills_local(learn_skills, 'user_skill_interest')
+
         conn.commit()
         
         # Login
         session['user_id'] = user_id
-        session['user_name'] = google_info['name']
+        session['user_name'] = name
         session['user_role'] = role
         session.permanent = True
         
@@ -278,12 +324,11 @@ def complete_google_signup():
         session.pop('google_info', None)
         
         flash("Account created successfully via Google!", "success")
-        return redirect(url_for('dashboard.dashboard'))
+        return jsonify({'message': 'Success', 'redirect': url_for('dashboard.dashboard')})
         
     except Exception as e:
         conn.rollback()
-        flash(f"Creation failed: {str(e)}", "error")
-        return redirect(url_for('home.google_signup'))
+        return jsonify({'error': str(e)}), 500
     finally:
         conn.close()
 

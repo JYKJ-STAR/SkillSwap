@@ -5,90 +5,239 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Complete Signup - SkillSwap</title>
+
     <!-- Bootstrap 5 CSS -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
     <!-- Bootstrap Icons -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.1/font/bootstrap-icons.min.css"
-        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@300;400;500;600;700&display=swap"
         rel="stylesheet">
+
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
-    <style>
-        .google-signup-wrapper {
-            max-width: 600px;
-            margin: 50px auto;
-            padding: 20px;
-        }
-    </style>
 </head>
 
 <body>
+    <!-- Background Shapes -->
     <div class="bg-shapes">
         <div class="shape shape-1"></div>
         <div class="shape shape-2"></div>
         <div class="shape shape-3"></div>
     </div>
 
-    <div class="google-signup-wrapper">
-        <div class="auth-card">
-            <div class="text-center mb-4">
-                <h2>Welcome to SkillSwap!</h2>
-                <p class="text-muted">Please select your role to continue.</p>
-            </div>
+    <!-- Main Container -->
+    <div class="main-container">
+        <div class="container py-4">
+            <!-- Header -->
+            <header class="mb-5">
+                <a href="{{ url_for('home.home') }}" class="logo">
+                    <span class="logo-icon"><i class="bi bi-arrow-left-right"></i></span>
+                    SkillSwap
+                </a>
+            </header>
 
-            <form action="{{ url_for('home.complete_google_signup') }}" method="POST">
-
-                <div class="role-selection mb-4">
-                    <div class="role-grid">
-                        <label class="role-card">
-                            <input type="radio" name="role" value="youth" required>
-                            <div class="role-content">
-                                <div class="role-icon-wrapper youth-icon">
-                                    <i class="bi bi-backpack2"></i>
+            <!-- Content -->
+            <div class="row align-items-center min-vh-75">
+                <div class="col-lg-12 d-flex justify-content-center">
+                    <div class="auth-card">
+                        <!-- Progress -->
+                        <div class="mb-4">
+                            <h3 class="step-title" id="stepTitle">Complete Profile (1/3)</h3>
+                            <div class="progress-container mt-3 px-0">
+                                <div class="progress-bar-custom">
+                                    <div class="progress-fill" id="progressFill" style="width: 33%;"></div>
                                 </div>
-                                <h3>Youth</h3>
-                                <p>Learn skills and assist seniors</p>
                             </div>
-                            <div class="selection-indicator">
-                                <i class="bi bi-check-circle-fill"></i>
-                            </div>
-                        </label>
+                        </div>
 
-                        <label class="role-card">
-                            <input type="radio" name="role" value="senior" required>
-                            <div class="role-content">
-                                <div class="role-icon-wrapper senior-icon">
-                                    <i class="bi bi-eyeglasses"></i>
+                        <form id="googleSignupForm" onsubmit="event.preventDefault();">
+                            <!-- STEP 1: Role Selection -->
+                            <div class="step-content active" id="step1">
+                                <div class="text-center mb-4">
+                                    <h2 style="color: var(--text-light); font-size: 1.75rem; margin-bottom: 0.5rem;">
+                                        Welcome, {{ google_name }}!</h2>
+                                    <p class="text-muted">Select your primary role to get started.</p>
                                 </div>
-                                <h3>Senior</h3>
-                                <p>Share wisdom and receive help</p>
+
+                                <div class="role-section">
+                                    <span class="role-label">I am a...</span>
+                                    <div class="role-cards">
+                                        <label class="role-card youth" id="youthCard">
+                                            <input type="radio" name="role" value="youth" required>
+                                            <div class="role-check">
+                                                <i class="bi bi-check"></i>
+                                            </div>
+                                            <div class="role-icon">
+                                                <i class="bi bi-mortarboard-fill"></i>
+                                            </div>
+                                            <div class="role-title">Youth</div>
+                                            <div class="role-subtitle">Student / Young Adult</div>
+                                        </label>
+                                        <label class="role-card elderly" id="elderlyCard">
+                                            <input type="radio" name="role" value="senior">
+                                            <div class="role-check">
+                                                <i class="bi bi-check"></i>
+                                            </div>
+                                            <div class="role-icon">
+                                                <i class="bi bi-award-fill"></i>
+                                            </div>
+                                            <div class="role-title">Senior</div>
+                                            <div class="role-subtitle">Mentor / Expert</div>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <button type="button" class="btn-primary-custom mt-3" onclick="nextStep(1)">
+                                    Next <i class="bi bi-arrow-right"></i>
+                                </button>
                             </div>
-                            <div class="selection-indicator">
-                                <i class="bi bi-check-circle-fill"></i>
+
+                            <!-- STEP 2: Personal Details -->
+                            <div class="step-content" id="step2">
+                                <button type="button" class="back-btn" onclick="prevStep(2)">
+                                    <i class="bi bi-arrow-left"></i> Back
+                                </button>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label class="form-label-custom">
+                                            <i class="bi bi-person-fill"></i>
+                                            First Name
+                                        </label>
+                                        <input type="text" id="firstName" class="form-input" placeholder="First Name"
+                                            value="{{ google_first_name }}" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label-custom" id="schoolProfessionLabel">
+                                            <i class="bi bi-mortarboard"></i>
+                                            School / Profession
+                                        </label>
+                                        <input type="text" id="schoolProfession" class="form-input"
+                                            placeholder="School / Profession" required>
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label class="form-label-custom">
+                                            <i class="bi bi-person-badge-fill"></i>
+                                            Last Name
+                                        </label>
+                                        <input type="text" id="lastName" class="form-input" placeholder="Last Name"
+                                            value="{{ google_last_name }}" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label-custom">
+                                            <i class="bi bi-translate"></i>
+                                            Language
+                                        </label>
+                                        <input type="text" id="language" class="form-input"
+                                            placeholder="Preferred Language" required>
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label class="form-label-custom">
+                                            <i class="bi bi-calendar-heart"></i>
+                                            Age
+                                        </label>
+                                        <input type="number" id="age" class="form-input" placeholder="Your Age" min="12"
+                                            max="80" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label-custom">
+                                            <i class="bi bi-telephone-fill"></i>
+                                            Phone Number
+                                        </label>
+                                        <input type="tel" id="phone" class="form-input"
+                                            placeholder="8-digit Phone Number" pattern="[0-9]{8}" required>
+                                    </div>
+                                </div>
+
+                                <button type="button" class="btn-primary-custom mt-2" onclick="nextStep(2)">
+                                    Next <i class="bi bi-arrow-right"></i>
+                                </button>
                             </div>
-                        </label>
+
+                            <!-- STEP 3: Skills -->
+                            <div class="step-content" id="step3">
+                                <button type="button" class="back-btn" onclick="prevStep(3)">
+                                    <i class="bi bi-arrow-left"></i> Back
+                                </button>
+
+                                <div class="skills-container">
+                                    <!-- Teach Column -->
+                                    <div class="skill-column teach">
+                                        <div class="skill-header">
+                                            <div class="skill-header-icon"><i class="bi bi-book"></i></div>
+                                            <span class="skill-header-text">I want to TEACH</span>
+                                        </div>
+                                        <div class="suggestions-label">Suggestions</div>
+                                        <div class="skill-tags" id="teachTags">
+                                            <span class="skill-tag" data-skill="Cooking">Cooking</span>
+                                            <span class="skill-tag" data-skill="Gardening">Gardening</span>
+                                            <span class="skill-tag" data-skill="Crafts">Crafts</span>
+                                            <span class="skill-tag" data-skill="Music">Music</span>
+                                            <span class="skill-tag" data-skill="Languages">Languages</span>
+                                            <span class="skill-tag" data-skill="Photography">Photography</span>
+                                        </div>
+                                        <div class="custom-skill-label">Write Your Own</div>
+                                        <input type="text" class="custom-skill-input" id="teachCustom"
+                                            placeholder="What are you good at?">
+                                    </div>
+
+                                    <!-- Learn Column -->
+                                    <div class="skill-column learn">
+                                        <div class="skill-header">
+                                            <div class="skill-header-icon"><i class="bi bi-lightbulb"></i></div>
+                                            <span class="skill-header-text">I want to LEARN</span>
+                                        </div>
+                                        <div class="suggestions-label">Suggestions</div>
+                                        <div class="skill-tags" id="learnTags">
+                                            <span class="skill-tag" data-skill="Technology">Technology</span>
+                                            <span class="skill-tag" data-skill="Social Media">Social Media</span>
+                                            <span class="skill-tag" data-skill="Coding">Coding</span>
+                                            <span class="skill-tag" data-skill="Design">Design</span>
+                                            <span class="skill-tag" data-skill="Finance">Finance</span>
+                                            <span class="skill-tag" data-skill="Fitness">Fitness</span>
+                                        </div>
+                                        <div class="custom-skill-label">Write Your Own</div>
+                                        <input type="text" class="custom-skill-input" id="learnCustom"
+                                            placeholder="What would you like to learn?">
+                                    </div>
+                                </div>
+
+                                <button type="button" class="btn-primary-custom mt-3" onclick="submitGoogleSignup()">
+                                    Complete Signup <i class="bi bi-check-lg"></i>
+                                </button>
+                            </div>
+                        </form>
                     </div>
                 </div>
-
-                <button type="submit" class="btn-primary-custom w-100">
-                    Finish Setup <i class="bi bi-arrow-right"></i>
-                </button>
-            </form>
+            </div>
         </div>
     </div>
 
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Define submit URL for JS -->
     <script>
-        // Simple script to handle role card selection UI
-        document.querySelectorAll('.role-card').forEach(card => {
-            card.addEventListener('click', function () {
-                document.querySelectorAll('.role-card').forEach(c => c.classList.remove('selected'));
-                this.classList.add('selected');
-                this.querySelector('input').checked = true;
-            });
-        });
+        const SUBMIT_URL = "{{ url_for('home.complete_google_signup') }}";
     </script>
+
+    <!-- Toast Notification System -->
+    <script src="{{ url_for('static', filename='js/toast.js') }}"></script>
+
+    <!-- Google Signup JS -->
+    <script src="{{ url_for('static', filename='js/google_signup.js') }}"></script>
 </body>
 
 </html>
