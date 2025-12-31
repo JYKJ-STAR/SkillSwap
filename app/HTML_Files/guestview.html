@@ -20,8 +20,8 @@
             <a href="#support">Support</a>
         </nav>
         <div class="auth-buttons">
-            <a href="{{ url_for('home.login') }}" class="btn btn-outline">Log In</a>
-            <a href="{{ url_for('home.login') }}#signup" class="btn btn-primary">Sign Up Now</a>
+            <a href="{{ url_for('home.login_page') }}" class="btn btn-outline">Log In</a>
+            <a href="{{ url_for('home.login_page') }}#signup" class="btn btn-primary">Sign Up Now</a>
         </div>
     </header>
 
@@ -99,9 +99,11 @@
                 non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Excepteur
                 sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
             <div class="bridging-buttons">
-                <button class="btn btn-dark" onclick="window.location.href='{{ url_for('home.login') }}#signup'">Join
+                <button class="btn btn-dark"
+                    onclick="window.location.href='{{ url_for('home.login_page') }}#signup'">Join
                     the Community</button>
-                <button class="btn btn-outline" onclick="window.location.href='{{ url_for('home.login') }}'">Host an
+                <button class="btn btn-outline" onclick="window.location.href='{{ url_for('home.login_page') }}'">Host
+                    an
                     event</button>
             </div>
         </div>

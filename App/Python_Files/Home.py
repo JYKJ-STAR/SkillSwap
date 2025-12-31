@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, session, redirect, url_for, flash, request
 from werkzeug.security import generate_password_hash, check_password_hash
-from app.db import get_db_connection
+from App.db import get_db_connection
 
 home_bp = Blueprint("home", __name__)
 
