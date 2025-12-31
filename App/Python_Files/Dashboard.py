@@ -16,9 +16,9 @@ def dashboard():
     if role == 'admin':
         return redirect(url_for('admin.admin_dashboard'))
     elif role == 'senior':
-        return render_template('senior_dashboard.html', user_name=user_name)
+        return render_template('Senior_dashboard.html', user_name=user_name)
     elif role == 'youth':
-        return render_template('youth_dashboard.html', user_name=user_name)
+        return render_template('Youth_dashboard.html', user_name=user_name)
     else:
         # Fallback or error
         return "Unknown role", 403
