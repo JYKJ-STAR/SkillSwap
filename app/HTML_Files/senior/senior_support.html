@@ -1,0 +1,225 @@
+{% extends "shared/base.html" %}
+
+{% block title %}SkillSwap - Support Page{% endblock %}
+
+{% block styles %}
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/senior/seniorsupportcentre.css') }}">
+<style>
+    /* Override base styles for accessibility if needed */
+    .page-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 0.5rem;
+    }
+
+    .page-subtitle {
+        font-size: 1.25rem;
+        color: #4b5563;
+        margin-bottom: 2rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5" id="main-content">
+
+    <!-- Accessibility Toolbar (Preserved) -->
+    <div class="d-flex justify-content-end mb-4">
+        <button class="btn btn-outline-primary d-flex align-items-center gap-2" id="read-aloud">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+                <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+                <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+            </svg>
+            <span>Read Aloud</span>
+        </button>
+    </div>
+
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb fs-5">
+            <li class="breadcrumb-item"><a href="{{ url_for('dashboard.dashboard') }}">Home</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Support</li>
+        </ol>
+    </nav>
+
+    <!-- Page Title -->
+    <h1 class="page-title">Support Page</h1>
+    <p class="page-subtitle">We're here to help you. Choose how you'd like to reach us.</p>
+
+    <!-- Main Call Button -->
+    <div class="card border-primary border-2 shadow-sm mb-5">
+        <div class="card-body p-4 text-center">
+            <a href="tel:62738328"
+                class="btn btn-primary btn-lg w-100 py-4 mb-3 d-flex flex-column align-items-center justify-content-center"
+                style="min-height: 120px;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" class="mb-2">
+                    <path
+                        d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+                </svg>
+                <span class="fs-2 fw-bold">Call Support Hotline Now</span>
+                <span class="fs-3">6273 8328</span>
+            </a>
+            <div class="d-flex justify-content-center gap-4 text-muted flex-wrap">
+                <span class="d-flex align-items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" width="20"
+                        height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg> Free to Call</span>
+                <span class="d-flex align-items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" width="20"
+                        height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg> Mon - Fri, 9am - 6pm</span>
+                <span class="d-flex align-items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" width="20"
+                        height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg> No Wait Time</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Support Agent Section -->
+    <div class="d-flex align-items-center bg-light p-4 rounded mb-5">
+        <div class="me-4 d-none d-md-block">
+            <div class="bg-white p-3 rounded-circle shadow-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="1.5" class="text-primary">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                    <circle cx="12" cy="7" r="4" />
+                </svg>
+            </div>
+        </div>
+        <div>
+            <h2 class="h3 fw-bold mb-2">Friendly Support Team Ready to Help</h2>
+            <p class="fs-5 mb-0">Our team speaks English, Mandarin, Malay, and Tamil. We'll guide you step by step.</p>
+        </div>
+    </div>
+
+    <!-- Alternative Contact -->
+    <h2 class="h4 mb-4 fw-bold">Other Ways to Reach Us</h2>
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm hover-shadow transition">
+                <div class="card-body p-4 text-center">
+                    <div class="mb-3 text-primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="1.5">
+                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                            <polyline points="22,6 12,13 2,6" />
+                        </svg>
+                    </div>
+                    <h5 class="fw-bold">Email Us</h5>
+                    <p class="text-muted">Response within 24 hours</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm hover-shadow transition">
+                <div class="card-body p-4 text-center">
+                    <div class="mb-3 text-primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="1.5">
+                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                            <circle cx="12" cy="10" r="3" />
+                        </svg>
+                    </div>
+                    <h5 class="fw-bold">Visit In Person</h5>
+                    <p class="text-muted">Get help face-to-face</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm hover-shadow transition">
+                <div class="card-body p-4 text-center">
+                    <div class="mb-3 text-primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="1.5">
+                            <polygon points="23 7 16 12 23 17 23 7" />
+                            <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
+                        </svg>
+                    </div>
+                    <h5 class="fw-bold">Video Call</h5>
+                    <p class="text-muted">See and talk to our team</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Call Button - Enhanced with fallback for desktop
+    document.querySelector('.btn-primary[href^="tel:"]').addEventListener('click', function (e) {
+        const phoneNumber = '62738328';
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+        if (!isMobile) {
+            e.preventDefault();
+
+            // Show modal with options for desktop users
+            const modal = document.createElement('div');
+            modal.className = 'call-modal position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center';
+            modal.style.backgroundColor = 'rgba(0,0,0,0.5)';
+            modal.style.zIndex = '1050';
+
+            modal.innerHTML = `
+                <div class="bg-white p-5 rounded shadow-lg text-center" style="max-width: 400px;">
+                    <h3 class="h4 fw-bold mb-3">Call Support Hotline</h3>
+                    <p class="display-6 fw-bold text-primary mb-3">6273 8328</p>
+                    <p class="text-muted mb-4">Please dial this number on your phone</p>
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-outline-primary copy-btn d-flex align-items-center justify-content-center gap-2" onclick="copyNumber('${phoneNumber}')">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                            Copy Number
+                        </button>
+                        <button class="btn btn-secondary close-btn" onclick="this.closest('.call-modal').remove()">Close</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+
+            // Close on background click
+            modal.addEventListener('click', function (e) {
+                if (e.target === modal) {
+                    modal.remove();
+                }
+            });
+        }
+    });
+
+    function copyNumber(number) {
+        navigator.clipboard.writeText(number).then(() => {
+            const copyBtn = document.querySelector('.copy-btn');
+            copyBtn.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                Copied!
+            `;
+            copyBtn.classList.remove('btn-outline-primary');
+            copyBtn.classList.add('btn-success', 'text-white');
+        });
+    }
+
+    // Read Aloud Function (Preserved)
+    document.getElementById('read-aloud').addEventListener('click', function () {
+        this.classList.toggle('active');
+        if (this.classList.contains('active')) {
+            const textToRead = "Support Page. We're here to help you. To call our support hotline, the number is 6 2 7 3, 8 3 2 8. The call is free. Hours are Monday to Friday, 9 AM to 6 PM. No wait time.";
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(textToRead);
+                window.speechSynthesis.speak(utterance);
+            } else {
+                alert('Sorry, your browser does not support text-to-speech.');
+            }
+        } else {
+            window.speechSynthesis.cancel();
+        }
+    });
+</script>
+{% endblock %}

@@ -32,10 +32,16 @@ def create_app():
     from .Python_Files.Home import home_bp
     from .Python_Files.Dashboard import dashboard_bp
     from .Python_Files.Admin import admin_bp
+    from .Python_Files.Support import support_bp
+    from .Python_Files.Events import events_bp
+    from .Python_Files.Rewards import rewards_bp
     
     app.register_blueprint(home_bp)
     app.register_blueprint(dashboard_bp)
     app.register_blueprint(admin_bp)
+    app.register_blueprint(support_bp)
+    app.register_blueprint(events_bp)
+    app.register_blueprint(rewards_bp)
 
     return app
 
