@@ -1,0 +1,37 @@
+{# Macro for Event Cards #}
+{% macro event_card(event) %}
+<div class="card event-card mb-3 h-100 shadow-sm">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start">
+            <h5 class="card-title fw-bold">{{ event.name }}</h5>
+            {% if event.points %}
+            <span class="badge bg-warning text-dark">⭐ {{ event.points }}</span>
+            {% endif %}
+        </div>
+
+        <div class="mb-3 text-muted small">
+            <div>📅 {{ event.date }} at {{ event.time }}</div>
+            <div>📍 {{ event.location }}</div>
+            {% if event.category %}
+            <div>🏷️ {{ event.category }}</div>
+            {% endif %}
+        </div>
+
+        <p class="card-text">{{ event.description|truncate(100) }}</p>
+
+        <!-- Since we deleted Events blueprint/pages, buttons are disabled/hidden for now -->
+        <button class="btn btn-outline-secondary btn-sm w-100" disabled>View Details</button>
+    </div>
+</div>
+{% endmacro %}
+
+{# Macro for Stats #}
+{% macro stats_card(label, value, icon, color='primary') %}
+<div class="card bg-{{ color }} text-white h-100">
+    <div class="card-body text-center">
+        <div class="display-4 mb-2">{{ icon }}</div>
+        <h3 class="fw-bold">{{ value }}</h3>
+        <p class="mb-0">{{ label }}</p>
+    </div>
+</div>
+{% endmacro %}
