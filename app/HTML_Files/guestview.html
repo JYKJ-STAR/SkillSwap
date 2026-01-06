@@ -32,13 +32,13 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav mx-auto">
-                    <li class="nav-item"><a class="nav-link" href="#home">Home</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#events">Events</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#schedule">Schedule</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#research">Research</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#support">Support</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('home.login_page') }}">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('home.login_page') }}">Events</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('home.login_page') }}">Schedule</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('home.login_page') }}">Research</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('home.login_page') }}">Support</a></li>
                 </ul>
-                <div class="d-flex">
+                <div class="d-flex ms-auto">
                     <a href="{{ url_for('home.login_page') }}" class="btn btn-login me-2">Log In</a>
                     <a href="{{ url_for('home.login_page') }}" class="btn btn-signup">Sign Up Now</a>
                 </div>

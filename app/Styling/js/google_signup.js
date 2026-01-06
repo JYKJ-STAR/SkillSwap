@@ -80,9 +80,9 @@ function validateStep(step) {
             return false;
         }
 
-        // Phone validation (8 digits, starts with 6 or 9)
-        if (!/^[69]\d{7}$/.test(phone)) {
-            showToast('Phone number must be 8 digits and start with 6 or 9.', 'error');
+        // Phone validation (8 digits, starts with 8 or 9)
+        if (!/^[89]\d{7}$/.test(phone)) {
+            showToast('Phone number must be 8 digits and start with 8 or 9.', 'error');
             return false;
         }
     } else if (step === 3) {
@@ -109,10 +109,10 @@ function nextStep(step) {
         const label = document.getElementById('schoolProfessionLabel');
         const input = document.getElementById('schoolProfession');
         if (selectedRole === 'youth') {
-            label.innerHTML = '<i class="bi bi-mortarboard-fill"></i> School / University OR Profession';
+            label.innerHTML = '<i class="bi bi-mortarboard-fill"></i> School/University';
             input.placeholder = 'School / Profession';
         } else {
-            label.innerHTML = '<i class="bi bi-briefcase-fill"></i> Current or Former Profession';
+            label.innerHTML = '<i class="bi bi-briefcase-fill"></i> Profession';
             input.placeholder = 'Profession';
         }
     }

@@ -108,6 +108,13 @@ async function validateStep(step) {
             showToast('Please enter your email and password.', 'warning'); return false;
         }
 
+        // Email format validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            showToast('Please enter a valid email address.', 'error');
+            return false;
+        }
+
         // Password Complexity Check
         const strongRegex = /^(?=.*[A-Z])(?=.*[!@#$&*]).{8,}$/;
 
@@ -150,10 +157,10 @@ async function validateStep(step) {
             return false;
         }
 
-        // Phone Validation (8 digits, starts with 6 or 9)
-        const phoneRegex = /^[69]\d{7}$/;
+        // Phone Validation (8 digits, starts with 8 or 9)
+        const phoneRegex = /^[89]\d{7}$/;
         if (!phone || !phoneRegex.test(phone)) {
-            showToast('Phone number must be 8 digits and start with 6 or 9.', 'error'); return false;
+            showToast('Phone number must be 8 digits and start with 8 or 9.', 'error'); return false;
         }
 
         // Check phone uniqueness

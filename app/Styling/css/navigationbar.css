@@ -63,3 +63,18 @@
     box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3);
     color: white;
 }
+
+/* Center navigation items absolutely on desktop */
+@media (min-width: 992px) {
+    .navbar .container {
+        position: relative;
+    }
+
+    .navbar-nav {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        margin: 0 !important;
+        top: 0;
+    }
+}
