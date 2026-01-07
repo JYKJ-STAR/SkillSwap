@@ -1,9 +1,99 @@
 {% extends "shared/base.html" %}
-{% block title %}SkillSwap - Senior Events{% endblock %}
+{% import "shared/macros.html" as macros %}
+
+{% block title %}Events - SkillSwap{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/senior/events.css') }}">
+{% endblock %}
+
 {% block content %}
-<div class="container py-5">
-    <h1 class="mb-4">Community Events</h1>
-    <p class="lead">Discover events happening near you.</p>
-    <div class="alert alert-info">Events feature coming soon!</div>
+<div class="senior-events-page">
+    <!-- Back Button -->
+    <a href="{{ url_for('dashboard.dashboard') }}" class="back-button">
+        ← Back
+    </a>
+
+    <!-- Recommended Events for YOU Section -->
+    <section class="events-section">
+        <div class="section-header">
+            <h1 class="section-title">Recommended events for YOU</h1>
+        </div>
+
+        <div class="events-grid-senior">
+            {% if recommended_events %}
+            {% for event in recommended_events[:5] %}
+            <div class="senior-event-card">
+                <span class="event-category-label">{{ event.category or 'Category' }}</span>
+                <h3 class="senior-event-title">{{ event.title }}</h3>
+                <p class="senior-event-description">{{ event.description or 'Lorem ipsum dolor sit amet, consectetur' }}
+                </p>
+                <div class="senior-event-meta">
+                    <span>{{ event.time or 'Time' }}</span>
+                    <span class="meta-separator">|</span>
+                    <span>{{ event.location or 'Location' }}</span>
+                </div>
+                <a href="#" class="senior-view-details-btn">View Details</a>
+            </div>
+            {% endfor %}
+            {% else %}
+            {% for i in range(5) %}
+            <div class="senior-event-card">
+                <span class="event-category-label">Category</span>
+                <h3 class="senior-event-title">Event Name</h3>
+                <p class="senior-event-description">Lorem ipsum dolor sit amet, consectetur</p>
+                <div class="senior-event-meta">
+                    <span>Time</span>
+                    <span class="meta-separator">|</span>
+                    <span>Location</span>
+                </div>
+                <a href="#" class="senior-view-details-btn">View Details</a>
+            </div>
+            {% endfor %}
+            {% endif %}
+        </div>
+    </section>
+
+    <!-- Recommended Events Section -->
+    <section class="events-section">
+        <div class="section-header">
+            <h1 class="section-title">Recommended events</h1>
+        </div>
+
+        <div class="events-grid-senior">
+            {% if all_events %}
+            {% for event in all_events[:5] %}
+            <div class="senior-event-card">
+                <span class="event-category-label">{{ event.category or 'Category' }}</span>
+                <h3 class="senior-event-title">{{ event.title }}</h3>
+                <p class="senior-event-description">{{ event.description or 'Lorem ipsum dolor sit amet, consectetur' }}
+                </p>
+                <div class="senior-event-meta">
+                    <span>{{ event.time or 'Time' }}</span>
+                    <span class="meta-separator">|</span>
+                    <span>{{ event.location or 'Location' }}</span>
+                </div>
+                <a href="#" class="senior-view-details-btn">View Details</a>
+            </div>
+            {% endfor %}
+            {% else %}
+            {% for i in range(5) %}
+            <div class="senior-event-card">
+                <span class="event-category-label">Category</span>
+                <h3 class="senior-event-title">Event Name</h3>
+                <p class="senior-event-description">Lorem ipsum dolor sit amet, consectetur</p>
+                <div class="senior-event-meta">
+                    <span>Time</span>
+                    <span class="meta-separator">|</span>
+                    <span>Location</span>
+                </div>
+                <a href="#" class="senior-view-details-btn">View Details</a>
+            </div>
+            {% endfor %}
+            {% endif %}
+        </div>
+    </section>
 </div>
+
+<script src="{{ url_for('static', filename='js/senior_events.js') }}"></script>
 {% endblock %}
