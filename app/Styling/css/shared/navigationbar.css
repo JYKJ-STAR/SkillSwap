@@ -1,4 +1,6 @@
 /* Navigation */
+/* Note: global.css should be loaded before this file in HTML */
+
 .navbar {
     padding: 1.5rem 0;
     background: white;
@@ -6,46 +8,45 @@
 }
 
 .navbar-brand {
+    font-family: var(--font-display, 'Outfit', sans-serif);
     font-size: 1.5rem;
     font-weight: 700;
-    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    background: var(--primary-gradient, linear-gradient(135deg, #0d9488 0%, #14b8a6 50%, #2dd4bf 100%));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
 }
 
 .nav-link {
-    color: var(--text-dark);
+    color: var(--text-dark, #1f2937);
     font-weight: 500;
     margin: 0 0.5rem;
     transition: color 0.3s ease;
 }
 
 .nav-link:hover {
-    color: var(--primary-color);
+    color: var(--primary-teal, #0d9488);
 }
 
 .btn-login {
-    color: var(--primary-color);
-    border: 2px solid var(--primary-color);
+    color: var(--primary-teal, #0d9488);
+    border: 2px solid var(--primary-teal, #0d9488);
     padding: 0.5rem 1.5rem;
     border-radius: 50px;
     font-weight: 600;
     background: transparent;
     transition: all 0.3s ease;
     text-decoration: none;
-    /* Added for <a> tag support */
     display: inline-block;
-    /* Added for <a> tag support */
 }
 
 .btn-login:hover {
-    background: var(--primary-color);
+    background: var(--primary-teal, #0d9488);
     color: white;
 }
 
 .btn-signup {
-    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    background: var(--primary-gradient, linear-gradient(135deg, #0d9488 0%, #14b8a6 50%, #2dd4bf 100%));
     color: white;
     padding: 0.5rem 1.5rem;
     border-radius: 50px;
@@ -53,14 +54,12 @@
     border: none;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     text-decoration: none;
-    /* Added for <a> tag support */
     display: inline-block;
-    /* Added for <a> tag support */
 }
 
 .btn-signup:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3);
+    box-shadow: 0 8px 20px rgba(13, 148, 136, 0.3);
     color: white;
 }
 

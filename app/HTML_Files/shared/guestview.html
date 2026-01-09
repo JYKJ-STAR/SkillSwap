@@ -1,310 +1,209 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "shared/base.html" %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SkillShare - Bridging Generations Through Learning</title>
+{% block title %}SkillSwap - Bridging Generations Through Learning{% endblock %}
 
-    <!-- Bootstrap 5 CSS -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/shared/guestview.css') }}">
+{% endblock %}
 
-    <!-- Bootstrap Icons -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.1/font/bootstrap-icons.min.css"
-        rel="stylesheet">
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section" id="home">
+    <div class="container">
+        <h1>Welcome to SkillSwap</h1>
+        <p>Connect across generations, share knowledge, and build meaningful relationships through skill exchange
+            and collaborative learning experiences.</p>
+    </div>
+</section>
 
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
-        rel="stylesheet">
-
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/shared/guestview.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/shared/navigationbar.css') }}">
-</head>
-
-<body>
-    <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-light sticky-top">
-        <div class="container">
-            <a class="navbar-brand" href="#">SkillShare</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav mx-auto">
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for('home.login_page') }}">Home</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for('home.login_page') }}">Events</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for('home.login_page') }}">Schedule</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for('home.login_page') }}">Research</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for('home.login_page') }}">Support</a></li>
-                </ul>
-                <div class="d-flex ms-auto">
-                    <a href="{{ url_for('home.login_page') }}" class="btn btn-login me-2">Log In</a>
-                    <a href="{{ url_for('home.login_page') }}" class="btn btn-signup">Sign Up Now</a>
-                </div>
+<!-- Mission Section -->
+<section class="mission-section">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h2 class="section-title">Our Mission</h2>
+                <p class="text-muted">At SkillShare, we believe in the power of intergenerational learning. Our
+                    platform connects people of all ages to share their unique skills, experiences, and
+                    perspectives. Whether you're a retiree looking to mentor or a student eager to learn, SkillShare
+                    provides the space where knowledge flows freely and relationships flourish.</p>
+                <p class="text-muted">We're building a community where wisdom meets innovation, where traditional
+                    skills are preserved, and where everyone has something valuable to teach and learn.</p>
             </div>
-        </div>
-    </nav>
-
-    <!-- Hero Section -->
-    <section class="hero-section" id="home">
-        <div class="container">
-            <h1>Welcome to SkillShare</h1>
-            <p>Connect across generations, share knowledge, and build meaningful relationships through skill exchange
-                and collaborative learning experiences.</p>
-        </div>
-    </section>
-
-    <!-- Mission Section -->
-    <section class="mission-section">
-        <div class="container">
-            <div class="row align-items-center">
-                <div class="col-lg-6">
-                    <h2 class="section-title">Our Mission</h2>
-                    <p class="text-muted">At SkillShare, we believe in the power of intergenerational learning. Our
-                        platform connects people of all ages to share their unique skills, experiences, and
-                        perspectives. Whether you're a retiree looking to mentor or a student eager to learn, SkillShare
-                        provides the space where knowledge flows freely and relationships flourish.</p>
-                    <p class="text-muted">We're building a community where wisdom meets innovation, where traditional
-                        skills are preserved, and where everyone has something valuable to teach and learn.</p>
-                </div>
-                <div class="col-lg-6">
-                    <div class="row">
-                        <div class="col-6 mb-3">
-                            <div class="mission-image">
-                                <i class="bi bi-image"></i>
-                            </div>
+            <div class="col-lg-6">
+                <div class="row">
+                    <div class="col-6 mb-3">
+                        <div class="mission-image">
+                            <i class="bi bi-image"></i>
                         </div>
-                        <div class="col-6 mb-3">
-                            <div class="mission-image">
-                                <i class="bi bi-image"></i>
-                            </div>
+                    </div>
+                    <div class="col-6 mb-3">
+                        <div class="mission-image">
+                            <i class="bi bi-image"></i>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </section>
+    </div>
+</section>
 
-    <!-- Team Section -->
-    <section class="team-section">
-        <div class="container">
-            <div class="text-center mb-5">
-                <h2 class="section-title">Meet Our Team</h2>
-                <p class="section-subtitle">Dedicated individuals working together to bridge generations through
-                    learning</p>
-            </div>
-            <div class="row">
-                <div class="col-lg-3 col-md-6 mb-4">
-                    <div class="team-card">
-                        <div class="team-avatar">
-                            <i class="bi bi-person"></i>
-                        </div>
-                        <h4 class="team-name">Yang</h4>
-                        <p class="team-role">Profile Management</p>
-                        <div class="team-social">
-                            <a href="#"><i class="bi bi-linkedin"></i></a>
-                            <a href="#"><i class="bi bi-link-45deg"></i></a>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-6 mb-4">
-                    <div class="team-card">
-                        <div class="team-avatar">
-                            <i class="bi bi-person"></i>
-                        </div>
-                        <h4 class="team-name">Jayden Yip Kai Jun</h4>
-                        <p class="team-role">Dashboard Management</p>
-                        <div class="team-social">
-                            <a href="#"><i class="bi bi-linkedin"></i></a>
-                            <a href="#"><i class="bi bi-link-45deg"></i></a>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-6 mb-4">
-                    <div class="team-card">
-                        <div class="team-avatar">
-                            <i class="bi bi-person"></i>
-                        </div>
-                        <h4 class="team-name">Chan Caius</h4>
-                        <p class="team-role">Activities Management</p>
-                        <div class="team-social">
-                            <a href="#"><i class="bi bi-linkedin"></i></a>
-                            <a href="#"><i class="bi bi-link-45deg"></i></a>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-6 mb-4">
-                    <div class="team-card">
-                        <div class="team-avatar">
-                            <i class="bi bi-person"></i>
-                        </div>
-                        <h4 class="team-name">Dickson</h4>
-                        <p class="team-role">Customer Support Management</p>
-                        <div class="team-social">
-                            <a href="#"><i class="bi bi-linkedin"></i></a>
-                            <a href="#"><i class="bi bi-link-45deg"></i></a>
-                        </div>
-                    </div>
-                </div>
-            </div>
+<!-- Team Section -->
+<section class="team-section">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="section-title">Meet Our Team</h2>
+            <p class="section-subtitle">Dedicated individuals working together to bridge generations through
+                learning</p>
         </div>
-    </section>
-
-    <!-- Bridging Section -->
-    <section class="bridging-section">
-        <div class="container">
-            <div class="row align-items-center">
-                <div class="col-lg-6 mb-4 mb-lg-0">
-                    <h2 class="section-title">Bridging the Gap between Generations</h2>
-                    <p class="text-muted mb-4">In today's fast-paced world, the wisdom of experience and the energy of
-                        youth often exist in separate spheres. SkillShare breaks down these barriers by creating
-                        meaningful connections between generations. From traditional crafts to cutting-edge technology,
-                        from life lessons to career advice, our platform enables the exchange of knowledge that enriches
-                        both teachers and learners.</p>
-                    <div>
-                        <a href="{{ url_for('home.login_page') }}" class="btn btn-dark-custom">Join the Community</a>
-                        <a href="{{ url_for('home.login_page') }}" class="btn btn-dark-custom">Host an Event</a>
+        <div class="row">
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="team-card">
+                    <div class="team-avatar">
+                        <i class="bi bi-person"></i>
                     </div>
-                </div>
-                <div class="col-lg-6">
-                    <div class="bridging-image">
-                        <i class="bi bi-people"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Events Section -->
-    <section class="events-section" id="events">
-        <div class="container">
-            <div class="text-center mb-5">
-                <h2 class="section-title">Our Upcoming Events</h2>
-                <p class="section-subtitle">Join us for exciting learning opportunities and community gatherings</p>
-            </div>
-            <div class="row">
-                <div class="col-lg-3 col-md-6">
-                    <div class="event-card">
-                        <h4>Digital Photography Workshop</h4>
-                        <p class="event-detail"><i class="bi bi-calendar-event"></i> Jan 15, 2025 - 2:00 PM</p>
-                        <p class="event-detail"><i class="bi bi-geo-alt"></i> Community Center Hall A</p>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-6">
-                    <div class="event-card">
-                        <h4>Traditional Cooking Class</h4>
-                        <p class="event-detail"><i class="bi bi-calendar-event"></i> Jan 18, 2025 - 10:00 AM</p>
-                        <p class="event-detail"><i class="bi bi-geo-alt"></i> Culinary Studio B</p>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-6">
-                    <div class="event-card">
-                        <h4>Coding for Beginners</h4>
-                        <p class="event-detail"><i class="bi bi-calendar-event"></i> Jan 20, 2025 - 3:00 PM</p>
-                        <p class="event-detail"><i class="bi bi-geo-alt"></i> Tech Lab Room 301</p>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-6">
-                    <div class="event-card">
-                        <h4>Gardening Basics</h4>
-                        <p class="event-detail"><i class="bi bi-calendar-event"></i> Jan 22, 2025 - 9:00 AM</p>
-                        <p class="event-detail"><i class="bi bi-geo-alt"></i> Community Garden</p>
-                    </div>
-                </div>
-            </div>
-            <div class="row mt-3">
-                <div class="col-lg-3 col-md-6">
-                    <div class="event-card">
-                        <h4>Language Exchange Meetup</h4>
-                        <p class="event-detail"><i class="bi bi-calendar-event"></i> Jan 25, 2025 - 6:00 PM</p>
-                        <p class="event-detail"><i class="bi bi-geo-alt"></i> Library Meeting Room</p>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-6">
-                    <div class="event-card">
-                        <h4>Art & Craft Session</h4>
-                        <p class="event-detail"><i class="bi bi-calendar-event"></i> Jan 27, 2025 - 1:00 PM</p>
-                        <p class="event-detail"><i class="bi bi-geo-alt"></i> Arts Center Studio 2</p>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-6">
-                    <div class="event-card">
-                        <h4>Financial Planning 101</h4>
-                        <p class="event-detail"><i class="bi bi-calendar-event"></i> Jan 29, 2025 - 4:00 PM</p>
-                        <p class="event-detail"><i class="bi bi-geo-alt"></i> Conference Room C</p>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-6">
-                    <div class="event-card">
-                        <h4>Music Appreciation Night</h4>
-                        <p class="event-detail"><i class="bi bi-calendar-event"></i> Feb 1, 2025 - 7:00 PM</p>
-                        <p class="event-detail"><i class="bi bi-geo-alt"></i> Auditorium Main Hall</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer>
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-4 mb-4">
-                    <h4 class="footer-title">Services We Provide</h4>
-                    <ul class="footer-links">
-                        <li><a href="#">Skill Exchange Programs</a></li>
-                        <li><a href="#">Mentorship Opportunities</a></li>
-                        <li><a href="#">Community Events</a></li>
-                        <li><a href="#">Educational Workshops</a></li>
-                    </ul>
-                    <div class="footer-social mt-4">
-                        <a href="#"><i class="bi bi-facebook"></i></a>
-                        <a href="#"><i class="bi bi-twitter"></i></a>
+                    <h4 class="team-name">Yang</h4>
+                    <p class="team-role">Profile Management</p>
+                    <div class="team-social">
                         <a href="#"><i class="bi bi-linkedin"></i></a>
-                        <a href="#"><i class="bi bi-instagram"></i></a>
-                        <a href="#"><i class="bi bi-youtube"></i></a>
+                        <a href="#"><i class="bi bi-link-45deg"></i></a>
                     </div>
                 </div>
-                <div class="col-lg-2 col-md-4 mb-4">
-                    <h4 class="footer-title">Categories</h4>
-                    <ul class="footer-links">
-                        <li><a href="#">Technology</a></li>
-                        <li><a href="#">Arts & Crafts</a></li>
-                        <li><a href="#">Cooking</a></li>
-                        <li><a href="#">Languages</a></li>
-                    </ul>
-                </div>
-                <div class="col-lg-2 col-md-4 mb-4">
-                    <h4 class="footer-title">Resources</h4>
-                    <ul class="footer-links">
-                        <li><a href="#">Getting Started</a></li>
-                        <li><a href="#">Help Center</a></li>
-                        <li><a href="#">Blog</a></li>
-                        <li><a href="#">Videos</a></li>
-                    </ul>
-                </div>
-                <div class="col-lg-2 col-md-4 mb-4">
-                    <h4 class="footer-title">Support</h4>
-                    <ul class="footer-links">
-                        <li><a href="#">Contact Us</a></li>
-                        <li><a href="#">FAQs</a></li>
-                        <li><a href="#">Community Guidelines</a></li>
-                        <li><a href="#">Safety Tips</a></li>
-                    </ul>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="team-card">
+                    <div class="team-avatar">
+                        <i class="bi bi-person"></i>
+                    </div>
+                    <h4 class="team-name">Jayden Yip Kai Jun</h4>
+                    <p class="team-role">Dashboard Management</p>
+                    <div class="team-social">
+                        <a href="#"><i class="bi bi-linkedin"></i></a>
+                        <a href="#"><i class="bi bi-link-45deg"></i></a>
+                    </div>
                 </div>
             </div>
-            <div class="footer-bottom">
-                <p>© 2025 SkillShare. All Rights Reserved. |
-                    <a href="#">Privacy Policy</a> |
-                    <a href="#">Terms of Service</a>
-                </p>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="team-card">
+                    <div class="team-avatar">
+                        <i class="bi bi-person"></i>
+                    </div>
+                    <h4 class="team-name">Chan Caius</h4>
+                    <p class="team-role">Activities Management</p>
+                    <div class="team-social">
+                        <a href="#"><i class="bi bi-linkedin"></i></a>
+                        <a href="#"><i class="bi bi-link-45deg"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="team-card">
+                    <div class="team-avatar">
+                        <i class="bi bi-person"></i>
+                    </div>
+                    <h4 class="team-name">Dickson</h4>
+                    <p class="team-role">Customer Support Management</p>
+                    <div class="team-social">
+                        <a href="#"><i class="bi bi-linkedin"></i></a>
+                        <a href="#"><i class="bi bi-link-45deg"></i></a>
+                    </div>
+                </div>
             </div>
         </div>
-    </footer>
+    </div>
+</section>
 
-    <!-- Bootstrap 5 JS Bundle -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
-</body>
+<!-- Bridging Section -->
+<section class="bridging-section">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6 mb-4 mb-lg-0">
+                <h2 class="section-title">Bridging the Gap between Generations</h2>
+                <p class="text-muted mb-4">In today's fast-paced world, the wisdom of experience and the energy of
+                    youth often exist in separate spheres. SkillShare breaks down these barriers by creating
+                    meaningful connections between generations. From traditional crafts to cutting-edge technology,
+                    from life lessons to career advice, our platform enables the exchange of knowledge that enriches
+                    both teachers and learners.</p>
+                <div>
+                    <a href="{{ url_for('home.login_page') }}" class="btn btn-dark-custom">Join the Community</a>
+                    <a href="{{ url_for('home.login_page') }}" class="btn btn-dark-custom">Host an Event</a>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="bridging-image">
+                    <i class="bi bi-people"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 
-</html>
+<!-- Events Section -->
+<section class="events-section" id="events">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="section-title">Our Upcoming Events</h2>
+            <p class="section-subtitle">Join us for exciting learning opportunities and community gatherings</p>
+        </div>
+        <div class="row">
+            <div class="col-lg-3 col-md-6">
+                <div class="event-card">
+                    <h4>Digital Photography Workshop</h4>
+                    <p class="event-detail"><i class="bi bi-calendar-event"></i> Jan 15, 2025 - 2:00 PM</p>
+                    <p class="event-detail"><i class="bi bi-geo-alt"></i> Community Center Hall A</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="event-card">
+                    <h4>Traditional Cooking Class</h4>
+                    <p class="event-detail"><i class="bi bi-calendar-event"></i> Jan 18, 2025 - 10:00 AM</p>
+                    <p class="event-detail"><i class="bi bi-geo-alt"></i> Culinary Studio B</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="event-card">
+                    <h4>Coding for Beginners</h4>
+                    <p class="event-detail"><i class="bi bi-calendar-event"></i> Jan 20, 2025 - 3:00 PM</p>
+                    <p class="event-detail"><i class="bi bi-geo-alt"></i> Tech Lab Room 301</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="event-card">
+                    <h4>Gardening Basics</h4>
+                    <p class="event-detail"><i class="bi bi-calendar-event"></i> Jan 22, 2025 - 9:00 AM</p>
+                    <p class="event-detail"><i class="bi bi-geo-alt"></i> Community Garden</p>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div class="col-lg-3 col-md-6">
+                <div class="event-card">
+                    <h4>Language Exchange Meetup</h4>
+                    <p class="event-detail"><i class="bi bi-calendar-event"></i> Jan 25, 2025 - 6:00 PM</p>
+                    <p class="event-detail"><i class="bi bi-geo-alt"></i> Library Meeting Room</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="event-card">
+                    <h4>Art & Craft Session</h4>
+                    <p class="event-detail"><i class="bi bi-calendar-event"></i> Jan 27, 2025 - 1:00 PM</p>
+                    <p class="event-detail"><i class="bi bi-geo-alt"></i> Arts Center Studio 2</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="event-card">
+                    <h4>Financial Planning 101</h4>
+                    <p class="event-detail"><i class="bi bi-calendar-event"></i> Jan 29, 2025 - 4:00 PM</p>
+                    <p class="event-detail"><i class="bi bi-geo-alt"></i> Conference Room C</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="event-card">
+                    <h4>Music Appreciation Night</h4>
+                    <p class="event-detail"><i class="bi bi-calendar-event"></i> Feb 1, 2025 - 7:00 PM</p>
+                    <p class="event-detail"><i class="bi bi-geo-alt"></i> Auditorium Main Hall</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
