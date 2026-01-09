@@ -38,6 +38,7 @@ def create_app():
     
     app.register_blueprint(home_bp)
     app.register_blueprint(dashboard_bp)
+
     app.register_blueprint(admin_bp)
     app.register_blueprint(support_bp)
     app.register_blueprint(events_bp)
