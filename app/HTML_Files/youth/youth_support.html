@@ -1,0 +1,288 @@
+{% extends "shared/base.html" %}
+
+{% block title %}SkillSwap - Support Center{% endblock %}
+
+{% block styles %}
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/youth/supportcentre.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="main-container container-fluid py-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-lg-3 mb-4">
+            <aside class="sidebar p-4 bg-white rounded shadow-sm">
+                <a href="{{ url_for('dashboard.dashboard') }}"
+                    class="back-link d-flex align-items-center mb-4 text-decoration-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        class="me-2">
+                        <line x1="19" y1="12" x2="5" y2="12" />
+                        <polyline points="12 19 5 12 12 5" />
+                    </svg>
+                    Back to Dashboard
+                </a>
+                <h1 class="sidebar-title h4 fw-bold mb-2">Support Center</h1>
+                <p class="sidebar-subtitle text-muted mb-4">How can we be of assistance</p>
+                <nav class="sidebar-nav nav flex-column nav-pills">
+                    <a href="#" class="nav-link active mb-2" data-page="get-help-page">Get Help</a>
+                    <a href="#" class="nav-link mb-2" data-page="safety-center-page">Safety Center</a>
+                    <a href="#" class="nav-link mb-2" data-page="my-tickets-page">My Tickets</a>
+                    <a href="#" class="nav-link mb-2" data-page="live-chats-page">Live Chats</a>
+                </nav>
+            </aside>
+        </div>
+
+        <!-- Main Content (preserved from original) -->
+        <div class="col-lg-9">
+            <main class="content bg-white p-4 rounded shadow-sm">
+                <!-- Get Help Page -->
+                <div id="get-help-page" class="page active">
+                    <h2 class="content-title h4 fw-bold mb-4">Frequently Answered Questions</h2>
+
+                    <div class="accordion mb-5" id="faqAccordion">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#faq1">
+                                    How do I verify my account
+                                </button>
+                            </h2>
+                            <div id="faq1" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    Lorem ipsum dolor sit amet, consetetur sadipscing elitr.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#faq2">
+                                    How do I earn points
+                                </button>
+                            </h2>
+                            <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    Lorem ipsum dolor sit amet, consetetur sadipscing elitr.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#faq3">
+                                    Is my personal data safe
+                                </button>
+                            </h2>
+                            <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    Lorem ipsum dolor sit amet, consetetur sadipscing elitr.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3 class="help-section-title h5 fw-bold mb-3">Still need Help?</h3>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="card h-100 border-0 bg-light p-3">
+                                <div class="d-flex align-items-center mb-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="1.5" class="me-2 text-primary">
+                                        <path
+                                            d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                                        <polyline points="22,6 12,13 2,6" />
+                                    </svg>
+                                    <h5 class="mb-0">Email Support</h5>
+                                </div>
+                                <p class="text-muted small mb-0">Response within 24h</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card h-100 border-0 bg-light p-3">
+                                <div class="d-flex align-items-center mb-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="1.5" class="me-2 text-primary">
+                                        <path
+                                            d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+                                    </svg>
+                                    <h5 class="mb-0">Call Us</h5>
+                                </div>
+                                <p class="text-muted small mb-0">Mon - Fri, 9am - 6pm, 6273 8328</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Safety Center Page -->
+                <div id="safety-center-page" class="page d-none">
+                    <h2 class="content-title h4 fw-bold mb-2">Safety Reporting Center</h2>
+                    <p class="text-muted mb-4">We take safety seriously</p>
+                    <div class="divider mb-4 border-bottom"></div>
+
+                    <div class="report-form">
+                        <div class="mb-3">
+                            <label class="form-label">Who is involved</label>
+                            <input type="text" class="form-control" placeholder="Enter name or leave blank if unknown">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Issue Type</label>
+                            <select class="form-select">
+                                <option value="inappropriate">Inappropriate Behavior</option>
+                                <option value="harassment">Harassment</option>
+                                <option value="spam">Spam</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Event Name</label>
+                            <select class="form-select">
+                                <option value="" disabled selected>Event Name</option>
+                                <option value="event1">Workshop: Web Development</option>
+                                <option value="event2">Seminar: AI Basics</option>
+                                <option value="event3">Meetup: Networking</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Description of Incident</label>
+                            <textarea class="form-control" placeholder="Description" rows="4"></textarea>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label">Upload Screenshot</label>
+                            <input type="file" class="form-control" accept="image/*">
+                        </div>
+
+                        <button class="btn btn-primary">Submit Report</button>
+                    </div>
+                </div>
+
+                <!-- My Tickets Page -->
+                <div id="my-tickets-page" class="page d-none">
+                    <div class="tickets-layout row">
+                        <div class="col-md-5 tickets-list-section border-end">
+                            <h2 class="content-title h4 fw-bold mb-2">My Tickets</h2>
+                            <p class="text-muted mb-3">View all tickets submitted here</p>
+
+                            <div class="list-group tickets-list">
+                                <a href="#" class="list-group-item list-group-item-action active" data-ticket="1">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">Inappropriate Behavior</h6>
+                                        <small class="text-warning">In Progress</small>
+                                    </div>
+                                    <p class="mb-1 small text-truncate">Lorem ipsum dolor sit amet, consetetur
+                                        sadipscing...</p>
+                                    <small>ID: T-001 | 10-08-2025</small>
+                                </a>
+                                <a href="#" class="list-group-item list-group-item-action" data-ticket="2">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">Inappropriate Behavior</h6>
+                                        <small class="text-warning">In Progress</small>
+                                    </div>
+                                    <p class="mb-1 small text-truncate">Lorem ipsum dolor sit amet...</p>
+                                    <small>ID: T-002 | 10-08-2025</small>
+                                </a>
+                                <a href="#" class="list-group-item list-group-item-action" data-ticket="3">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">Inappropriate Behavior</h6>
+                                        <small class="text-success">Resolved</small>
+                                    </div>
+                                    <p class="mb-1 small text-truncate">Lorem ipsum dolor sit amet...</p>
+                                    <small>ID: T-003 | 10-08-2025</small>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="col-md-7 ticket-detail-panel p-4">
+                            <h3 class="detail-id h5 fw-bold mb-3">ID: T-001</h3>
+                            <div class="bg-light p-3 rounded mb-3">
+                                <p class="mb-0">Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy
+                                    eirmod tempor invidunt ut labore et dolore magna aliquyam erat.</p>
+                            </div>
+                            <h4 class="h6 fw-bold mt-4 mb-2">Agent Reply</h4>
+                            <div class="bg-white border p-3 rounded">
+                                <p class="mb-0">Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy
+                                    eirmod tempor invidunt ut labore et dolore magna aliquyam erat.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Live Chats Page -->
+                <div id="live-chats-page" class="page d-none">
+                    <h2 class="content-title h4 fw-bold mb-2">Live Chats</h2>
+                    <p class="text-muted mb-3">Chat with support</p>
+                    <div class="border-bottom mb-3"></div>
+
+                    <div class="chat-container border rounded h-100 d-flex flex-column" style="min-height: 400px;">
+                        <div
+                            class="chat-header p-3 border-bottom d-flex justify-content-between align-items-center bg-light">
+                            <div class="d-flex align-items-center">
+                                <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center me-2"
+                                    style="width: 40px; height: 40px;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                                        <circle cx="12" cy="7" r="4" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h6 class="mb-0">John Doe</h6>
+                                    <small class="text-muted">Support Agent</small>
+                                </div>
+                            </div>
+                            <button class="btn btn-sm btn-outline-danger">End Chat</button>
+                        </div>
+
+                        <div class="chat-body p-3 flex-grow-1 overflow-auto bg-white">
+                            <div class="d-flex flex-row mb-3">
+                                <div class="p-3 bg-light rounded text-dark" style="max-width: 75%;">
+                                    <p class="mb-0">Hello, how can I help you today?</p>
+                                </div>
+                            </div>
+                            <div class="d-flex flex-row-reverse mb-3">
+                                <div class="p-3 bg-primary text-white rounded" style="max-width: 75%;">
+                                    <p class="mb-0">I have a question about my rewards.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="chat-input-area p-3 border-top bg-light">
+                            <div class="input-group">
+                                <input type="text" class="form-control" placeholder="Type your message">
+                                <button class="btn btn-primary">Send</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Simple Tab Switching Logic compatible with Bootstrap
+    document.querySelectorAll('[data-page]').forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            // Remove active classes
+            document.querySelectorAll('[data-page]').forEach(l => l.classList.remove('active'));
+            document.querySelectorAll('.page').forEach(p => p.classList.add('d-none'));
+
+            // Add active class
+            link.classList.add('active');
+            const targetId = link.getAttribute('data-page');
+            const targetPage = document.getElementById(targetId);
+            if (targetPage) {
+                targetPage.classList.remove('d-none');
+                targetPage.classList.add('active');
+            }
+        });
+    });
+</script>
+{% endblock %}

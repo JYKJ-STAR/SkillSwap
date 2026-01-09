@@ -1,0 +1,61 @@
+{% extends "shared/base.html" %}
+{% import "shared/macros.html" as macros %}
+
+{% block title %}Senior Dashboard - SkillSwap{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/senior/dashboard.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="senior-dashboard">
+    <!-- Welcome Section -->
+    <div class="welcome-section">
+        <div class="profile-circle">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                <path
+                    d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+            </svg>
+        </div>
+        <h1 class="welcome-text">Welcome {{ user.name }}</h1>
+    </div>
+
+    <!-- Dashboard Content -->
+    <div class="dashboard-content">
+        <!-- Upcoming Activity -->
+        <div class="upcoming-activity-card">
+            <h2 class="upcoming-activity-title">Your Upcoming Activity</h2>
+
+            {% if upcoming_events and upcoming_events|length > 0 %}
+            <div class="activity-details">
+                <h3 class="activity-event-name">{{ upcoming_events[0].title }}</h3>
+                <div class="activity-meta">
+                    <div>{{ upcoming_events[0].date }}</div>
+                    <div>{{ upcoming_events[0].time }}</div>
+                    <div>{{ upcoming_events[0].location }}</div>
+                </div>
+            </div>
+            {% else %}
+            <div class="activity-details">
+                <h3 class="activity-event-name">No Upcoming Events</h3>
+                <div class="activity-meta">
+                    <div>Check "View Events" to sign up for activities</div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons-grid">
+            <a href="{{ url_for('events.events') }}" class="action-btn">View Events</a>
+            <a href="{{ url_for('support.support') }}" class="action-btn">Get Help</a>
+            <a href="{{ url_for('dashboard.activities') }}" class="action-btn">View Schedule</a>
+            <a href="{{ url_for('rewards.rewards') }}" class="action-btn">View Rewards</a>
+            <a href="#" class="action-btn">View Profile</a>
+            <a href="{{ url_for('home.logout') }}" class="action-btn">Log Out</a>
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/senior_dashboard.js') }}"></script>
+{% endblock %}

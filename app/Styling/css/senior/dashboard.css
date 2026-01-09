@@ -1,0 +1,172 @@
+/* Senior Dashboard Styles */
+/* ========================================= */
+/* Designed for accessibility with larger fonts and simplified interface */
+
+:root {
+    --radius-sm: 6px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --spacing-sm: 0.75rem;
+    --spacing-md: 1rem;
+    --spacing-lg: 1.5rem;
+    --spacing-xl: 2rem;
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --gray-section: #939393;
+    --text-secondary: #666666;
+    --font-display: 'Inter', sans-serif;
+}
+
+/* Main Container */
+.senior-dashboard {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: var(--spacing-xl);
+}
+
+/* Welcome Section */
+.welcome-section {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xl);
+    margin-bottom: var(--spacing-xl);
+}
+
+.profile-circle {
+    width: 120px;
+    height: 120px;
+    background: #4A4A4A;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.profile-circle svg {
+    width: 70px;
+    height: 70px;
+    fill: white;
+}
+
+.welcome-text {
+    font-family: var(--font-display);
+    font-size: 3.5rem;
+    font-weight: 700;
+    color: black;
+}
+
+/* Dashboard Content */
+.dashboard-content {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: var(--spacing-xl);
+    align-items: start;
+}
+
+/* Upcoming Activity Card */
+.upcoming-activity-card {
+    background: var(--gray-section);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    height: fit-content;
+}
+
+.upcoming-activity-title {
+    font-family: var(--font-display);
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: black;
+    margin-bottom: var(--spacing-md);
+}
+
+.activity-details {
+    background: white;
+    border-radius: var(--radius-md);
+    padding: var(--spacing-md);
+}
+
+.activity-event-name {
+    font-weight: 700;
+    font-size: 1.2rem;
+    color: black;
+    margin-bottom: var(--spacing-sm);
+}
+
+.activity-meta {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    line-height: 1.8;
+}
+
+/* Action Buttons Grid */
+.action-buttons-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-md);
+}
+
+.action-btn {
+    background: var(--gray-section);
+    color: black;
+    border: none;
+    border-radius: 50px;
+    padding: 1.25rem 2rem;
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow-sm);
+}
+
+.action-btn:hover {
+    background: #808080;
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+    color: white;
+}
+
+.action-btn:active {
+    transform: translateY(0);
+}
+
+/* Responsive Design */
+@media (max-width: 992px) {
+    .dashboard-content {
+        grid-template-columns: 1fr;
+    }
+
+    .action-buttons-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .welcome-text {
+        font-size: 2.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .welcome-section {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .welcome-text {
+        font-size: 2rem;
+    }
+
+    .action-buttons-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .action-btn {
+        padding: 1rem 1.5rem;
+        font-size: 1.1rem;
+    }
+}

@@ -1,0 +1,151 @@
+{% extends "shared/base.html" %}
+{% import "shared/macros.html" as macros %}
+
+{% block title %}Events - SkillSwap{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/youth/events.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Back Button -->
+    <a href="{{ url_for('dashboard.dashboard') }}" class="back-button">
+        ← Back
+    </a>
+
+    <!-- Events Page Layout -->
+    <div class="events-page">
+        <!-- Sidebar Filters -->
+        <aside class="filters-sidebar">
+            <h2 class="filters-title">Filters</h2>
+            <p class="filters-subtitle">Earn more points as Mentors and Buddies</p>
+
+            <!-- Category Filter -->
+            <div class="filter-section">
+                <h3 class="filter-section-title">Category</h3>
+                <div class="filter-buttons">
+                    <button class="filter-btn active" data-category="all" onclick="filterByCategory('all')">All
+                        Activities</button>
+                    <button class="filter-btn" data-category="technical"
+                        onclick="filterByCategory('technical')">Technical Support</button>
+                    <button class="filter-btn" data-category="lifestyle"
+                        onclick="filterByCategory('lifestyle')">Lifestyle</button>
+                    <button class="filter-btn" data-category="health" onclick="filterByCategory('health')">Health &
+                        Wellness</button>
+                    <button class="filter-btn" data-category="social" onclick="filterByCategory('social')">Social
+                        Activities</button>
+                </div>
+            </div>
+
+            <!-- Location Filter -->
+            <div class="filter-section">
+                <h3 class="filter-section-title">Location</h3>
+                <select class="location-dropdown" onchange="filterByLocation(this.value)">
+                    <option value="all">All</option>
+                    <option value="yishun">Yishun</option>
+                    <option value="punggol">Punggol</option>
+                    <option value="tampines">Tampines</option>
+                    <option value="amk">Ang Mo Kio</option>
+                    <option value="bedok">Bedok</option>
+                </select>
+            </div>
+
+            <!-- Reset Button -->
+            <button class="reset-filter-btn" onclick="resetFilters()">Reset Filter</button>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="events-content">
+            <!-- Header -->
+            <div class="content-header">
+                <h1 class="page-title">Recommended Events for YOU</h1>
+            </div>
+
+            <!-- Recommended Events for YOU Section -->
+            <section class="events-section">
+                <h2 class="section-title">Recommended Events for YOU</h2>
+                <div class="events-row">
+                    {% if recommended_events %}
+                    {% for event in recommended_events %}
+                    <div class="event-card-compact">
+                        <span class="event-category-badge">{{ event.category or 'Category' }}</span>
+                        <h3 class="event-card-title">{{ event.title }}</h3>
+                        <p class="event-card-description">{{ event.description or 'Lorem ipsum dolor sit amet,
+                            consectetur' }}</p>
+                        <div class="event-card-meta">
+                            <div class="event-card-meta-item">
+                                <span>{{ event.time or 'Time' }}</span>
+                                <span>|</span>
+                                <span>{{ event.location or 'Location' }}</span>
+                            </div>
+                        </div>
+                        <a href="#" class="event-card-btn">View Details</a>
+                    </div>
+                    {% endfor %}
+                    {% else %}
+                    {% for i in range(5) %}
+                    <div class="event-card-compact">
+                        <span class="event-category-badge">Category</span>
+                        <h3 class="event-card-title">Event Name</h3>
+                        <p class="event-card-description">Lorem ipsum dolor sit amet, consectetur</p>
+                        <div class="event-card-meta">
+                            <div class="event-card-meta-item">
+                                <span>Time</span>
+                                <span>|</span>
+                                <span>Location</span>
+                            </div>
+                        </div>
+                        <a href="#" class="event-card-btn">View Details</a>
+                    </div>
+                    {% endfor %}
+                    {% endif %}
+                </div>
+            </section>
+
+            <!-- Recommended Events to Relax Section -->
+            <section class="events-section">
+                <h2 class="section-title">Recommended Events to Relax</h2>
+                <div class="events-row">
+                    {% if relax_events %}
+                    {% for event in relax_events %}
+                    <div class="event-card-compact">
+                        <span class="event-category-badge">{{ event.category or 'Category' }}</span>
+                        <h3 class="event-card-title">{{ event.title }}</h3>
+                        <p class="event-card-description">{{ event.description or 'Lorem ipsum dolor sit amet,
+                            consectetur' }}</p>
+                        <div class="event-card-meta">
+                            <div class="event-card-meta-item">
+                                <span>{{ event.time or 'Time' }}</span>
+                                <span>|</span>
+                                <span>{{ event.location or 'Location' }}</span>
+                            </div>
+                        </div>
+                        <a href="#" class="event-card-btn">View Details</a>
+                    </div>
+                    {% endfor %}
+                    {% else %}
+                    {% for i in range(5) %}
+                    <div class="event-card-compact">
+                        <span class="event-category-badge">Category</span>
+                        <h3 class="event-card-title">Event Name</h3>
+                        <p class="event-card-description">Lorem ipsum dolor sit amet, consectetur</p>
+                        <div class="event-card-meta">
+                            <div class="event-card-meta-item">
+                                <span>Time</span>
+                                <span>|</span>
+                                <span>Location</span>
+                            </div>
+                        </div>
+                        <a href="#" class="event-card-btn">View Details</a>
+                    </div>
+                    {% endfor %}
+                    {% endif %}
+                </div>
+            </section>
+        </main>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/youth_events.js') }}"></script>
+{% endblock %}

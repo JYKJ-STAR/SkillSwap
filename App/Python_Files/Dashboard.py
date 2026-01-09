@@ -41,10 +41,17 @@ def dashboard():
     if role == 'admin':
         return redirect(url_for('admin.admin_dashboard'))
     elif role == 'senior':
-        return render_template('Senior_dashboard.html', user=user_data, upcoming_events=upcoming_events)
+        return render_template('senior/senior_dashboard.html', user=user_data, upcoming_events=upcoming_events)
     elif role == 'youth':
-        return render_template('Youth_dashboard.html', user=user_data, upcoming_events=upcoming_events)
+        return render_template('youth/youth_dashboard.html', user=user_data, upcoming_events=upcoming_events)
     else:
         # Fallback
-        return render_template('Senior_dashboard.html', user=user_data, upcoming_events=upcoming_events)
+        return render_template('senior/senior_dashboard.html', user=user_data, upcoming_events=upcoming_events)
+
+@dashboard_bp.route('/activities')
+def activities():
+    if 'user_id' not in session:
+         return redirect(url_for('home.login_page'))
+    # Only youth has this for now?
+    return render_template('youth/youth_activities.html')
 

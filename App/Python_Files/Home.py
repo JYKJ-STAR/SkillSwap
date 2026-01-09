@@ -10,17 +10,17 @@ def home():
     """Homepage - guest view. Redirect to dashboard if logged in."""
     if 'user_id' in session:
         return redirect(url_for('dashboard.dashboard'))
-    return render_template("guestview.html")
+    return render_template("shared/guestview.html")
 
 @home_bp.route("/login")
 def login_page():
     """Display authentication page with login tab active."""
-    return render_template("auth.html", active_tab='login')
+    return render_template("shared/auth.html", active_tab='login')
 
 @home_bp.route("/signup")
 def signup_page():
     """Display authentication page with signup tab active."""
-    return render_template("auth.html", active_tab='signup')
+    return render_template("shared/auth.html", active_tab='signup')
 
 # =====================================================
 # AUTHENTICATION (Login/Register/Logout for ALL users)
@@ -202,7 +202,7 @@ def mock_login(role):
 def google_login():
     """Initiate Google OAuth flow."""
     redirect_uri = url_for('home.google_callback', _external=True)
-    return oauth.google.authorize_redirect(redirect_uri)
+    return oauth.google.authorize_redirect(redirect_uri, prompt='select_account')
 
 @home_bp.route('/google/callback')
 def google_callback():
@@ -249,7 +249,7 @@ def google_signup():
     first_name = parts[0]
     last_name = parts[1] if len(parts) > 1 else ''
 
-    return render_template('google_signup.html', 
+    return render_template('shared/google_signup.html', 
                           google_name=full_name,
                           google_first_name=first_name,
                           google_last_name=last_name)

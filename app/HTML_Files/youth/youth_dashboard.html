@@ -1,0 +1,79 @@
+{% extends "shared/base.html" %}
+{% import "shared/macros.html" as macros %}
+
+{% block title %}Youth Dashboard - SkillSwap{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/youth/dashboard.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Welcome Hero Section -->
+    <section class="welcome-hero">
+        <div class="welcome-content">
+            <h1 class="welcome-title">Welcome back, {{ user.name }}!</h1>
+            <p class="welcome-subtitle">
+                You have <strong>{{ user.points }}</strong> points in awaiting redemption. Keep up the great work!
+            </p>
+            <div class="welcome-actions">
+                <a href="{{ url_for('dashboard.activities') }}" class="btn">View Progress</a>
+                <a href="{{ url_for('events.events') }}" class="btn">Find Events</a>
+            </div>
+        </div>
+
+        <div class="welcome-avatar">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                <path
+                    d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+            </svg>
+        </div>
+    </section>
+
+    <!-- Dashboard Grid -->
+    <div class="dashboard-grid">
+        <div class="section-card">
+            <h2 class="section-title">Settings</h2>
+            <p class="section-subtitle">Update your profile</p>
+            <a href="#" class="btn">View Profile</a>
+        </div>
+
+        <div class="section-card">
+            <h2 class="section-title">Learn or teach new skill</h2>
+            <p class="section-subtitle">Discover activities and opportunities</p>
+            <a href="{{ url_for('dashboard.activities') }}" class="btn">Find Activities</a>
+        </div>
+    </div>
+
+    <!-- Upcoming Activities Section -->
+    <section class="activities-section">
+        <div class="activities-header">
+            <h2 class="activities-title">Your Upcoming Activities</h2>
+            <a href="{{ url_for('dashboard.activities') }}" class="view-all-link">
+                View All Upcoming Events
+            </a>
+        </div>
+
+        <div class="events-scroll">
+            {% if upcoming_events %}
+            {% for event in upcoming_events %}
+            <div class="event-card">
+                <h3 class="event-title">{{ event.title }}</h3>
+                <p class="event-detail-item">{{ event.date }}</p>
+                <p class="event-detail-item">{{ event.location }}</p>
+            </div>
+            {% endfor %}
+            {% else %}
+            <div class="empty-state">
+                <div class="empty-state-icon">📅</div>
+                <h3 class="empty-state-title">No upcoming activities</h3>
+                <p class="empty-state-text">Browse available events and sign up to get started!</p>
+                <a href="{{ url_for('events.events') }}" class="btn btn-primary">Find Events</a>
+            </div>
+            {% endif %}
+        </div>
+    </section>
+</div>
+
+<script src="{{ url_for('static', filename='js/youth_dashboard.js') }}"></script>
+{% endblock %}

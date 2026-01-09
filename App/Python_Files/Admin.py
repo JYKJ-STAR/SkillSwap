@@ -49,7 +49,7 @@ def admin_dashboard():
     
     conn.close()
     
-    return render_template('Admin_dashboard.html', 
+    return render_template('admin/admin_dashboard.html', 
                            user_name=session.get('user_name'),
                            pending_users=pending_users,
                            all_users=all_users,
