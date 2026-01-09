@@ -7,10 +7,44 @@ home_bp = Blueprint("home", __name__)
 
 @home_bp.route("/")
 def home():
-    """Homepage - guest view. Redirect to dashboard if logged in."""
+    """Homepage - guest view. Redirect to dashboard if logged in.
+       Display upcoming events for guests."""
     if 'user_id' in session:
         return redirect(url_for('dashboard.dashboard'))
-    return render_template("shared/guestview.html")
+    
+    # Fetch upcoming events for guest view
+    conn = get_db_connection()
+    events = conn.execute('''
+        SELECT title, start_datetime, location 
+        FROM event 
+        WHERE status = 'open' 
+        AND start_datetime >= date('now')
+        ORDER BY start_datetime ASC 
+        LIMIT 8
+    ''').fetchall()
+    conn.close()
+
+    # Format events for display
+    formatted_events = []
+    for e in events:
+        # Convert DB datetime string (YYYY-MM-DD HH:MM:SS) to display format
+        # e.g. "Jan 15, 2025 - 2:00 PM"
+        # Note: In a real app, use datetime objects. Here strictly string manipulation for simplicity/speed or use Python's datetime if needed.
+        # Let's import datetime to be safe if not available
+        from datetime import datetime
+        try:
+            dt_obj = datetime.strptime(e['start_datetime'], '%Y-%m-%d %H:%M:%S')
+            date_str = dt_obj.strftime('%b %d, %Y - %I:%M %p')
+        except:
+            date_str = e['start_datetime']
+
+        formatted_events.append({
+            'title': e['title'],
+            'datetime': date_str,
+            'location': e['location']
+        })
+
+    return render_template("shared/guestview.html", events=formatted_events)
 
 @home_bp.route("/login")
 def login_page():
