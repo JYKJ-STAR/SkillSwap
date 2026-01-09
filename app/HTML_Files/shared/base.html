@@ -6,77 +6,56 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}SkillSwap{% endblock %}</title>
     <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Custom CSS -->
-    <link href="{{ url_for('static', filename='css/shared/style.css') }}" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.1/font/bootstrap-icons.min.css"
+        rel="stylesheet">
+    <!-- Google Fonts (Plus Jakarta Sans + Outfit) -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <!-- Global Design Tokens (includes navbar, footer, and all shared styles) -->
+    <link href="{{ url_for('static', filename='css/shared/global.css') }}" rel="stylesheet">
     {% block styles %}{% endblock %}
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f8f9fa;
-        }
-
-        .navbar-brand {
-            font-weight: 700;
-            color: #4F46E5 !important;
-        }
-
-        .btn-primary {
-            background-color: #4F46E5;
-            border-color: #4F46E5;
-        }
-
-        .btn-primary:hover {
-            background-color: #4338CA;
-            border-color: #4338CA;
-        }
-
-        .text-primary {
-            color: #4F46E5 !important;
-        }
-    </style>
 </head>
 
 <body class="d-flex flex-column min-vh-100">
     <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
+    <nav class="navbar navbar-expand-lg navbar-light sticky-top">
         <div class="container">
-            <a class="navbar-brand fs-3" href="{{ url_for('home.home') }}">SkillSwap</a>
+            <a class="navbar-brand" href="{{ url_for('home.home') }}">SkillSwap</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    {% if session.get('user_id') %}
-                    <li class="nav-item">
-                        <span class="nav-link fw-bold">Welcome, {{ session.get('user_name') }}</span>
+                {% if session.get('user_id') %}
+                <!-- Logged-in User Navigation (centered) -->
+                <ul class="navbar-nav mx-auto">
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('dashboard.dashboard') }}">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('events.events') }}">Events</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('dashboard.activities') }}">Schedule</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('dashboard.dashboard') }}">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('events.events') }}">Events</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('rewards.rewards') }}">Rewards</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('support.support') }}">Support</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="btn btn-outline-danger ms-2" href="{{ url_for('home.logout') }}">Logout</a>
-                    </li>
-                    {% else %}
-                    <li class="nav-item">
-                        <a class="btn btn-outline-primary me-2" href="{{ url_for('home.login_page') }}">Login</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="btn btn-primary" href="{{ url_for('home.signup_page') }}">Sign Up</a>
-                    </li>
-                    {% endif %}
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('rewards.rewards') }}">Rewards</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('support.support') }}">Support</a></li>
                 </ul>
+                <div class="d-flex align-items-center ms-auto">
+                    <span class="nav-link fw-bold me-3">Welcome, {{ session.get('user_name') }}</span>
+                    <a href="{{ url_for('home.logout') }}" class="btn btn-login">Logout</a>
+                </div>
+                {% else %}
+                <!-- Guest Navigation (centered) -->
+                <ul class="navbar-nav mx-auto">
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('home.home') }}">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('home.login_page') }}">Events</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('home.login_page') }}">Schedule</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('home.login_page') }}">Research</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('home.login_page') }}">Support</a></li>
+                </ul>
+                <div class="d-flex ms-auto">
+                    <a href="{{ url_for('home.login_page') }}" class="btn btn-login me-2">Log In</a>
+                    <a href="{{ url_for('home.signup_page') }}" class="btn btn-signup">Sign Up Now</a>
+                </div>
+                {% endif %}
             </div>
         </div>
     </nav>
@@ -102,13 +81,63 @@
     </main>
 
     <!-- Footer -->
-    <footer class="bg-light py-4 mt-5 border-top">
-        <div class="container text-center">
-            <p class="text-muted mb-0">&copy; 2024 SkillSwap</p>
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 mb-4">
+                    <h4 class="footer-title">Services We Provide</h4>
+                    <ul class="footer-links">
+                        <li><a href="#">Skill Exchange Programs</a></li>
+                        <li><a href="#">Mentorship Opportunities</a></li>
+                        <li><a href="#">Community Events</a></li>
+                        <li><a href="#">Educational Workshops</a></li>
+                    </ul>
+                    <div class="footer-social mt-4">
+                        <a href="#"><i class="bi bi-facebook"></i></a>
+                        <a href="#"><i class="bi bi-twitter"></i></a>
+                        <a href="#"><i class="bi bi-linkedin"></i></a>
+                        <a href="#"><i class="bi bi-instagram"></i></a>
+                        <a href="#"><i class="bi bi-youtube"></i></a>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-4 mb-4">
+                    <h4 class="footer-title">Categories</h4>
+                    <ul class="footer-links">
+                        <li><a href="#">Technology</a></li>
+                        <li><a href="#">Arts & Crafts</a></li>
+                        <li><a href="#">Cooking</a></li>
+                        <li><a href="#">Languages</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-md-4 mb-4">
+                    <h4 class="footer-title">Resources</h4>
+                    <ul class="footer-links">
+                        <li><a href="#">Getting Started</a></li>
+                        <li><a href="#">Help Center</a></li>
+                        <li><a href="#">Blog</a></li>
+                        <li><a href="#">Videos</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-md-4 mb-4">
+                    <h4 class="footer-title">Support</h4>
+                    <ul class="footer-links">
+                        <li><a href="#">Contact Us</a></li>
+                        <li><a href="#">FAQs</a></li>
+                        <li><a href="#">Community Guidelines</a></li>
+                        <li><a href="#">Safety Tips</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 SkillSwap. All Rights Reserved. |
+                    <a href="#">Privacy Policy</a> |
+                    <a href="#">Terms of Service</a>
+                </p>
+            </div>
         </div>
     </footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>

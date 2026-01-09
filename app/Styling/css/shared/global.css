@@ -1,0 +1,436 @@
+/* ================================================
+   SkillSwap Global Design Tokens
+   Extracted from auth.css for site-wide consistency
+   ================================================ */
+
+:root {
+    /* =========================
+       Primary Brand Colors
+       ========================= */
+    --primary-gradient: linear-gradient(135deg, #0d9488 0%, #14b8a6 50%, #2dd4bf 100%);
+    --primary-teal: #0d9488;
+    --primary-teal-light: #14b8a6;
+    --primary-teal-lightest: #2dd4bf;
+
+    /* =========================
+       Accent Colors
+       ========================= */
+    --accent-orange: #f97316;
+    --accent-amber: #fbbf24;
+
+    /* =========================
+       Role-specific Gradients
+       ========================= */
+    --youth-gradient: linear-gradient(135deg, #14b8a6 0%, #06b6d4 100%);
+    --senior-gradient: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
+
+    /* =========================
+       Neutral / Slate Colors
+       ========================= */
+    --dark-slate: #1e293b;
+    --card-bg: #1e293b;
+    --card-bg-light: #f8fafc;
+    --card-input: #334155;
+    --gray-section: #e2e8f0;
+
+    /* =========================
+       Text Colors
+       ========================= */
+    --text-light: #f1f5f9;
+    --text-muted: #94a3b8;
+    --text-dark: #1f2937;
+    --text-secondary: #64748b;
+
+    /* =========================
+       Border Colors
+       ========================= */
+    --border-subtle: rgba(255, 255, 255, 0.1);
+    --border-light: #e2e8f0;
+
+    /* =========================
+       Alert/Status Colors
+       ========================= */
+    --success-color: #10B981;
+    --warning-color: #F59E0B;
+    --danger-color: #EF4444;
+    --info-color: #3b82f6;
+
+    /* =========================
+       Typography
+       ========================= */
+    --font-primary: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-display: 'Outfit', 'Plus Jakarta Sans', sans-serif;
+
+    /* =========================
+       Spacing Scale
+       ========================= */
+    --spacing-xs: 0.5rem;
+    --spacing-sm: 0.75rem;
+    --spacing-md: 1rem;
+    --spacing-lg: 1.5rem;
+    --spacing-xl: 2rem;
+
+    /* =========================
+       Border Radius
+       ========================= */
+    --radius-sm: 6px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 20px;
+    --radius-2xl: 24px;
+    --radius-full: 9999px;
+
+    /* =========================
+       Shadows
+       ========================= */
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.15);
+    --shadow-xl: 0 25px 50px rgba(0, 0, 0, 0.2);
+
+    /* =========================
+       Page Backgrounds
+       ========================= */
+    --page-bg-light: linear-gradient(160deg, #f0fdfa 0%, #e0f2fe 50%, #fef3c7 100%);
+    --page-bg-neutral: #f5f5f5;
+}
+
+/* =========================
+   Base Resets & Typography
+   ========================= */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-primary);
+    color: var(--text-dark);
+    line-height: 1.5;
+}
+
+/* =========================
+   Common Alert Styles
+   ========================= */
+.alert {
+    padding: 1rem;
+    border-radius: var(--radius-md);
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.alert-error,
+.alert-danger {
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #dc2626;
+}
+
+.alert-success {
+    background: rgba(16, 185, 129, 0.15);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    color: #059669;
+}
+
+.alert-warning {
+    background: rgba(245, 158, 11, 0.15);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    color: #d97706;
+}
+
+.alert-info {
+    background: rgba(59, 130, 246, 0.15);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    color: #2563eb;
+}
+
+/* =========================
+   Common Button Base
+   ========================= */
+.btn-primary-global {
+    background: var(--primary-gradient);
+    color: white;
+    border: none;
+    padding: 0.875rem 1.5rem;
+    border-radius: var(--radius-md);
+    font-family: var(--font-primary);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    text-decoration: none;
+}
+
+.btn-primary-global:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(13, 148, 136, 0.3);
+}
+
+.btn-secondary-global {
+    background: var(--card-bg-light);
+    color: var(--text-dark);
+    border: 2px solid var(--border-light);
+    padding: 0.875rem 1.5rem;
+    border-radius: var(--radius-md);
+    font-family: var(--font-primary);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    text-decoration: none;
+}
+
+.btn-secondary-global:hover {
+    background: #e2e8f0;
+    transform: translateY(-2px);
+}
+
+/* =========================
+   Common Card Styles
+   ========================= */
+.card-global {
+    background: white;
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-xl);
+    box-shadow: var(--shadow-md);
+    transition: all 0.3s ease;
+}
+
+.card-global:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lg);
+}
+
+/* =========================
+   Form Input Styles
+   ========================= */
+.form-input-global {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    background: var(--card-bg-light);
+    border: 2px solid var(--border-light);
+    border-radius: var(--radius-md);
+    color: var(--text-dark);
+    font-family: var(--font-primary);
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.form-input-global::placeholder {
+    color: var(--text-muted);
+}
+
+.form-input-global:focus {
+    outline: none;
+    border-color: var(--primary-teal);
+    box-shadow: 0 0 0 4px rgba(20, 184, 166, 0.15);
+}
+
+/* =========================
+   Accessibility Utilities
+   ========================= */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* Focus visible for keyboard users */
+*:focus-visible {
+    outline: 3px solid var(--primary-teal);
+    outline-offset: 2px;
+}
+
+/* =========================
+   Page Background
+   ========================= */
+body {
+    background: var(--page-bg-light);
+    min-height: 100vh;
+}
+
+/* =========================
+   Navbar Styles
+   ========================= */
+.navbar {
+    padding: 1rem 0;
+    background: white;
+    box-shadow: var(--shadow-sm);
+}
+
+.navbar-brand {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 700;
+    background: var(--primary-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.nav-link {
+    color: var(--text-dark);
+    font-weight: 500;
+    margin: 0 0.5rem;
+    transition: color 0.3s ease;
+}
+
+.nav-link:hover {
+    color: var(--primary-teal);
+}
+
+.btn-login {
+    color: var(--primary-teal);
+    border: 2px solid var(--primary-teal);
+    padding: 0.5rem 1.5rem;
+    border-radius: var(--radius-full);
+    font-weight: 600;
+    background: transparent;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-login:hover {
+    background: var(--primary-teal);
+    color: white;
+}
+
+.btn-signup {
+    background: var(--primary-gradient);
+    color: white;
+    padding: 0.5rem 1.5rem;
+    border-radius: var(--radius-full);
+    font-weight: 600;
+    border: none;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-signup:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(13, 148, 136, 0.3);
+    color: white;
+}
+
+/* =========================
+   Footer Styles
+   ========================= */
+footer {
+    background: var(--dark-slate);
+    color: var(--text-muted);
+    padding: 4rem 0 2rem;
+}
+
+.footer-title {
+    color: var(--text-light);
+    font-weight: 600;
+    margin-bottom: 1.25rem;
+    font-size: 1rem;
+}
+
+.footer-links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.footer-links li {
+    margin-bottom: 0.75rem;
+}
+
+.footer-links a {
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color 0.3s ease;
+    font-size: 0.9rem;
+}
+
+.footer-links a:hover {
+    color: var(--primary-teal-light);
+}
+
+.footer-social {
+    display: flex;
+    gap: 1rem;
+}
+
+.footer-social a {
+    color: var(--text-light);
+    font-size: 1.25rem;
+    transition: color 0.3s ease;
+}
+
+.footer-social a:hover {
+    color: var(--primary-teal-light);
+}
+
+.footer-bottom {
+    border-top: 1px solid var(--border-subtle);
+    padding-top: 2rem;
+    margin-top: 3rem;
+    text-align: center;
+}
+
+.footer-bottom p {
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+.footer-bottom a {
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.footer-bottom a:hover {
+    color: var(--primary-teal-light);
+}
+
+/* =========================
+   Bootstrap Overrides
+   ========================= */
+.btn-primary {
+    background: var(--primary-gradient);
+    border: none;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #0d9488 0%, #0d9488 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(13, 148, 136, 0.3);
+}
+
+.btn-outline-primary {
+    color: var(--primary-teal);
+    border-color: var(--primary-teal);
+}
+
+.btn-outline-primary:hover {
+    background: var(--primary-teal);
+    border-color: var(--primary-teal);
+}
+
+.text-primary {
+    color: var(--primary-teal) !important;
+}
