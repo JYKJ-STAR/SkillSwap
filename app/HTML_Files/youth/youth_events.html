@@ -26,6 +26,11 @@
                 <h3 class="filter-section-title">Category</h3>
                 <div class="category-filters">
                     <label class="checkbox-container">
+                        <input type="checkbox" value="all_activities" onchange="filterByCategory('all_activities')">
+                        <span class="checkmark"></span>
+                        🌍 All Activities
+                    </label>
+                    <label class="checkbox-container">
                         <input type="checkbox" value="tech_digital" onchange="filterByCategory('tech_digital')">
                         <span class="checkmark"></span>
                         🖥️ Tech & Digital
@@ -81,14 +86,11 @@
 
         <!-- Main Content -->
         <main class="events-content">
-            <!-- Header -->
+            <!-- Search Bar -->
             <div class="content-header">
-                <h1 class="page-title">Recommended Events for YOU</h1>
-                <div class="header-actions">
-                    <button class="language-selector">Choose Language &gt;</button>
-                    <div class="search-container">
-                        <input type="text" class="search-box" placeholder="Search" onkeyup="searchEvents(this.value)">
-                    </div>
+                <div class="search-container">
+                    <input type="text" class="search-box" placeholder="🔍 Search events..."
+                        onkeyup="searchEvents(this.value)">
                 </div>
             </div>
 

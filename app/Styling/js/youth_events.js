@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', function () {
         };
     }
 
-    // Helper: Update URL
+    // Helper: Update URL (without reload)
     function updateUrl(params) {
         const url = new URL(window.location);
 
@@ -38,161 +38,179 @@ document.addEventListener('DOMContentLoaded', function () {
             url.searchParams.delete('search');
         }
 
-        window.location.href = url.toString();
+        // Update URL without reloading
+        window.history.pushState({}, '', url);
+
+        // Re-run filtering
+        applyFilters(params);
+    }
+
+    // ---------------------------------------------------------
+    // Core Filtering Logic
+    // ---------------------------------------------------------
+    function applyFilters(params) {
+        const { categories, location, search } = params;
+        const normalizedSearch = search.toLowerCase();
+
+        // Sections
+        const recSection = document.querySelector('[data-section="recommended"]');
+        const bondSection = document.querySelector('[data-section="bond"]');
+        const categorySections = document.querySelectorAll('.category-section');
+
+        // Check if "All Activities" is selected
+        const isAllActivities = categories.includes('all_activities');
+
+        // Determine if we are in "Filtering Mode"
+        // If "All Activities" is checked, we ARE filtering (filtering for "Everything" view)
+        const isFiltering = (location !== 'all') || (categories.length > 0) || (search !== '');
+
+        if (!isFiltering) {
+            // DEFAULT VIEW (No filters): Show Recs + Bond, Hide Category Sections
+            if (recSection) recSection.style.display = 'block';
+            if (bondSection) bondSection.style.display = 'block';
+            categorySections.forEach(sec => sec.style.display = 'none');
+        } else {
+            // FILTERED VIEW:
+            // If "All Activities" is checked -> Hide Recs, Show ALL Category Sections
+            // Else -> Hide Recs, Show Matching Category Sections
+
+            if (recSection) recSection.style.display = 'none';
+            if (bondSection) bondSection.style.display = 'none';
+
+            categorySections.forEach(sec => {
+                const secCat = sec.dataset.section;
+
+                // 1. Check Section Category Match
+                // If "All Activities" is selected, we match ALL sections.
+                // If specific categories selected, only show those sections.
+                // If no categories selected (but other filters exist like search/loc), show ALL sections.
+                const categoryMatch = isAllActivities || (categories.length === 0) || categories.includes(secCat);
+
+                if (!categoryMatch) {
+                    sec.style.display = 'none';
+                    return;
+                }
+
+                // 2. Check Cards inside this section
+                let visibleCardsCount = 0;
+                const cards = sec.querySelectorAll('.event-card-compact');
+
+                cards.forEach(card => {
+                    const cardLoc = card.dataset.location ? card.dataset.location.toLowerCase() : '';
+                    const cardTitle = card.querySelector('.event-card-title').textContent.toLowerCase();
+                    const cardDesc = card.querySelector('.event-card-description').textContent.toLowerCase();
+                    // Get category from dataset or badge text
+                    const cardCatBadge = card.querySelector('.event-category-badge');
+                    const cardCatText = cardCatBadge ? cardCatBadge.textContent.toLowerCase() : '';
+
+                    // Location Match
+                    const locMatch = (location === 'all') || cardLoc.includes(location.toLowerCase());
+
+                    // Search Match (Keywords in Title, Description, or Category Name)
+                    const searchMatch = !normalizedSearch ||
+                        cardTitle.includes(normalizedSearch) ||
+                        cardDesc.includes(normalizedSearch) ||
+                        cardCatText.includes(normalizedSearch);
+
+                    if (locMatch && searchMatch) {
+                        card.style.display = 'block';
+                        visibleCardsCount++;
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+
+                // Show section only if it has visible cards
+                if (visibleCardsCount > 0) {
+                    sec.style.display = 'block';
+                } else {
+                    sec.style.display = 'none';
+                }
+            });
+        }
     }
 
     // ---------------------------------------------------------
     // Event Handlers
     // ---------------------------------------------------------
 
-    // 1. Filter by Category (Multi-select Checkboxes)
+    // 1. Filter by Category
     window.filterByCategory = function (category) {
-        let { categories, location, search } = getUrlParams();
+        let params = getUrlParams();
 
-        // Toggle selection
-        if (categories.includes(category)) {
-            categories = categories.filter(c => c !== category);
+        // Logic: specific to All Activities button vs others
+        // If user clicks "All Activities", should we clear others? Or just add it?
+        // User request: "When 'All Activities' is selected... Show: All activities".
+        // Let's allow multi-select but "All Activities" overrides others in visibility logic.
+        // However, better UX might be: toggle behavior. 
+        // Simple toggle for now.
+
+        if (params.categories.includes(category)) {
+            params.categories = params.categories.filter(c => c !== category);
         } else {
-            categories.push(category);
+            // If "All Activities" is clicked, we could clear others to be clean, but simple add is safer.
+            // Let's just push it.
+            params.categories.push(category);
         }
-
-        updateUrl({ categories, location, search });
+        updateUrl(params);
     };
 
-    // 2. Filter by Location (Dropdown)
+    // 2. Filter by Location
     window.filterByLocation = function (locValue) {
-        let { categories, location, search } = getUrlParams();
-        location = locValue;
-        updateUrl({ categories, location, search });
+        let params = getUrlParams();
+        params.location = locValue;
+        updateUrl(params);
     };
 
-    // 3. Search
-    const searchBox = document.querySelector('.search-box');
-    if (searchBox) {
-        window.searchEvents = function (term) {
-            // Placeholder
-        };
-
-        searchBox.addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') {
-                let { categories, location } = getUrlParams();
-                updateUrl({ categories, location, search: this.value });
-            }
-        });
-    }
+    // 3. Search (Real-time)
+    window.searchEvents = function (term) {
+        let params = getUrlParams();
+        params.search = term;
+        updateUrl(params);
+    };
 
     // 4. Reset Filters
     window.resetFilters = function () {
-        window.location.href = window.location.pathname; // Reloads page without params
+        // Clear URL params
+        const url = new URL(window.location);
+        url.search = '';
+        window.history.pushState({}, '', url);
+
+        // Reset UI inputs
+        document.querySelectorAll('.category-filters input[type="checkbox"]').forEach(box => box.checked = false);
+        const locDropdown = document.querySelector('.location-dropdown');
+        if (locDropdown) locDropdown.value = 'all';
+        const searchBox = document.querySelector('.search-box');
+        if (searchBox) searchBox.value = '';
+
+        // Apply empty filter (returns to default view)
+        applyFilters({ categories: [], location: 'all', search: '' });
     };
 
     // ---------------------------------------------------------
-    // Initialise UI & Apply Filters
+    // Initialise UI
     // ---------------------------------------------------------
 
-    const { categories, location, search } = getUrlParams();
+    const currentParams = getUrlParams();
 
-    // 1. Set Active Category Checkboxes
+    // 1. Set Checkboxes
     document.querySelectorAll('.category-filters input[type="checkbox"]').forEach(box => {
-        if (categories.includes(box.value)) {
-            box.checked = true;
-        } else {
-            box.checked = false;
-        }
+        box.checked = currentParams.categories.includes(box.value);
     });
 
-    // 2. Set Active Location Dropdown
+    // 2. Set Dropdown
     const locationDropdown = document.querySelector('.location-dropdown');
     if (locationDropdown) {
-        locationDropdown.value = location;
+        locationDropdown.value = currentParams.location;
     }
 
-    // 3. Set Search Box Value
-    if (searchBox && search) {
-        searchBox.value = search;
+    // 3. Set Search Box
+    const searchBox = document.querySelector('.search-box');
+    if (searchBox && currentParams.search) {
+        searchBox.value = currentParams.search;
     }
 
-    // 4. APPLY FILTERING LOGIC (Visibility)
-    const recSection = document.querySelector('[data-section="recommended"]');
-    const bondSection = document.querySelector('[data-section="bond"]');
-    const categorySections = document.querySelectorAll('.category-section');
-
-    // Logic as requested:
-    // If Location = All & No Categories -> Show all activities (Assuming this means "Default View" or "All Category Sections").
-    // User phrasing "show all activities" implies they want to see the main list.
-    // However, usually "Default" implies showing Recommendations. 
-    // If filters are completely empty, let's show Recommendations as the "landing experience".
-    // If filters are explicitly set, hide recommendations.
-
-    const isFiltering = (location !== 'all') || (categories.length > 0) || (search !== '');
-
-    if (!isFiltering) {
-        // DEFAULT VIEW: Show Recs + Bond, Hide Category Sections (OR Show all if user meant that?)
-        // Let's stick to standard behavior: No filter = Dashboard view (Recs).
-        if (recSection) recSection.style.display = 'block';
-        if (bondSection) bondSection.style.display = 'block';
-        categorySections.forEach(sec => sec.style.display = 'none');
-
-    } else {
-        // FILTERED VIEW: Hide Recs, Show Matching
-        if (recSection) recSection.style.display = 'none';
-        if (bondSection) bondSection.style.display = 'none';
-
-        categorySections.forEach(sec => {
-            // Check Category Match
-            // "If one/more categories selected... show activities in those categories"
-            // "If no categories selected... show all activities" (implies category match is TRUE for all)
-            const secCat = sec.dataset.section;
-
-            // If categories is empty [], we match ALL sections.
-            // If categories has items, we only match sections in that list.
-            const categoryMatch = (categories.length === 0) || categories.includes(secCat);
-
-            if (!categoryMatch) {
-                sec.style.display = 'none';
-                return;
-            }
-
-            // Check Location Match (Card Level)
-            let visibleCardsCount = 0;
-            const cards = sec.querySelectorAll('.event-card-compact');
-
-            cards.forEach(card => {
-                const cardLoc = card.dataset.location.toLowerCase();
-                const cardTitle = card.querySelector('.event-card-title').textContent.toLowerCase();
-
-                // Location Match
-                // "If Location = All ... show all activities" (Match True)
-                // "If Location = Specific ... show activities that match Location"
-                const locMatch = (location === 'all') || cardLoc.includes(location.toLowerCase());
-
-                // Search Match
-                const searchMatch = !search || cardTitle.includes(search.toLowerCase());
-
-                if (locMatch && searchMatch) {
-                    card.style.display = 'block';
-                    visibleCardsCount++;
-                } else {
-                    card.style.display = 'none';
-                }
-            });
-
-            // Hide section if empty
-            if (visibleCardsCount > 0) {
-                sec.style.display = 'block';
-            } else {
-                sec.style.display = 'none';
-            }
-        });
-    }
-
-    // Language Selector
-    const languageSelector = document.querySelector('.language-selector');
-    if (languageSelector) {
-        languageSelector.addEventListener('change', function () {
-            localStorage.setItem('preferredLanguage', this.value);
-        });
-        const savedLanguage = localStorage.getItem('preferredLanguage');
-        if (savedLanguage) languageSelector.value = savedLanguage;
-    }
+    // 4. Initial Apply
+    applyFilters(currentParams);
 });
+

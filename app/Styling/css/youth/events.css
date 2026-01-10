@@ -54,6 +54,8 @@
     padding: var(--spacing-lg);
     box-shadow: var(--shadow-sm);
     height: fit-content;
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
     position: sticky;
     top: var(--spacing-lg);
 }
@@ -264,7 +266,7 @@
 }
 
 .search-container {
-    width: 250px;
+    width: 100%;
 }
 
 .search-box {

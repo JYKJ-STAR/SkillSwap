@@ -8,91 +8,177 @@
 {% endblock %}
 
 {% block content %}
-<div class="senior-events-page">
+<div class="container py-4">
     <!-- Back Button -->
     <a href="{{ url_for('dashboard.dashboard') }}" class="back-button">
         ← Back
     </a>
 
-    <!-- Recommended Events for YOU Section -->
-    <section class="events-section">
-        <div class="section-header">
-            <h1 class="section-title">Recommended events for YOU</h1>
-        </div>
+    <!-- Events Page Layout -->
+    <div class="events-page-senior">
+        <!-- Sidebar Filters -->
+        <aside class="filters-sidebar-senior">
+            <h2 class="filters-title-senior">Filters</h2>
+            <p class="filters-subtitle-senior">Find activities that interest you</p>
 
-        <div class="events-grid-senior">
-            {% if recommended_events %}
-            {% for event in recommended_events[:5] %}
-            <div class="senior-event-card">
-                <span class="event-category-label">{{ event.category or 'Category' }}</span>
-                <h3 class="senior-event-title">{{ event.title }}</h3>
-                <p class="senior-event-description">{{ event.description or 'Lorem ipsum dolor sit amet, consectetur' }}
-                </p>
-                <div class="senior-event-meta">
-                    <span>{{ event.time or 'Time' }}</span>
-                    <span class="meta-separator">|</span>
-                    <span>{{ event.location or 'Location' }}</span>
+            <!-- Category Filter -->
+            <div class="filter-section-senior">
+                <h3 class="filter-section-title-senior">Category</h3>
+                <div class="category-filters-senior">
+                    <label class="checkbox-container-senior">
+                        <input type="checkbox" value="all_activities" onchange="filterByCategory('all_activities')">
+                        <span class="checkmark-senior"></span>
+                        🌍 All Activities
+                    </label>
+                    <label class="checkbox-container-senior">
+                        <input type="checkbox" value="tech_digital" onchange="filterByCategory('tech_digital')">
+                        <span class="checkmark-senior"></span>
+                        🖥️ Tech & Digital
+                    </label>
+                    <label class="checkbox-container-senior">
+                        <input type="checkbox" value="life_skills" onchange="filterByCategory('life_skills')">
+                        <span class="checkmark-senior"></span>
+                        🍳 Life Skills
+                    </label>
+                    <label class="checkbox-container-senior">
+                        <input type="checkbox" value="health_wellness" onchange="filterByCategory('health_wellness')">
+                        <span class="checkmark-senior"></span>
+                        🧘 Health & Wellness
+                    </label>
+                    <label class="checkbox-container-senior">
+                        <input type="checkbox" value="culture_creative" onchange="filterByCategory('culture_creative')">
+                        <span class="checkmark-senior"></span>
+                        🎨 Culture & Creative
+                    </label>
+                    <label class="checkbox-container-senior">
+                        <input type="checkbox" value="social_games" onchange="filterByCategory('social_games')">
+                        <span class="checkmark-senior"></span>
+                        🎲 Social & Games
+                    </label>
+                    <label class="checkbox-container-senior">
+                        <input type="checkbox" value="community_projects"
+                            onchange="filterByCategory('community_projects')">
+                        <span class="checkmark-senior"></span>
+                        🛠️ Community Projects
+                    </label>
                 </div>
-                <a href="#" class="senior-view-details-btn">View Details</a>
             </div>
-            {% endfor %}
-            {% else %}
-            {% for i in range(5) %}
-            <div class="senior-event-card">
-                <span class="event-category-label">Category</span>
-                <h3 class="senior-event-title">Event Name</h3>
-                <p class="senior-event-description">Lorem ipsum dolor sit amet, consectetur</p>
-                <div class="senior-event-meta">
-                    <span>Time</span>
-                    <span class="meta-separator">|</span>
-                    <span>Location</span>
+
+            <!-- Location Filter -->
+            <div class="filter-section-senior">
+                <h3 class="filter-section-title-senior">Location (GC)</h3>
+                <select class="location-dropdown-senior" onchange="filterByLocation(this.value)">
+                    <option value="all">All Locations</option>
+                    <option value="ang mo kio">Ang Mo Kio</option>
+                    <option value="bedok">Bedok</option>
+                    <option value="bishan">Bishan</option>
+                    <option value="jurong">Jurong</option>
+                    <option value="punggol">Punggol</option>
+                    <option value="tampines">Tampines</option>
+                    <option value="toa payoh">Toa Payoh</option>
+                    <option value="yishun">Yishun</option>
+                </select>
+            </div>
+
+            <!-- Reset Button -->
+            <button class="reset-filter-btn-senior" onclick="resetFilters()">Reset Filters</button>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="events-content-senior">
+            <!-- Search Bar (Full Width) -->
+            <div class="content-header-senior">
+                <div class="search-wrapper-senior">
+                    <input type="text" id="seniorSearch" class="search-box-senior" placeholder="🔍 Search events...">
                 </div>
-                <a href="#" class="senior-view-details-btn">View Details</a>
             </div>
-            {% endfor %}
+
+            <!-- Recommended Events for YOU Section -->
+            <section class="events-section-senior" data-section="recommended">
+                <h2 class="section-title-senior">Recommended Events for YOU</h2>
+                <div class="events-grid-senior">
+                    {% if recommended_events %}
+                    {% for event in recommended_events %}
+                    <div class="senior-event-card" data-category="{{ event.category }}"
+                        data-location="{{ event.location|lower }}">
+                        <span class="event-category-badge-senior category-{{ event.category }}">{{
+                            event.category_display }}</span>
+                        <h3 class="senior-event-title">{{ event.title }}</h3>
+                        <p class="senior-event-description">{{ event.description[:80] }}...</p>
+                        <div class="senior-event-meta">
+                            <span>{{ event.time }}</span>
+                            <span class="meta-separator">|</span>
+                            <span>{{ event.location }}</span>
+                        </div>
+                        <span class="event-led-by-senior">Led by: {{ event.led_by|capitalize }}</span>
+                        <a href="#" class="senior-view-details-btn">View Details</a>
+                    </div>
+                    {% endfor %}
+                    {% else %}
+                    <div class="empty-state-senior">
+                        <p>No recommended events found. Check back soon!</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </section>
+
+            <!-- Recommended Events to Bond Section -->
+            <section class="events-section-senior" data-section="bond">
+                <h2 class="section-title-senior">🤝 Recommended Events to Bond</h2>
+                <div class="events-grid-senior">
+                    {% if bond_events %}
+                    {% for event in bond_events %}
+                    <div class="senior-event-card" data-category="{{ event.category }}"
+                        data-location="{{ event.location|lower }}">
+                        <span class="event-category-badge-senior category-{{ event.category }}">{{
+                            event.category_display }}</span>
+                        <h3 class="senior-event-title">{{ event.title }}</h3>
+                        <p class="senior-event-description">{{ event.description[:80] }}...</p>
+                        <div class="senior-event-meta">
+                            <span>{{ event.time }}</span>
+                            <span class="meta-separator">|</span>
+                            <span>{{ event.location }}</span>
+                        </div>
+                        <span class="event-led-by-senior">Led by: {{ event.led_by|capitalize }}</span>
+                        <a href="#" class="senior-view-details-btn">View Details</a>
+                    </div>
+                    {% endfor %}
+                    {% else %}
+                    <div class="empty-state-senior">
+                        <p>No bonding events scheduled. Check back soon!</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </section>
+
+            <!-- All Events by Category -->
+            {% for category_key, category_name in category_display.items() %}
+            {% if events_by_category.get(category_key) %}
+            <section class="events-section-senior category-section-senior" data-section="{{ category_key }}">
+                <h2 class="section-title-senior">{{ category_name }}</h2>
+                <div class="events-grid-senior">
+                    {% for event in events_by_category[category_key][:5] %}
+                    <div class="senior-event-card" data-category="{{ event.category }}"
+                        data-location="{{ event.location|lower }}">
+                        <span class="event-category-badge-senior category-{{ event.category }}">{{ category_name
+                            }}</span>
+                        <h3 class="senior-event-title">{{ event.title }}</h3>
+                        <p class="senior-event-description">{{ event.description[:80] }}...</p>
+                        <div class="senior-event-meta">
+                            <span>{{ event.time }}</span>
+                            <span class="meta-separator">|</span>
+                            <span>{{ event.location }}</span>
+                        </div>
+                        <span class="event-led-by-senior">Led by: {{ event.led_by|capitalize }}</span>
+                        <a href="#" class="senior-view-details-btn">View Details</a>
+                    </div>
+                    {% endfor %}
+                </div>
+            </section>
             {% endif %}
-        </div>
-    </section>
-
-    <!-- Recommended Events Section -->
-    <section class="events-section">
-        <div class="section-header">
-            <h1 class="section-title">Recommended events</h1>
-        </div>
-
-        <div class="events-grid-senior">
-            {% if all_events %}
-            {% for event in all_events[:5] %}
-            <div class="senior-event-card">
-                <span class="event-category-label">{{ event.category or 'Category' }}</span>
-                <h3 class="senior-event-title">{{ event.title }}</h3>
-                <p class="senior-event-description">{{ event.description or 'Lorem ipsum dolor sit amet, consectetur' }}
-                </p>
-                <div class="senior-event-meta">
-                    <span>{{ event.time or 'Time' }}</span>
-                    <span class="meta-separator">|</span>
-                    <span>{{ event.location or 'Location' }}</span>
-                </div>
-                <a href="#" class="senior-view-details-btn">View Details</a>
-            </div>
             {% endfor %}
-            {% else %}
-            {% for i in range(5) %}
-            <div class="senior-event-card">
-                <span class="event-category-label">Category</span>
-                <h3 class="senior-event-title">Event Name</h3>
-                <p class="senior-event-description">Lorem ipsum dolor sit amet, consectetur</p>
-                <div class="senior-event-meta">
-                    <span>Time</span>
-                    <span class="meta-separator">|</span>
-                    <span>Location</span>
-                </div>
-                <a href="#" class="senior-view-details-btn">View Details</a>
-            </div>
-            {% endfor %}
-            {% endif %}
-        </div>
-    </section>
+        </main>
+    </div>
 </div>
 
 <script src="{{ url_for('static', filename='js/senior_events.js') }}"></script>
