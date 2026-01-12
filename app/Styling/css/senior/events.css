@@ -1,28 +1,34 @@
 /* Senior Events Page Styles */
 /* ========================================= */
-/* Designed for accessibility with larger fonts */
+/* Aligned with Youth Events for consistency */
+/* Larger fonts for senior accessibility */
 
 :root {
     --radius-sm: 6px;
     --radius-md: 12px;
     --radius-lg: 16px;
+    --spacing-xs: 0.5rem;
     --spacing-sm: 0.75rem;
     --spacing-md: 1rem;
     --spacing-lg: 1.5rem;
     --spacing-xl: 2rem;
     --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
     --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
-    --gray-section: #939393;
+    --gray-section: #9ca3af;
     --text-secondary: #666666;
-    --font-display: 'Inter', sans-serif;
-    --font-body: 'Inter', sans-serif;
+    --font-display: 'Outfit', sans-serif;
+    --font-body: 'Plus Jakarta Sans', sans-serif;
 }
 
-/* Main Container */
-.senior-events-page {
-    max-width: 1300px;
+/* Page Container - Same as Youth */
+.events-page-senior {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    gap: var(--spacing-xl);
+    padding-top: var(--spacing-md);
+    max-width: 1400px;
     margin: 0 auto;
-    padding: var(--spacing-xl);
+    position: relative;
 }
 
 /* Back Button */
@@ -32,9 +38,9 @@
     gap: 0.5rem;
     color: black;
     text-decoration: none;
-    font-weight: 700;
+    font-weight: 600;
     font-size: 1.1rem;
-    margin-bottom: var(--spacing-xl);
+    margin-bottom: var(--spacing-lg);
     transition: all 0.3s ease;
 }
 
@@ -43,52 +49,230 @@
     color: #333;
 }
 
-/* Events Section */
-.events-section {
-    margin-bottom: var(--spacing-xl);
+/* ========================================= */
+/* SIDEBAR FILTERS - Same as Youth           */
+/* ========================================= */
+.filters-sidebar-senior {
+    background: white;
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    box-shadow: var(--shadow-sm);
+    height: fit-content;
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+    position: sticky;
+    top: var(--spacing-lg);
 }
 
-.section-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+.filters-title-senior {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: black;
+    margin-bottom: var(--spacing-sm);
+}
+
+.filters-subtitle-senior {
+    font-size: 0.95rem;
+    color: var(--text-secondary);
     margin-bottom: var(--spacing-lg);
 }
 
-.section-title {
+.filter-section-senior {
+    margin-bottom: var(--spacing-lg);
+}
+
+.filter-section-title-senior {
+    font-weight: 700;
+    color: black;
+    margin-bottom: var(--spacing-sm);
+    font-size: 1.05rem;
+}
+
+.category-filters-senior {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+/* Checkbox Container - Same as Youth */
+.checkbox-container-senior {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    padding: 0.5rem 0.25rem;
+    margin-bottom: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    user-select: none;
+    color: #4a5568;
+    border-radius: var(--radius-sm);
+    transition: background 0.2s;
+}
+
+.checkbox-container-senior:hover {
+    background: #f3f4f6;
+}
+
+.checkbox-container-senior input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+
+/* Checkmark Box - Same as Youth */
+.checkmark-senior {
+    position: relative;
+    height: 22px;
+    width: 22px;
+    background-color: #eee;
+    border-radius: 4px;
+    transition: all 0.2s;
+    flex-shrink: 0;
+    order: 2;
+}
+
+.checkmark-senior:after {
+    content: "";
+    position: absolute;
+    display: none;
+    left: 8px;
+    top: 4px;
+    width: 6px;
+    height: 11px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+.checkbox-container-senior input:checked~.checkmark-senior {
+    background-color: #10b981;
+}
+
+.checkbox-container-senior input:checked~.checkmark-senior:after {
+    display: block;
+}
+
+/* Location Dropdown - Same as Youth */
+.location-dropdown-senior {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 2px solid #E0E0E0;
+    border-radius: var(--radius-sm);
+    font-family: var(--font-body);
+    font-size: 1rem;
+    background: white;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    padding-right: 2.5rem;
+}
+
+/* Reset Button - Same as Youth */
+.reset-filter-btn-senior {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background: var(--gray-section);
+    color: black;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-family: var(--font-body);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: var(--spacing-lg);
+}
+
+.reset-filter-btn-senior:hover {
+    background: #808080;
+}
+
+/* ========================================= */
+/* MAIN CONTENT AREA                         */
+/* ========================================= */
+.events-content-senior {
+    flex: 1;
+}
+
+.content-header-senior {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-xl);
+    gap: var(--spacing-lg);
+    flex-wrap: wrap;
+}
+
+.page-title-senior {
     font-family: var(--font-display);
     font-size: 2rem;
     font-weight: 700;
     color: black;
+    margin: 0;
+}
+
+/* Search Box - Wide, Same Style as Youth */
+.search-wrapper-senior {
+    width: 100%;
 }
 
 .search-box-senior {
+    width: 100%;
     padding: 0.875rem 1.5rem;
     border: none;
     border-radius: 50px;
-    font-family: var(--font-body);
-    font-size: 1rem;
-    width: 200px;
-    background: var(--gray-section);
+    background: #808080;
     color: white;
+    font-family: var(--font-body);
+    font-size: 1.05rem;
+    transition: all 0.2s ease;
 }
 
 .search-box-senior::placeholder {
-    color: rgba(255, 255, 255, 0.8);
+    color: rgba(255, 255, 255, 0.9);
 }
 
-/* Events Grid */
-.events-grid-senior {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: var(--spacing-lg);
+.search-box-senior:focus {
+    background: #666;
+    outline: none;
+}
+
+/* ========================================= */
+/* EVENTS SECTIONS                           */
+/* ========================================= */
+.events-section-senior {
+    margin-bottom: var(--spacing-xl);
+}
+
+.section-title-senior {
+    font-family: var(--font-display);
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: black;
     margin-bottom: var(--spacing-lg);
 }
 
-/* Event Card - Senior Version */
+/* Events Grid - 4 columns like Youth, slightly larger cards */
+.events-grid-senior {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--spacing-lg);
+    padding-bottom: var(--spacing-md);
+}
+
+/* ========================================= */
+/* EVENT CARD - Same Color as Youth          */
+/* Slightly larger for seniors               */
+/* ========================================= */
 .senior-event-card {
     background: #E8E8E8;
-    border-radius: var(--radius-lg);
+    border-radius: var(--radius-md);
     padding: var(--spacing-lg);
     transition: all 0.3s ease;
 }
@@ -98,9 +282,10 @@
     box-shadow: var(--shadow-md);
 }
 
-.event-category-label {
+/* Category Badge - Same as Youth */
+.event-category-badge-senior {
     display: inline-block;
-    padding: 0.25rem 0.75rem;
+    padding: 0.3rem 0.85rem;
     background: white;
     border-radius: var(--radius-sm);
     font-size: 0.85rem;
@@ -109,44 +294,87 @@
     margin-bottom: var(--spacing-sm);
 }
 
+/* Category Colors - Same as Youth */
+.category-tech_digital {
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    color: white;
+}
+
+.category-life_skills {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: white;
+}
+
+.category-health_wellness {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+}
+
+.category-culture_creative {
+    background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+    color: white;
+}
+
+.category-social_games {
+    background: linear-gradient(135deg, #ec4899, #db2777);
+    color: white;
+}
+
+.category-community_projects {
+    background: linear-gradient(135deg, #6366f1, #4f46e5);
+    color: white;
+}
+
+/* Event Title - Slightly larger for seniors */
 .senior-event-title {
-    font-family: var(--font-display);
-    font-size: 1.2rem;
     font-weight: 700;
+    font-size: 1.15rem;
     color: black;
     margin-bottom: var(--spacing-sm);
     line-height: 1.3;
 }
 
+/* Event Description */
 .senior-event-description {
     font-size: 0.95rem;
     color: var(--text-secondary);
-    margin-bottom: var(--spacing-md);
+    margin-bottom: var(--spacing-sm);
     line-height: 1.5;
 }
 
+/* Event Meta */
 .senior-event-meta {
     display: flex;
-    gap: 0.5rem;
+    flex-direction: column;
+    gap: 0.25rem;
     font-size: 0.9rem;
     color: var(--text-secondary);
     margin-bottom: var(--spacing-md);
-    flex-wrap: wrap;
 }
 
 .meta-separator {
-    color: var(--text-secondary);
+    display: none;
 }
 
+/* Led By Label */
+.event-led-by-senior {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-bottom: var(--spacing-sm);
+    font-style: italic;
+}
+
+/* View Details Button - Same as Youth */
 .senior-view-details-btn {
     width: 100%;
-    padding: 0.875rem 1.25rem;
+    padding: 0.75rem 1rem;
     background: var(--gray-section);
     color: black;
     border: none;
-    border-radius: 50px;
+    border-radius: var(--radius-sm);
     font-family: var(--font-body);
-    font-size: 1rem;
+    font-size: 0.95rem;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -158,16 +386,29 @@
 .senior-view-details-btn:hover {
     background: #808080;
     color: white;
-    transform: translateY(-2px);
 }
 
-/* Responsive Design */
-@media (max-width: 1400px) {
-    .events-grid-senior {
-        grid-template-columns: repeat(4, 1fr);
-    }
+/* Empty State */
+.empty-state-senior {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: var(--spacing-xl);
+    background: white;
+    border-radius: var(--radius-md);
+    color: var(--text-secondary);
+    font-size: 1.05rem;
 }
 
+/* Category Section Styling */
+.category-section-senior {
+    margin-top: var(--spacing-xl);
+    padding-top: var(--spacing-lg);
+    border-top: 1px solid #e2e8f0;
+}
+
+/* ========================================= */
+/* RESPONSIVE DESIGN - Same as Youth         */
+/* ========================================= */
 @media (max-width: 1200px) {
     .events-grid-senior {
         grid-template-columns: repeat(3, 1fr);
@@ -175,35 +416,43 @@
 }
 
 @media (max-width: 992px) {
+    .events-page-senior {
+        grid-template-columns: 1fr;
+    }
+
+    .filters-sidebar-senior {
+        position: relative;
+        top: 0;
+    }
+
     .events-grid-senior {
         grid-template-columns: repeat(2, 1fr);
-    }
-
-    .section-title {
-        font-size: 1.75rem;
-    }
-
-    .search-box-senior {
-        width: 180px;
     }
 }
 
 @media (max-width: 768px) {
-    .section-header {
+    .events-grid-senior {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .page-title-senior {
+        font-size: 1.5rem;
+    }
+
+    .content-header-senior {
         flex-direction: column;
         align-items: flex-start;
         gap: var(--spacing-md);
     }
 
-    .search-box-senior {
+    .search-wrapper-senior {
+        max-width: 100%;
         width: 100%;
     }
+}
 
+@media (max-width: 576px) {
     .events-grid-senior {
         grid-template-columns: 1fr;
-    }
-
-    .section-title {
-        font-size: 1.5rem;
     }
 }

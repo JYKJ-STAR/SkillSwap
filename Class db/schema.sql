@@ -90,6 +90,8 @@ CREATE TABLE IF NOT EXISTS event (
   grc_id INTEGER,
   title TEXT NOT NULL,
   description TEXT,
+  category TEXT NOT NULL DEFAULT 'social_games' CHECK (category IN ('tech_digital','life_skills','health_wellness','culture_creative','social_games','community_projects')),
+  led_by TEXT NOT NULL DEFAULT 'employee' CHECK (led_by IN ('youth','senior','employee')),
   start_datetime TEXT NOT NULL,
   end_datetime TEXT,
   location TEXT,

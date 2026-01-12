@@ -9,52 +9,176 @@
 
 {% block content %}
 <div class="senior-dashboard">
-    <!-- Welcome Section -->
-    <div class="welcome-section">
-        <div class="profile-circle">
+    <!-- Welcome Hero Section -->
+    <section class="welcome-hero-senior">
+        <div class="welcome-content-senior">
+            <h1 class="welcome-title-senior">Welcome back, {{ user.name }}!</h1>
+            <p class="welcome-subtitle-senior">
+                You have <strong>{{ user.points or 0 }}</strong> points. Keep learning and sharing!
+            </p>
+            <div class="welcome-actions-senior">
+                <a href="{{ url_for('dashboard.activities') }}" class="btn-senior-primary">📊 View Progress</a>
+                <a href="{{ url_for('events.events') }}" class="btn-senior-primary">📅 Find Events</a>
+            </div>
+        </div>
+        <div class="welcome-avatar-senior">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
                 <path
                     d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
             </svg>
         </div>
-        <h1 class="welcome-text">Welcome {{ user.name }}</h1>
+    </section>
+
+    <!-- Quick Stats Grid -->
+    <div class="dashboard-grid-senior">
+        <div class="section-card-senior">
+            <h2 class="section-title-senior">👤 Settings</h2>
+            <p class="section-subtitle-senior">Update your profile and preferences</p>
+            <a href="#" class="btn-senior-secondary">View Profile</a>
+        </div>
+
+        <div class="section-card-senior">
+            <h2 class="section-title-senior">🎓 Learn or Teach</h2>
+            <p class="section-subtitle-senior">Discover activities and opportunities</p>
+            <a href="{{ url_for('dashboard.activities') }}" class="btn-senior-secondary">Find Activities</a>
+        </div>
     </div>
 
-    <!-- Dashboard Content -->
-    <div class="dashboard-content">
-        <!-- Upcoming Activity -->
-        <div class="upcoming-activity-card">
-            <h2 class="upcoming-activity-title">Your Upcoming Activity</h2>
+    <!-- Recommended for You Section -->
+    <section class="recommended-section-senior">
+        <div class="section-header-senior">
+            <div>
+                <h2 class="section-title-main-senior">Recommended for You</h2>
+                <p class="section-subtitle-main-senior">Based on your interest in <strong>Teaching</strong> and
+                    <strong>Arts</strong>.</p>
+            </div>
+            <a href="{{ url_for('events.events') }}" class="view-all-link-senior">View All Categories →</a>
+        </div>
 
-            {% if upcoming_events and upcoming_events|length > 0 %}
-            <div class="activity-details">
-                <h3 class="activity-event-name">{{ upcoming_events[0].title }}</h3>
-                <div class="activity-meta">
-                    <div>{{ upcoming_events[0].date }}</div>
-                    <div>{{ upcoming_events[0].time }}</div>
-                    <div>{{ upcoming_events[0].location }}</div>
+        <div class="recommended-grid-senior">
+            {% if recommended_events %}
+            {% for event in recommended_events[:4] %}
+            <div class="recommended-card-senior">
+                <div class="recommended-card-image">
+                    {% if event.image_url %}
+                    <img src="{{ event.image_url }}" alt="{{ event.title }}">
+                    {% else %}
+                    <div class="no-image-placeholder">
+                        <span>📷</span>
+                        <small>No image</small>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="recommended-card-content">
+                    <h3 class="recommended-card-title">{{ event.title }}</h3>
+                    <p class="recommended-card-date">{{ event.date }} • {{ event.time }}</p>
+                    <p class="recommended-card-description">{{ event.description[:80] if event.description else 'No
+                        description available.' }}...</p>
+                    <a href="#" class="learn-more-link">Learn More ↗</a>
                 </div>
             </div>
+            {% endfor %}
             {% else %}
-            <div class="activity-details">
-                <h3 class="activity-event-name">No Upcoming Events</h3>
-                <div class="activity-meta">
-                    <div>Check "View Events" to sign up for activities</div>
+            <!-- Placeholder cards when no events -->
+            <div class="recommended-card-senior">
+                <div class="recommended-card-image">
+                    <div class="no-image-placeholder">
+                        <span>🌱</span>
+                    </div>
+                </div>
+                <div class="recommended-card-content">
+                    <h3 class="recommended-card-title">Community Gardening</h3>
+                    <p class="recommended-card-date">Wed, Jan 14 • 09:00 AM</p>
+                    <p class="recommended-card-description">Help maintain the rooftop garden. Tools provided. Great for
+                        fresh air!</p>
+                    <a href="#" class="learn-more-link">Learn More ↗</a>
+                </div>
+            </div>
+            <div class="recommended-card-senior">
+                <div class="recommended-card-image">
+                    <div class="no-image-placeholder">
+                        <span>🧶</span>
+                    </div>
+                </div>
+                <div class="recommended-card-content">
+                    <h3 class="recommended-card-title">Knitting Circle (Mentor Needed)</h3>
+                    <p class="recommended-card-date">Fri, Jan 16 • 02:00 PM</p>
+                    <p class="recommended-card-description">Share your knitting skills with beginners. Yarn and needles
+                        supplied.</p>
+                    <a href="#" class="learn-more-link">Learn More ↗</a>
+                </div>
+            </div>
+            <div class="recommended-card-senior">
+                <div class="recommended-card-image">
+                    <div class="no-image-placeholder">
+                        <span>🧘</span>
+                    </div>
+                </div>
+                <div class="recommended-card-content">
+                    <h3 class="recommended-card-title">Gentle Chair Yoga</h3>
+                    <p class="recommended-card-date">Mon, Jan 19 • 10:30 AM</p>
+                    <p class="recommended-card-description">Improve flexibility safely. Suitable for all mobility
+                        levels.</p>
+                    <a href="#" class="learn-more-link">Learn More ↗</a>
+                </div>
+            </div>
+            <div class="recommended-card-senior">
+                <div class="recommended-card-image">
+                    <div class="no-image-placeholder">
+                        <span>🎶</span>
+                    </div>
+                </div>
+                <div class="recommended-card-content">
+                    <h3 class="recommended-card-title">Golden Years Choir</h3>
+                    <p class="recommended-card-date">Tue, Jan 20 • 05:00 PM</p>
+                    <p class="recommended-card-description">Sing classic hits from the 60s and 70s. No experience
+                        needed!</p>
+                    <a href="#" class="learn-more-link">Learn More ↗</a>
                 </div>
             </div>
             {% endif %}
         </div>
+    </section>
 
-        <!-- Action Buttons -->
-        <div class="action-buttons-grid">
-            <a href="{{ url_for('events.events') }}" class="action-btn">📅 View Events</a>
-            <a href="{{ url_for('support.support') }}" class="action-btn">💬 Get Help</a>
-            <a href="{{ url_for('dashboard.activities') }}" class="action-btn">⏰ View Schedule</a>
-            <a href="{{ url_for('rewards.rewards') }}" class="action-btn">🏆 View Rewards</a>
-            <a href="#" class="action-btn">👤 View Profile</a>
-            <a href="{{ url_for('home.logout') }}" class="action-btn">🚪 Log Out</a>
+    <!-- Upcoming Activities Section -->
+    <section class="activities-section-senior">
+        <div class="activities-header-senior">
+            <h2 class="activities-title-senior">📆 Your Upcoming Activities</h2>
+            <a href="{{ url_for('dashboard.activities') }}" class="view-all-link-senior">View All Upcoming Events</a>
         </div>
-    </div>
+
+        <div class="events-scroll-senior">
+            {% if upcoming_events %}
+            {% for event in upcoming_events %}
+            <div class="event-card-senior">
+                <h3 class="event-title-senior">{{ event.title }}</h3>
+                <p class="event-detail-senior">🕐 {{ event.date }}</p>
+                <p class="event-detail-senior">📍 {{ event.location }}</p>
+            </div>
+            {% endfor %}
+            {% else %}
+            <div class="empty-state-senior">
+                <div class="empty-state-icon-senior">📅</div>
+                <h3 class="empty-state-title-senior">No upcoming activities</h3>
+                <p class="empty-state-text-senior">Browse available events and sign up to get started!</p>
+                <a href="{{ url_for('events.events') }}" class="btn-senior-primary">Find Events</a>
+            </div>
+            {% endif %}
+        </div>
+    </section>
+
+    <!-- Quick Action Buttons -->
+    <section class="action-section-senior">
+        <h2 class="action-section-title">Quick Actions</h2>
+        <div class="action-buttons-grid-senior">
+            <a href="{{ url_for('events.events') }}" class="action-btn-senior">📅 View Events</a>
+            <a href="{{ url_for('support.support') }}" class="action-btn-senior">💬 Get Help</a>
+            <a href="{{ url_for('dashboard.activities') }}" class="action-btn-senior">⏰ View Schedule</a>
+            <a href="{{ url_for('rewards.rewards') }}" class="action-btn-senior">🏆 View Rewards</a>
+            <a href="#" class="action-btn-senior">👤 View Profile</a>
+            <a href="{{ url_for('home.logout') }}" class="action-btn-senior action-btn-logout">🚪 Log Out</a>
+        </div>
+    </section>
 </div>
 
 <script src="{{ url_for('static', filename='js/senior_dashboard.js') }}"></script>
