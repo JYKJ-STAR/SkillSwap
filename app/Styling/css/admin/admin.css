@@ -62,6 +62,11 @@
     box-sizing: border-box;
 }
 
+.mt-2 {
+    margin-top: 0.5rem;
+}
+
+
 /* =====================================================
    SIDEBAR
    ===================================================== */
@@ -457,4 +462,71 @@
     background: rgba(59, 130, 246, 0.2);
     border: 1px solid #3b82f6;
     color: #93c5fd;
+}
+
+/* =====================================================
+   DRAG & DROP FILE UPLOAD
+   ===================================================== */
+.drop-zone {
+    width: 100%;
+    padding: 30px;
+    border: 2px dashed #4b5563;
+    border-radius: 12px;
+    background: #1f2937;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+}
+
+.drop-zone:hover,
+.drop-zone.dragover {
+    border-color: #f87171;
+    background: rgba(248, 113, 113, 0.05);
+}
+
+.drop-zone-prompt {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    color: #9ca3af;
+}
+
+.drop-zone-prompt i {
+    font-size: 2em;
+    color: #6b7280;
+}
+
+.drop-zone-input {
+    display: none;
+}
+
+.drop-zone-thumb {
+    width: 100%;
+    height: 100%;
+    border-radius: 10px;
+    overflow: hidden;
+    background-color: #374151;
+    background-size: cover;
+    background-position: center;
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: none;
+}
+
+.drop-zone-thumb[data-label]::after {
+    content: attr(data-label);
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 5px 0;
+    color: white;
+    background: rgba(0, 0, 0, 0.75);
+    font-size: 0.8em;
+    text-align: center;
 }

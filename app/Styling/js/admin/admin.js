@@ -83,6 +83,50 @@ function validateLoginForm(form) {
     return true;
 }
 
+function validateSignupForm(form) {
+    const name = form.querySelector('[name="name"]');
+    const email = form.querySelector('[name="email"]');
+    const password = form.querySelector('[name="password"]');
+
+    if (!name.value.trim()) {
+        AdminToast.error('Name is required');
+        name.focus();
+        return false;
+    }
+
+    if (!email.value.trim()) {
+        AdminToast.error('Email is required');
+        email.focus();
+        return false;
+    }
+
+    // Email format check
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email.value.trim())) {
+        AdminToast.error('Please enter a valid email address');
+        email.focus();
+        return false;
+    }
+
+    if (!password.value.trim()) {
+        AdminToast.error('Password is required');
+        password.focus();
+        return false;
+    }
+
+    // Password Complexity Check (Same as User Signup)
+    // 8+ chars, 1 uppercase, 1 special char
+    const strongRegex = /^(?=.*[A-Z])(?=.*[!@#$&*]).{8,}$/;
+
+    if (!strongRegex.test(password.value)) {
+        AdminToast.error('Password must have at least 8 characters, 1 uppercase letter, and 1 special character (!@#$&*).');
+        password.focus();
+        return false;
+    }
+
+    return true;
+}
+
 // =====================================================
 // DASHBOARD INTERACTIONS
 // =====================================================

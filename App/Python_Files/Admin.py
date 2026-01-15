@@ -1,7 +1,11 @@
 from flask import Blueprint, render_template, session, redirect, url_for, flash, request
 from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.utils import secure_filename
 from app.db import get_db_connection
 from functools import wraps
+import os
+from datetime import datetime
+from flask import current_app
 
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
 
@@ -28,6 +32,69 @@ def admin_login_page():
     if session.get('is_admin') and session.get('admin_id'):
         return redirect(url_for('admin.admin_dashboard'))
     return render_template('admin/admin_login.html')
+
+@admin_bp.route('/signup')
+def admin_signup_page():
+    """Display admin signup page."""
+    if session.get('is_admin') and session.get('admin_id'):
+        return redirect(url_for('admin.admin_dashboard'))
+    return render_template('admin/admin_signup.html')
+
+@admin_bp.route('/signup', methods=['POST'])
+def admin_signup_submit():
+    """Handle admin signup."""
+    name = request.form.get('name')
+    email = request.form.get('email')
+    password = request.form.get('password')
+    photo = request.files.get('photo')
+
+    if not all([name, email, password]):
+        flash("All fields are required.", "error")
+        return redirect(url_for('admin.admin_signup_page'))
+
+    # Password Complexity Validation
+    import re
+    strong_regex = r"^(?=.*[A-Z])(?=.*[!@#$&*]).{8,}$"
+    if not re.match(strong_regex, password):
+        flash("Password must have at least 8 characters, 1 uppercase letter, and 1 special character.", "error")
+        return redirect(url_for('admin.admin_signup_page'))
+
+    conn = get_db_connection()
+    
+    # Check if email exists
+    existing = conn.execute("SELECT admin_id FROM admin WHERE email = ?", (email,)).fetchone()
+    if existing:
+        flash("Email already registered.", "error")
+        conn.close()
+        return redirect(url_for('admin.admin_signup_page'))
+
+    # Handle Photo Upload
+    photo_filename = None
+    if photo and photo.filename:
+        filename = secure_filename(photo.filename)
+        # Use current_app.static_folder which maps to 'Styling'
+        upload_folder = os.path.join(current_app.static_folder, 'img', 'admin')
+        os.makedirs(upload_folder, exist_ok=True)
+        
+        # Add timestamp to filename to prevent duplicates/caching issues
+        timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+        final_filename = f"{timestamp}_{filename}"
+        
+        photo.save(os.path.join(upload_folder, final_filename))
+        photo_filename = final_filename
+
+    # Insert Admin
+    password_hash = generate_password_hash(password)
+    
+    conn.execute(
+        "INSERT INTO admin (name, email, password_hash, photo) VALUES (?, ?, ?, ?)",
+        (name, email, password_hash, photo_filename)
+    )
+    conn.commit()
+    conn.close()
+
+    flash("Admin account created! Please login.", "success")
+    return redirect(url_for('admin.admin_login_page'))
 
 @admin_bp.route('/login', methods=['POST'])
 def admin_login_submit():

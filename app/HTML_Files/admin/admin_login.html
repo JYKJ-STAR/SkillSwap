@@ -64,7 +64,8 @@
 
             <!-- Footer -->
             <div class="login-footer">
-                <p>Not an admin? <a href="http://localhost:5000/login">User Login</a></p>
+                <p>New here? <a href="{{ url_for('admin.admin_signup_page') }}">Create Admin Account</a></p>
+                <p class="mt-2">Not an admin? <a href="http://localhost:5000/login">User Login</a></p>
             </div>
         </div>
     </div>

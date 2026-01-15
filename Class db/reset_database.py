@@ -53,19 +53,6 @@ def reset_database():
         cursor.execute("DELETE FROM sqlite_sequence WHERE name='admin'")
         print("✓ Deleted all existing admins and reset IDs")
 
-        # Recreate admin table with simplified schema
-        cursor.execute("DROP TABLE IF EXISTS admin")
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS admin (
-                admin_id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT NOT NULL,
-                email TEXT UNIQUE NOT NULL,
-                password_hash TEXT NOT NULL,
-                photo TEXT,
-                created_at TEXT NOT NULL DEFAULT (datetime('now'))
-            )
-        """)
-        print("✓ Recreated admin table with simplified schema")
         # Create regular users
         for user in USERS:
             password_hash = generate_password_hash(user['password'])
