@@ -13,24 +13,27 @@ DB_PATH = 'Class db/skillswap.db'
 USERS = [
     {
         'id': 1,
-        'name': 'Admin',
-        'email': 'Admin@gmail.com',
-        'password': 'Admin@1',
-        'role': 'admin'
-    },
-    {
-        'id': 2,
         'name': 'JaydenYip',
         'email': 'Jayden@gmail.com',
         'password': 'Jayden@1',
         'role': 'youth'
     },
     {
-        'id': 3,
+        'id': 2,
         'name': 'Dickson',
         'email': 'Dickson@gmail.com',
         'password': 'Dickson@1',
         'role': 'senior'
+    }
+]
+
+# Admin users (minimal fields)
+ADMIN_USERS = [
+    {
+        'name': 'Admin',
+        'email': 'admin@email.com',
+        'password': 'Admin@1',
+        'photo': None
     }
 ]
 
@@ -44,8 +47,26 @@ def reset_database():
         cursor.execute("DELETE FROM user")
         cursor.execute("DELETE FROM sqlite_sequence WHERE name='user'")
         print("✓ Deleted all existing users and reset IDs")
-        
-        # Create users
+
+        # Delete all admins and reset auto-increment counter
+        cursor.execute("DELETE FROM admin")
+        cursor.execute("DELETE FROM sqlite_sequence WHERE name='admin'")
+        print("✓ Deleted all existing admins and reset IDs")
+
+        # Recreate admin table with simplified schema
+        cursor.execute("DROP TABLE IF EXISTS admin")
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS admin (
+                admin_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                email TEXT UNIQUE NOT NULL,
+                password_hash TEXT NOT NULL,
+                photo TEXT,
+                created_at TEXT NOT NULL DEFAULT (datetime('now'))
+            )
+        """)
+        print("✓ Recreated admin table with simplified schema")
+        # Create regular users
         for user in USERS:
             password_hash = generate_password_hash(user['password'])
             cursor.execute(
@@ -54,6 +75,16 @@ def reset_database():
                 (user['id'], user['name'], user['email'], password_hash, user['role'])
             )
             print(f"✓ Created {user['role']}: {user['email']} (ID: {user['id']})")
+
+        # Create admin users (minimal fields)
+        for admin in ADMIN_USERS:
+            password_hash = generate_password_hash(admin['password'])
+            cursor.execute(
+                """INSERT INTO admin (name, email, password_hash, photo)
+                   VALUES (?, ?, ?, ?)""",
+                (admin['name'], admin['email'], password_hash, admin['photo'])
+            )
+            print(f"✓ Created admin: {admin['email']}")
         
         conn.commit()
         print("\n✅ Database reset complete!")

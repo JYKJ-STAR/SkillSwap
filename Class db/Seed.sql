@@ -13,11 +13,14 @@ INSERT INTO grc (name, region) VALUES
 ('Punggol', 'North-East'),
 ('Bedok', 'East');
 
--- USERS (Admin, Youth, Senior)
+-- USERS (Youth, Senior only - Admin now in separate table)
 INSERT INTO user (grc_id, name, role, password_hash, age, phone, email, verification_status, total_points) VALUES
-(1, 'Admin User',  'admin','demo_hash', 30, '91234567', 'admin@skillswap.local', 'verified', 0),
 (1, 'Jayden Yip', 'youth', 'demo_hash', 17, '91234568', 'youth@skillswap.local', 'verified', 50),
 (1, 'Mdm Tan',  'senior', 'demo_hash', 68, '91234569', 'senior@skillswap.local', 'verified', 100);
+
+-- ADMIN USERS (Separate table)
+INSERT INTO admin (grc_id, name, password_hash, age, phone, email) VALUES
+(1, 'Super Admin', 'demo_hash', 35, '90001111', 'admin@skillswap.local');
 
 -- SKILLS (Updated with new categories)
 INSERT INTO skill (name, category, description) VALUES
@@ -46,15 +49,15 @@ INSERT INTO skill (name, category, description) VALUES
 
 -- USER SKILL OFFERED (Seniors offer skills)
 INSERT INTO user_skill_offered (user_id, skill_id) VALUES
-(3, 7),
-(3, 9);
+(2, 7),
+(2, 9);
 
 -- USER SKILL INTEREST (Youth interested in learning)
 INSERT INTO user_skill_interest (user_id, skill_id) VALUES
-(2, 7),
-(2, 9),
-(2, 1),
-(2, 5);
+(1, 7),
+(1, 9),
+(1, 1),
+(1, 5);
 
 -- =====================================================
 -- EVENTS BY CATEGORY

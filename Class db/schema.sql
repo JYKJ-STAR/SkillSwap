@@ -31,6 +31,16 @@ CREATE TABLE IF NOT EXISTS user (
   FOREIGN KEY (grc_id) REFERENCES grc(grc_id) ON DELETE SET NULL
 );
 
+-- ADMIN TABLE (Simplified)
+CREATE TABLE IF NOT EXISTS admin (
+  admin_id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  email TEXT UNIQUE NOT NULL,
+  password_hash TEXT NOT NULL,
+  photo TEXT,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
 -- =====================================================
 -- 2. SKILLS + MATCHING
 -- =====================================================

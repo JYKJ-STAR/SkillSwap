@@ -11,11 +11,65 @@ admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
 def admin_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        if session.get('user_role') != 'admin':
+        # Check if admin is logged in via admin table
+        if not session.get('is_admin') or not session.get('admin_id'):
             flash("Admin access required.", "error")
-            return redirect(url_for('home.home'))
+            return redirect(url_for('admin.admin_login_page'))
         return f(*args, **kwargs)
     return decorated_function
+
+# =====================================================
+# ADMIN AUTHENTICATION (Separate from User Auth)
+# =====================================================
+@admin_bp.route('/login')
+def admin_login_page():
+    """Display admin login page."""
+    # If already logged in as admin, redirect to dashboard
+    if session.get('is_admin') and session.get('admin_id'):
+        return redirect(url_for('admin.admin_dashboard'))
+    return render_template('admin/admin_login.html')
+
+@admin_bp.route('/login', methods=['POST'])
+def admin_login_submit():
+    """Handle admin login - no role selection."""
+    email = request.form.get('email')
+    password = request.form.get('password')
+    
+    conn = get_db_connection()
+    admin = conn.execute(
+        "SELECT admin_id, name, password_hash FROM admin WHERE email = ?",
+        (email,)
+    ).fetchone()
+    conn.close()
+    
+    if admin is None:
+        flash("Admin email not found.", "error")
+        return redirect(url_for('admin.admin_login_page'))
+    
+    # For demo: accept 'demo_hash' as valid password
+    if admin['password_hash'] != 'demo_hash' and not check_password_hash(admin['password_hash'], password):
+        flash("Incorrect password.", "error")
+        return redirect(url_for('admin.admin_login_page'))
+    
+    # Set admin session (different keys from regular users)
+    session['admin_id'] = admin['admin_id']
+    session['admin_name'] = admin['name']
+    session['is_admin'] = True
+    session['user_name'] = admin['name']  # For template compatibility
+    session.permanent = True
+    
+    flash(f"Welcome back, {admin['name']}!", "success")
+    return redirect(url_for('admin.admin_dashboard'))
+
+@admin_bp.route('/logout')
+def admin_logout():
+    """Clear admin session."""
+    session.pop('admin_id', None)
+    session.pop('admin_name', None)
+    session.pop('is_admin', None)
+    session.pop('user_name', None)
+    flash("You have been logged out.", "info")
+    return redirect(url_for('admin.admin_login_page'))
 
 # =====================================================
 # ADMIN DASHBOARD (All features in one page)
