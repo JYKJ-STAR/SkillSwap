@@ -112,6 +112,15 @@ def events():
     role = session.get('user_role')
     user_id = session.get('user_id')
     
+    # Fetch all events
+    all_events = get_all_events()
+    
+    # Get user's interests
+    user_interests = get_user_interests(user_id) if user_id else []
+    
+    # Categorize events
+    categorized = categorize_events(all_events, user_interests)
+    
     if role == 'admin':
         return redirect(url_for('admin.admin_dashboard'))
     elif role == 'senior':
