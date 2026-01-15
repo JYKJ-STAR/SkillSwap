@@ -45,6 +45,78 @@
         </div>
     </div>
 
+    <!-- Dynamic Stats Section -->
+    <section class="stats-section">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">🎯</div>
+                <div class="stat-value">{{ user.activities_joined or 12 }}</div>
+                <div class="stat-label">Activities Joined</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">⭐</div>
+                <div class="stat-value">{{ user.points or 450 }}</div>
+                <div class="stat-label">Points Earned</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">⏱️</div>
+                <div class="stat-value">{{ user.hours_volunteered or 24 }}</div>
+                <div class="stat-label">Hours Volunteered</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🏆</div>
+                <div class="stat-value">{{ user.badges_earned or 5 }}</div>
+                <div class="stat-label">Badges Earned</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Recommended for You Section -->
+    <section class="recommended-section">
+        <div class="recommended-header">
+            <div>
+                <h2 class="recommended-title">Recommended for You</h2>
+                <p class="recommended-subtitle">Based on your interests: Teaching and Arts</p>
+            </div>
+            <a href="{{ url_for('events.events') }}?filter=recommended" class="view-all-link">View All Categories →</a>
+        </div>
+
+        <div class="events-grid">
+            <div class="event-card-compact">
+                <div class="event-icon">🌱</div>
+                <h3 class="event-compact-title">Community Gardening</h3>
+                <p class="event-compact-time">Wed, Jan 22 • 10:00 AM</p>
+                <p class="event-compact-description">Help maintain the community garden. Ideal for nature lovers!</p>
+                <a href="{{ url_for('events.events') }}" class="event-compact-link">Learn More →</a>
+            </div>
+
+            <div class="event-card-compact">
+                <div class="event-icon">🧶</div>
+                <h3 class="event-compact-title">Knitting Circle (Mentor Needed)</h3>
+                <p class="event-compact-time">Fri, Jan 24 • 2:00 PM</p>
+                <p class="event-compact-description">Share your knitting skills with beginners. Earn extra mentor
+                    points!</p>
+                <a href="{{ url_for('events.events') }}" class="event-compact-link">Learn More →</a>
+            </div>
+
+            <div class="event-card-compact">
+                <div class="event-icon">🧘</div>
+                <h3 class="event-compact-title">Gentle Chair Yoga</h3>
+                <p class="event-compact-time">Mon, Jan 27 • 9:30 AM</p>
+                <p class="event-compact-description">Low-impact chair-based stretches for all mobility levels</p>
+                <a href="{{ url_for('events.events') }}" class="event-compact-link">Learn More →</a>
+            </div>
+
+            <div class="event-card-compact">
+                <div class="event-icon">🎵</div>
+                <h3 class="event-compact-title">Golden Years Choir</h3>
+                <p class="event-compact-time">Tue, Jan 28 • 4:00 PM</p>
+                <p class="event-compact-description">Sing classic hits with others and stay engaged!</p>
+                <a href="{{ url_for('events.events') }}" class="event-compact-link">Learn More →</a>
+            </div>
+        </div>
+    </section>
+
     <!-- Upcoming Activities Section -->
     <section class="activities-section">
         <div class="activities-header">

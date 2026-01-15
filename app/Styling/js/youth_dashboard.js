@@ -1,7 +1,7 @@
 // Youth Dashboard JavaScript
 // ========================================
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     // Add smooth scroll behavior
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
@@ -12,16 +12,16 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-    
+
     // Language selector functionality
     const languageSelector = document.querySelector('.language-selector');
     if (languageSelector) {
-        languageSelector.addEventListener('change', function() {
+        languageSelector.addEventListener('change', function () {
             // Store language preference
             localStorage.setItem('preferredLanguage', this.value);
             console.log('Language changed to:', this.value);
         });
-        
+
         // Load saved language preference
         const savedLanguage = localStorage.getItem('preferredLanguage');
         if (savedLanguage) {
