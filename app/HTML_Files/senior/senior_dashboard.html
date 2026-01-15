@@ -29,20 +29,18 @@
         </div>
     </section>
 
-    <!-- Quick Stats Grid -->
-    <div class="dashboard-grid-senior">
-        <div class="section-card-senior">
-            <h2 class="section-title-senior">👤 Settings</h2>
-            <p class="section-subtitle-senior">Update your profile and preferences</p>
-            <a href="#" class="btn-senior-secondary">View Profile</a>
+    <!-- Quick Action Buttons -->
+    <section class="action-section-senior">
+        <h2 class="action-section-title">Quick Actions</h2>
+        <div class="action-buttons-grid-senior">
+            <a href="{{ url_for('events.events') }}" class="action-btn-senior">📅 View Events</a>
+            <a href="{{ url_for('support.support') }}" class="action-btn-senior">💬 Get Help</a>
+            <a href="{{ url_for('dashboard.activities') }}" class="action-btn-senior">⏰ View Schedule</a>
+            <a href="{{ url_for('rewards.rewards') }}" class="action-btn-senior">🏆 View Rewards</a>
+            <a href="#" class="action-btn-senior">👤 View Profile</a>
+            <a href="{{ url_for('home.logout') }}" class="action-btn-senior action-btn-logout">🚪 Log Out</a>
         </div>
-
-        <div class="section-card-senior">
-            <h2 class="section-title-senior">🎓 Learn or Teach</h2>
-            <p class="section-subtitle-senior">Discover activities and opportunities</p>
-            <a href="{{ url_for('dashboard.activities') }}" class="btn-senior-secondary">Find Activities</a>
-        </div>
-    </div>
+    </section>
 
     <!-- Recommended for You Section -->
     <section class="recommended-section-senior">
@@ -50,7 +48,8 @@
             <div>
                 <h2 class="section-title-main-senior">Recommended for You</h2>
                 <p class="section-subtitle-main-senior">Based on your interest in <strong>Teaching</strong> and
-                    <strong>Arts</strong>.</p>
+                    <strong>Arts</strong>.
+                </p>
             </div>
             <a href="{{ url_for('events.events') }}" class="view-all-link-senior">View All Categories →</a>
         </div>
@@ -164,19 +163,6 @@
                 <a href="{{ url_for('events.events') }}" class="btn-senior-primary">Find Events</a>
             </div>
             {% endif %}
-        </div>
-    </section>
-
-    <!-- Quick Action Buttons -->
-    <section class="action-section-senior">
-        <h2 class="action-section-title">Quick Actions</h2>
-        <div class="action-buttons-grid-senior">
-            <a href="{{ url_for('events.events') }}" class="action-btn-senior">📅 View Events</a>
-            <a href="{{ url_for('support.support') }}" class="action-btn-senior">💬 Get Help</a>
-            <a href="{{ url_for('dashboard.activities') }}" class="action-btn-senior">⏰ View Schedule</a>
-            <a href="{{ url_for('rewards.rewards') }}" class="action-btn-senior">🏆 View Rewards</a>
-            <a href="#" class="action-btn-senior">👤 View Profile</a>
-            <a href="{{ url_for('home.logout') }}" class="action-btn-senior action-btn-logout">🚪 Log Out</a>
         </div>
     </section>
 </div>
