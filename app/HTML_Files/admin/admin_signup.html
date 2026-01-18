@@ -67,6 +67,16 @@
 
                 <div class="form-group">
                     <label class="form-label">
+                        <i class="bi bi-shield-lock-fill"></i> Privileged Account?
+                    </label>
+                    <select name="privileged" class="form-input">
+                        <option value="No">No (Standard Admin)</option>
+                        <option value="Yes">Yes (Can create other admins)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
                         <i class="bi bi-image"></i> Profile Picture
                     </label>
                     <div class="drop-zone" id="dropZone">
@@ -85,7 +95,7 @@
             </form>
 
             <div class="login-footer">
-                <p>Back to <a href="{{ url_for('admin.admin_login_page') }}">Login</a></p>
+                <p>Aborting creation? <a href="{{ url_for('admin.admin_login_page') }}">Back to Login</a></p>
             </div>
         </div>
     </div>

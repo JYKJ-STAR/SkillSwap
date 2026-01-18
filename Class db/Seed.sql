@@ -19,8 +19,8 @@ INSERT INTO user (grc_id, name, role, password_hash, age, phone, email, verifica
 (1, 'Mdm Tan',  'senior', 'demo_hash', 68, '91234569', 'senior@skillswap.local', 'verified', 100);
 
 -- ADMIN USERS (Separate table)
-INSERT INTO admin (grc_id, name, password_hash, age, phone, email) VALUES
-(1, 'Super Admin', 'demo_hash', 35, '90001111', 'admin@skillswap.local');
+INSERT INTO admin (name, email, password_hash, privileged) VALUES
+('Super Admin', 'admin@skillswap.local', 'demo_hash', 'Yes');
 
 -- SKILLS (Updated with new categories)
 INSERT INTO skill (name, category, description) VALUES

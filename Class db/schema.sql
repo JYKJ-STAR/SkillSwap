@@ -22,6 +22,10 @@ CREATE TABLE IF NOT EXISTS user (
   -- Added verification_token based on your ERD
   verification_token TEXT,
   
+  -- New photo columns
+  profile_photo TEXT,
+  verification_photo TEXT,
+  
   role TEXT NOT NULL CHECK (role IN ('youth','senior','admin')),
   display_name TEXT GENERATED ALWAYS AS (name || ' (' || role || ')') VIRTUAL,
   verification_status TEXT NOT NULL DEFAULT 'unverified' CHECK (verification_status IN ('unverified','pending','verified')),
@@ -38,6 +42,7 @@ CREATE TABLE IF NOT EXISTS admin (
   email TEXT UNIQUE NOT NULL,
   password_hash TEXT NOT NULL,
   photo TEXT,
+  privileged TEXT NOT NULL DEFAULT 'No' CHECK (privileged IN ('Yes', 'No')),
   created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 

@@ -40,8 +40,8 @@
             {% endwith %}
 
             <!-- Login Form -->
-            <form id="adminLoginForm" action="{{ url_for('admin.admin_login_submit') }}" method="POST"
-                onsubmit="return validateLoginForm(this)">
+            <form id="adminLoginForm" action="{{ url_for('admin.admin_login_submit', next=request.args.get('next')) }}"
+                method="POST" onsubmit="return validateLoginForm(this)">
                 <div class="form-group">
                     <label class="form-label">
                         <i class="bi bi-envelope"></i> Email Address

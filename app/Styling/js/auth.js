@@ -64,23 +64,55 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // File Upload
+    // File Upload and Drag & Drop
     const uploadZone = document.getElementById('uploadZone');
     const fileInput = document.getElementById('fileInput');
     const fileName = document.getElementById('fileName');
 
     if (uploadZone) {
         uploadZone.addEventListener('click', () => fileInput.click());
+
         fileInput.addEventListener('change', (e) => {
-            if (e.target.files.length) {
-                const file = e.target.files[0];
+            handleFiles(e.target.files);
+        });
+
+        // Drag & Drop
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            uploadZone.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            uploadZone.addEventListener(eventName, () => uploadZone.classList.add('dragover'), false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            uploadZone.addEventListener(eventName, () => uploadZone.classList.remove('dragover'), false);
+        });
+
+        uploadZone.addEventListener('drop', (e) => {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            fileInput.files = files; // Update input files
+            handleFiles(files);
+        });
+
+        function handleFiles(files) {
+            if (files.length) {
+                const file = files[0];
                 if (file.size > 5 * 1024 * 1024) {
-                    showToast('File too large. Maximum size is 5MB.', 'error'); return;
+                    showToast('File too large. Maximum size is 5MB.', 'error');
+                    fileInput.value = ''; // Clear input
+                    return;
                 }
                 fileName.textContent = file.name;
                 uploadZone.classList.add('has-file');
             }
-        });
+        }
     }
 });
 
@@ -226,37 +258,45 @@ async function submitForm(hasVerification) {
     if (!isValid) return;
 
     // Require photo if user clicked "Submit and Finish" (hasVerification = true)
+    const fileInput = document.getElementById('fileInput');
     if (hasVerification) {
-        const fileInput = document.getElementById('fileInput');
         if (!fileInput.files || fileInput.files.length === 0) {
             showToast('Please upload a photo ID to complete verification.', 'warning');
             return;
         }
     }
 
-    const data = {
-        // Determine the correct role string for backend
-        role: selectedRole === 'senior' ? 'senior' : 'youth',
-        email: document.getElementById('email').value,
-        password: document.getElementById('password').value,
-        firstName: document.getElementById('firstName').value,
-        lastName: document.getElementById('lastName').value,
-        age: document.getElementById('age').value,
-        phone: document.getElementById('phone') ? document.getElementById('phone').value : '',
-        schoolProfession: document.getElementById('schoolProfession').value,
-        language: document.getElementById('language').value,
-        teachSkills: teachSkills.concat(document.getElementById('teachCustom').value ? [document.getElementById('teachCustom').value] : []),
-        learnSkills: learnSkills.concat(document.getElementById('learnCustom').value ? [document.getElementById('learnCustom').value] : []),
-        hasVerification: hasVerification
-    };
+    // Use FormData for file upload
+    const formData = new FormData();
+    formData.append('role', selectedRole === 'senior' ? 'senior' : 'youth');
+    formData.append('email', document.getElementById('email').value);
+    formData.append('password', document.getElementById('password').value);
+    formData.append('firstName', document.getElementById('firstName').value);
+    formData.append('lastName', document.getElementById('lastName').value);
+    formData.append('age', document.getElementById('age').value);
+    formData.append('phone', document.getElementById('phone') ? document.getElementById('phone').value : '');
+    formData.append('schoolProfession', document.getElementById('schoolProfession').value);
+    formData.append('language', document.getElementById('language').value);
+
+    // Combine tags and custom inputs for skills
+    const finalTeachSkills = teachSkills.concat(document.getElementById('teachCustom').value ? [document.getElementById('teachCustom').value] : []);
+    const finalLearnSkills = learnSkills.concat(document.getElementById('learnCustom').value ? [document.getElementById('learnCustom').value] : []);
+
+    // Send as JSON strings to be easier to parse on backend with simple FormData
+    formData.append('teachSkills', JSON.stringify(finalTeachSkills));
+    formData.append('learnSkills', JSON.stringify(finalLearnSkills));
+    formData.append('hasVerification', hasVerification);
+
+    // Append file if present
+    if (fileInput.files.length > 0) {
+        formData.append('verificationPhoto', fileInput.files[0]);
+    }
 
     try {
         const response = await fetch(API_URLS.register, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(data)
+            // No Content-Type header - fetch adds it automatically for FormData (multipart/form-data)
+            body: formData
         });
 
         if (response.redirected) {

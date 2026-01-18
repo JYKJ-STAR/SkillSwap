@@ -1,7 +1,11 @@
-from flask import Blueprint, render_template, session, redirect, url_for, flash, request, jsonify
+from flask import Blueprint, render_template, session, redirect, url_for, flash, request, jsonify, current_app
 from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.utils import secure_filename
 from app.db import get_db_connection
 from app import oauth
+import json
+import os
+from datetime import datetime
 
 home_bp = Blueprint("home", __name__)
 
@@ -132,48 +136,66 @@ def logout():
     return redirect(url_for('home.home'))
 
 @home_bp.route('/register', methods=['POST'])
-
 def register():
-    """Handle user registration with JSON support."""
-    data = request.get_json() if request.is_json else request.form
+    """Handle user registration with support for FormData (file upload) and JSON."""
     
+    # Handle both JSON request and Form Data
     if request.is_json:
-        email = data.get('email')
-        password = data.get('password')
-        role = data.get('role', 'youth')
-        first_name = data.get('firstName', '')
-        last_name = data.get('lastName', '')
-        name = f"{first_name} {last_name}".strip() or email.split('@')[0]
-        age = data.get('age')
-        phone = data.get('phone')
-        language = data.get('language', 'English')
+        data = request.get_json()
         teach_skills = data.get('teachSkills', [])
         learn_skills = data.get('learnSkills', [])
     else:
-        # Fallback for standard form submission
-        email = data.get('email')
-        password = data.get('password')
-        role = data.get('role', 'youth')
-        name = email.split('@')[0]
-        age = None
-        language = 'English'
-        teach_skills = []
-        learn_skills = []
+        data = request.form
+        # Parse skills if they come as JSON strings from FormData
+        try:
+            teach_skills = json.loads(data.get('teachSkills', '[]'))
+        except:
+            teach_skills = []
+            
+        try:
+            learn_skills = json.loads(data.get('learnSkills', '[]'))
+        except:
+            learn_skills = []
 
+    email = data.get('email')
+    password = data.get('password')
+    role = data.get('role', 'youth')
+    first_name = data.get('firstName', '')
+    last_name = data.get('lastName', '')
+    name = f"{first_name} {last_name}".strip() or email.split('@')[0]
+    age = data.get('age')
+    phone = data.get('phone')
+    language = data.get('language', 'English')
+    
+    # Validation
     if not email or not password:
-        response = {'error': 'Email and password are required'}
-        return jsonify(response) if request.is_json else flash("Missing credentials", "error") or redirect(url_for('home.signup_page'))
+        return jsonify({'error': 'Email and password are required'}), 400
+
+    # Handle File Upload (Verification Photo)
+    verification_photo = None
+    if not request.is_json and 'verificationPhoto' in request.files:
+        photo = request.files['verificationPhoto']
+        if photo and photo.filename:
+            filename = secure_filename(photo.filename)
+            # Use specific verified folder
+            upload_folder = os.path.join(current_app.static_folder, 'img', 'users', 'verification')
+            os.makedirs(upload_folder, exist_ok=True)
+            
+            timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+            final_filename = f"{timestamp}_{filename}"
+            photo.save(os.path.join(upload_folder, final_filename))
+            verification_photo = final_filename
 
     password_hash = generate_password_hash(password)
     
     conn = get_db_connection()
     try:
         cur = conn.cursor()
-        # Insert User
+        # Insert User (with verification_photo)
         cur.execute(
-            """INSERT INTO user (name, email, password_hash, role, age, phone, language_pref, verification_status)
-               VALUES (?, ?, ?, ?, ?, ?, ?, 'pending')""",
-            (name, email, password_hash, role, age, phone, language)
+            """INSERT INTO user (name, email, password_hash, role, age, phone, language_pref, verification_status, verification_photo)
+               VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', ?)""",
+            (name, email, password_hash, role, age, phone, language, verification_photo)
         )
         user_id = cur.lastrowid
         
@@ -204,19 +226,11 @@ def register():
         session['user_name'] = name
         session['user_role'] = role
         
-        if request.is_json:
-            return jsonify({'message': 'Registration successful', 'redirect': url_for('dashboard.dashboard')})
-        else:
-            flash("Registration successful!", "success")
-            return redirect(url_for('dashboard.dashboard'))
+        return jsonify({'message': 'Registration successful', 'redirect': url_for('dashboard.dashboard')})
 
     except Exception as e:
         conn.rollback()
-        if request.is_json:
-            return jsonify({'error': str(e)}), 500
-        else:
-            flash(f"Registration failed: {str(e)}", "error")
-            return redirect(url_for('home.signup_page'))
+        return jsonify({'error': str(e)}), 500
     finally:
         conn.close()
 

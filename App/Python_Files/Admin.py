@@ -35,17 +35,31 @@ def admin_login_page():
 
 @admin_bp.route('/signup')
 def admin_signup_page():
-    """Display admin signup page."""
-    if session.get('is_admin') and session.get('admin_id'):
+    """Display admin signup page. Restricted to Privileged Admins."""
+    # Check if logged in
+    if not session.get('is_admin') or not session.get('admin_id'):
+        flash("Privileged Admin access required to create new admins. Please log in.", "info")
+        return redirect(url_for('admin.admin_login_page', next=url_for('admin.admin_signup_page')))
+    
+    # Check privilege
+    if session.get('privileged') != 'Yes':
+        flash("Access Denied. Only Privileged Admins can create new accounts.", "error")
         return redirect(url_for('admin.admin_dashboard'))
+
     return render_template('admin/admin_signup.html')
 
 @admin_bp.route('/signup', methods=['POST'])
 def admin_signup_submit():
     """Handle admin signup."""
+    # Security Check again
+    if not session.get('is_admin') or session.get('privileged') != 'Yes':
+        flash("Unauthorized action.", "error")
+        return redirect(url_for('admin.admin_login_page'))
+
     name = request.form.get('name')
     email = request.form.get('email')
     password = request.form.get('password')
+    privileged = request.form.get('privileged', 'No') # Default to No
     photo = request.files.get('photo')
 
     if not all([name, email, password]):
@@ -87,14 +101,14 @@ def admin_signup_submit():
     password_hash = generate_password_hash(password)
     
     conn.execute(
-        "INSERT INTO admin (name, email, password_hash, photo) VALUES (?, ?, ?, ?)",
-        (name, email, password_hash, photo_filename)
+        "INSERT INTO admin (name, email, password_hash, photo, privileged) VALUES (?, ?, ?, ?, ?)",
+        (name, email, password_hash, photo_filename, privileged)
     )
     conn.commit()
     conn.close()
 
-    flash("Admin account created! Please login.", "success")
-    return redirect(url_for('admin.admin_login_page'))
+    flash("New Admin account created successfully!", "success")
+    return redirect(url_for('admin.admin_dashboard'))
 
 @admin_bp.route('/login', methods=['POST'])
 def admin_login_submit():
@@ -104,7 +118,7 @@ def admin_login_submit():
     
     conn = get_db_connection()
     admin = conn.execute(
-        "SELECT admin_id, name, password_hash FROM admin WHERE email = ?",
+        "SELECT admin_id, name, password_hash, privileged FROM admin WHERE email = ?",
         (email,)
     ).fetchone()
     conn.close()
@@ -122,10 +136,17 @@ def admin_login_submit():
     session['admin_id'] = admin['admin_id']
     session['admin_name'] = admin['name']
     session['is_admin'] = True
+    session['privileged'] = admin['privileged']
     session['user_name'] = admin['name']  # For template compatibility
     session.permanent = True
     
     flash(f"Welcome back, {admin['name']}!", "success")
+    
+    # Handle 'next' redirect if present
+    next_url = request.args.get('next')
+    if next_url:
+        return redirect(next_url)
+
     return redirect(url_for('admin.admin_dashboard'))
 
 @admin_bp.route('/logout')
