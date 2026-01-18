@@ -182,10 +182,21 @@ async function validateStep(step) {
             showToast('Please complete all required fields.', 'warning'); return false;
         }
 
-        // Age validation (12-80)
+        // Age validation based on role
         const age = parseInt(document.getElementById('age').value);
-        if (age < 12 || age > 80) {
-            showToast('Age must be between 12 and 80 years.', 'error');
+        let minAge = 12;
+        let maxAge = 80;
+
+        if (selectedRole === 'youth') {
+            minAge = 15;
+            maxAge = 35;
+        } else if (selectedRole === 'senior') {
+            minAge = 36;
+            maxAge = 80;
+        }
+
+        if (age < minAge || age > maxAge) {
+            showToast(`For ${selectedRole === 'youth' ? 'Youth' : 'Seniors'}, age must be between ${minAge} and ${maxAge} years.`, 'error');
             return false;
         }
 
@@ -236,12 +247,20 @@ async function nextStep(step) {
     if (currentStep === 2) {
         const label = document.getElementById('schoolProfessionLabel');
         const input = document.getElementById('schoolProfession');
+        const ageInput = document.getElementById('age');
+
         if (selectedRole === 'youth') {
             label.textContent = 'School / University OR Profession';
             input.placeholder = 'School / Profession';
+            ageInput.min = 15;
+            ageInput.max = 35;
+            ageInput.placeholder = "Age (15-35)";
         } else {
             label.textContent = 'Current or Former Profession';
             input.placeholder = 'Profession';
+            ageInput.min = 36;
+            ageInput.max = 80;
+            ageInput.placeholder = "Age (36-80)";
         }
     }
     updateSteps();

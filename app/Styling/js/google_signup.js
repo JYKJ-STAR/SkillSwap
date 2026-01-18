@@ -74,9 +74,20 @@ function validateStep(step) {
         const phone = document.getElementById('phone').value;
         const age = parseInt(document.getElementById('age').value);
 
-        // Age validation (12-80)
-        if (age < 12 || age > 80) {
-            showToast('Age must be between 12 and 80 years.', 'error');
+        // Age validation based on role
+        let minAge = 12;
+        let maxAge = 80;
+
+        if (selectedRole === 'youth') {
+            minAge = 15;
+            maxAge = 35;
+        } else if (selectedRole === 'senior') {
+            minAge = 36;
+            maxAge = 80;
+        }
+
+        if (age < minAge || age > maxAge) {
+            showToast(`For ${selectedRole === 'youth' ? 'Youth' : 'Seniors'}, age must be between ${minAge} and ${maxAge} years.`, 'error');
             return false;
         }
 
@@ -108,12 +119,20 @@ function nextStep(step) {
     if (currentStep === 2) {
         const label = document.getElementById('schoolProfessionLabel');
         const input = document.getElementById('schoolProfession');
+        const ageInput = document.getElementById('age');
+
         if (selectedRole === 'youth') {
             label.innerHTML = '<i class="bi bi-mortarboard-fill"></i> School/University';
             input.placeholder = 'School / Profession';
+            ageInput.min = 15;
+            ageInput.max = 35;
+            ageInput.placeholder = "Age (15-35)";
         } else {
             label.innerHTML = '<i class="bi bi-briefcase-fill"></i> Profession';
             input.placeholder = 'Profession';
+            ageInput.min = 36;
+            ageInput.max = 80;
+            ageInput.placeholder = "Age (36-80)";
         }
     }
 
