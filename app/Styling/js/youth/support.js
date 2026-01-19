@@ -168,7 +168,7 @@ function sendMessage() {
         // Show typing indicator
         const typingIndicator = document.createElement('div');
         typingIndicator.className = 'message message-left typing-indicator';
-        typingIndicator.innerHTML = `<p><span class="."></span><span class="."></span><span class="."></span></p>`;
+        typingIndicator.innerHTML = `<p><span class="dot"></span><span class="dot"></span><span class="dot"></span></p>`;
         chatMessages.appendChild(typingIndicator);
         chatMessages.scrollTop = chatMessages.scrollHeight;
 
