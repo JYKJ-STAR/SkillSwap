@@ -68,6 +68,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const uploadZone = document.getElementById('uploadZone');
     const fileInput = document.getElementById('fileInput');
     const fileName = document.getElementById('fileName');
+    const fileDisplay = document.getElementById('fileDisplay');
+    const removeFileBtn = document.getElementById('removeFileBtn');
+
+    if (removeFileBtn) {
+        removeFileBtn.addEventListener('click', (e) => {
+            e.stopPropagation(); // Prevent opening file dialog
+            fileInput.value = '';
+            fileDisplay.style.display = 'none';
+            uploadZone.classList.remove('has-file');
+        });
+    }
 
     if (uploadZone) {
         uploadZone.addEventListener('click', () => fileInput.click());
@@ -110,6 +121,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     return;
                 }
                 fileName.textContent = file.name;
+                if (fileDisplay) fileDisplay.style.display = 'block';
                 uploadZone.classList.add('has-file');
             }
         }

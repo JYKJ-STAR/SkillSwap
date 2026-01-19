@@ -86,6 +86,10 @@
                         </span>
                         <input type="file" name="photo" class="drop-zone-input" accept="image/*">
                         <div class="drop-zone-thumb" data-label="file.jpg"></div>
+                        <div class="drop-zone-remove" title="Remove image"
+                            style="display:none; position: absolute; top: 10px; right: 10px; z-index: 100; color: #dc3545; background: white; border-radius: 50%; width: 28px; height: 28px; text-align: center; line-height: 28px; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.2); transition: transform 0.2s;">
+                            <i class="bi bi-x-lg" style="font-size: 16px;"></i>
+                        </div>
                     </div>
                 </div>
 
@@ -109,6 +113,17 @@
             dropZoneElement.addEventListener("click", (e) => {
                 inputElement.click();
             });
+
+            // Remove button logic
+            const removeBtn = dropZoneElement.querySelector(".drop-zone-remove");
+            if (removeBtn) {
+                removeBtn.addEventListener("click", (e) => {
+                    e.stopPropagation(); // Prevent opening file dialog
+                    e.preventDefault();
+                    inputElement.value = ""; // Clear input
+                    updateThumbnail(dropZoneElement, null); // Reset view
+                });
+            }
 
             inputElement.addEventListener("change", (e) => {
                 if (inputElement.files.length) {
@@ -141,15 +156,27 @@
 
         function updateThumbnail(dropZoneElement, file) {
             let thumbnailElement = dropZoneElement.querySelector(".drop-zone-thumb");
+            let promptElement = dropZoneElement.querySelector(".drop-zone-prompt");
+            let removeBtn = dropZoneElement.querySelector(".drop-zone-remove");
 
-            // Hide the prompt
-            if (dropZoneElement.querySelector(".drop-zone-prompt")) {
-                dropZoneElement.querySelector(".drop-zone-prompt").style.display = "none";
+            // Handle Reset (file is null)
+            if (!file) {
+                if (promptElement) promptElement.style.display = "flex";
+                thumbnailElement.style.display = "none";
+                thumbnailElement.style.backgroundImage = null;
+                if (removeBtn) removeBtn.style.display = "none";
+                return;
             }
 
-            // Show thumb
+            // Hide the prompt
+            if (promptElement) {
+                promptElement.style.display = "none";
+            }
+
+            // Show thumb and remove button
             thumbnailElement.style.display = "block";
             thumbnailElement.dataset.label = file.name;
+            if (removeBtn) removeBtn.style.display = "block";
 
             // Show image if valid
             if (file.type.startsWith("image/")) {
