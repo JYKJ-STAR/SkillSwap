@@ -14,6 +14,7 @@ def create_app():
     app = Flask(__name__, template_folder='HTML_Files', static_folder='Styling')
     app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "dev-secret")
     app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=31)
+    app.config['TEMPLATES_AUTO_RELOAD'] = True
     
     # OAuth Configuration
     app.config['GOOGLE_CLIENT_ID'] = os.getenv('GOOGLE_CLIENT_ID', 'YOUR_GOOGLE_CLIENT_ID')
