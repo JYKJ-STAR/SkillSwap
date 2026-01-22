@@ -20,7 +20,7 @@ def get_all_events():
         SELECT event_id, title, description, category, led_by, 
                start_datetime, location, status, base_points_participant
         FROM event 
-        WHERE status = 'open'
+        WHERE status IN ('approved', 'published')
         ORDER BY start_datetime ASC
     ''')
     events = cursor.fetchall()

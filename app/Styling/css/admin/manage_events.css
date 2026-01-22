@@ -82,6 +82,8 @@ body {
     /* Matching .section in dashboard */
     border-radius: 12px;
     overflow: hidden;
+    overflow-x: auto;
+    /* Enable horizontal scrolling */
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
@@ -127,36 +129,57 @@ body {
 }
 
 .status-badge.approved {
-    background: #d1fae5;
-    color: #065f46;
+    background-color: rgba(16, 185, 129, 0.2);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.status-badge.published {
+    background-color: rgba(59, 130, 246, 0.2);
+    color: #60a5fa;
+    border: 1px solid rgba(59, 130, 246, 0.3);
 }
 
 .status-badge.pending {
-    background: #fef3c7;
-    color: #92400e;
-}
-
-.status-badge.cancelled {
-    background: #fee2e2;
-    color: #991b1b;
+    background-color: rgba(245, 158, 11, 0.2);
+    color: #fbbf24;
+    border: 1px solid rgba(245, 158, 11, 0.3);
 }
 
 .status-badge.finished {
-    background: #fee2e2;
-    color: #991b1b;
+    background-color: rgba(239, 68, 68, 0.2);
+    color: #f87171;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.status-badge.voided {
+    background-color: rgba(239, 68, 68, 0.2);
+    color: #f87171;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.new-badge {
+    background-color: #ef4444;
+    color: white;
+    font-size: 0.7rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-right: 5px;
+    font-weight: bold;
+    vertical-align: middle;
 }
 
 /* Action Icons */
 .actions-cell {
     display: flex;
-    gap: 10px;
+    gap: 8px;
 }
 
 .action-icon {
-    width: 36px;
-    height: 36px;
+    width: 32px;
+    height: 32px;
     border: 1px solid #4b5563;
-    border-radius: 8px;
+    border-radius: 6px;
     background: #1f2937;
     color: #9ca3af;
     display: flex;
@@ -181,6 +204,30 @@ body {
     background: #ef4444;
     color: white;
     border-color: #ef4444;
+}
+
+.action-icon.approve:hover {
+    background: #10b981;
+    color: white;
+    border-color: #10b981;
+}
+
+.action-icon.publish:hover {
+    background: #8b5cf6;
+    color: white;
+    border-color: #8b5cf6;
+}
+
+.action-icon.void:hover {
+    background: #f59e0b;
+    color: white;
+    border-color: #f59e0b;
+}
+
+.action-icon.end:hover {
+    background: #6b7280;
+    color: white;
+    border-color: #6b7280;
 }
 
 /* Modal Overlay */

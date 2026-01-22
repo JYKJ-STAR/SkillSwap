@@ -37,7 +37,7 @@
                 <i class="bi bi-gift"></i> Rewards
             </a>
             <a href="{{ url_for('admin.admin_support_tickets') }}" class="nav-item">
-                <i class="bi bi-headset"></i> Support Tickets
+                <i class="bi bi-headset"></i> Support Request
             </a>
         </nav>
     </div>
@@ -65,9 +65,21 @@
                 <a href="{{ url_for('admin.admin_manage_events', filter='approved') }}"
                     class="filter-tab {% if current_filter == 'approved' %}active{% endif %}">Approved</a>
                 <a href="{{ url_for('admin.admin_manage_events', filter='past') }}"
-                    class="filter-tab {% if current_filter == 'past' %}active{% endif %}">Past</a>
+                    class="filter-tab {% if current_filter == 'past' %}active{% endif %}">Ended </a>
+                <a href="{{ url_for('admin.admin_manage_events', filter='voided') }}"
+                    class="filter-tab {% if current_filter == 'voided' %}active{% endif %}">Voided</a>
             </div>
+            {% if current_filter == 'pending' %}
             <button class="btn-new-event" onclick="openCreateModal()">New Event +</button>
+            {% elif current_filter in ['voided', 'past'] and events %}
+            <form action="{{ url_for('admin.admin_clear_tab', tab_name=current_filter) }}" method="POST"
+                style="display:inline;"
+                onsubmit="return confirm('Are you sure you want to clear all {{ current_filter }} events from view? Data will be preserved.');">
+                <button type="submit" class="btn-new-event" style="background: #6b7280;">
+                    <i class="bi bi-trash"></i> Clear All
+                </button>
+            </form>
+            {% endif %}
         </div>
 
         <!-- Events Table -->
@@ -79,63 +91,142 @@
                         <th>Date</th>
                         <th>Status</th>
                         <th>Location</th>
-                        <th>Manpower</th>
                         <th>Participants</th>
                         <th>Category</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
+                    {% if current_filter == 'approved' %}
+                    {# Group by category with headers for Approved tab #}
+                    {% if events %}
+                    {% set current_category = namespace(value='') %}
+                    {% set current_status_group = namespace(value='') %}
+                    {% for event in events %}
+                    {# Determine status group #}
+                    {% set status_group = 'Published' if event.status == 'published' else 'Unpublished' %}
+
+                    {# Show status group header when it changes #}
+                    {% if status_group != current_status_group.value %}
+                    {% set current_status_group.value = status_group %}
+                    {% set current_category.value = '' %}
+                    <tr class="category-header-row">
+                        <td colspan="7"
+                            style="background: #1f2937; padding: 15px 20px; font-weight: 700; font-size: 1.1em; color: #60a5fa; border-top: 2px solid #4b5563;">
+                            {{ '🌐 Published Events' if status_group == 'Published' else '📝 Unpublished Events' }}
+                        </td>
+                    </tr>
+                    {% endif %}
+
+                    {# Show category header when category changes #}
+                    {% if event.category != current_category.value %}
+                    {% set current_category.value = event.category %}
+                    <tr class="category-subheader-row">
+                        <td colspan="7"
+                            style="background: #374151; padding: 12px 20px; font-weight: 600; font-size: 0.95em; color: #d1d5db; border-left: 4px solid #ef4444;">
+                            {{ category_display.get(event.category, event.category) }}
+                        </td>
+                    </tr>
+                    {% endif %}
+
+                    <tr>
+                        <td>{{ event.title }}</td>
+                        <td>{{ event.start_datetime[:10] if event.start_datetime else 'N/A' }}</td>
+                        <td>
+                            {% if event.status == 'published' %}
+                            <span class="status-badge published">Published</span>
+                            {% else %}
+                            <span class="status-badge approved">Approved (Unpublished)</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ event.location or 'N/A' }}</td>
+                        <td>{{ event.participant_count or 0 }} users</td>
+                        <td>{{ category_display.get(event.category, event.category) if event.category else 'N/A' }}</td>
+                        <td class="actions-cell">
+                            {% if event.status == 'approved' %}
+                            <form action="{{ url_for('admin.admin_publish_event', event_id=event.event_id) }}"
+                                method="POST" style="display:inline;">
+                                <button type="submit" class="action-icon publish" title="Publish"><i
+                                        class="bi bi-globe"></i></button>
+                            </form>
+                            {% endif %}
+
+                            <button class="action-icon void" title="Void"
+                                onclick="openVoidModal('{{ url_for('admin.admin_void_event', event_id=event.event_id) }}')">
+                                <i class="bi bi-x-circle"></i>
+                            </button>
+                            <form action="{{ url_for('admin.admin_end_event', event_id=event.event_id) }}" method="POST"
+                                style="display:inline;">
+                                <button type="submit" class="action-icon end" title="End Event"><i
+                                        class="bi bi-flag-fill"></i></button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    {% else %}
+                    <tr>
+                        <td colspan="7" style="text-align: center; color: #9ca3af; padding: 40px;">No events found for
+                            this filter.</td>
+                    </tr>
+                    {% endif %}
+
+                    {% else %}
+                    {# Standard table for other tabs #}
+                    {% if events %}
                     {% for event in events %}
                     <tr>
                         <td>{{ event.title }}</td>
                         <td>{{ event.start_datetime[:10] if event.start_datetime else 'N/A' }}</td>
                         <td>
                             {% if current_filter == 'pending' %}
-                            <!-- Force "Pending" display for pending tab items as requested -->
-                            <span class="status-badge pending">Pending</span>
+                            <span class="new-badge">NEW</span><span class="status-badge pending">Pending</span>
                             {% elif current_filter == 'past' %}
-                            <!-- Force "Finished" display for past tab items as requested -->
                             <span class="status-badge finished">Finished</span>
-                            {% else %}
-                            <!-- Default display logic for 'All' or 'Approved' tabs -->
-                            {% if event.status == 'open' %}
-                            <span class="status-badge approved">Approved</span>
-                            {% elif event.status == 'cancelled' %}
-                            <span class="status-badge cancelled">Cancelled</span>
-                            {% else %}
-                            <span class="status-badge pending">{{ event.status|capitalize }}</span>
+                            {% elif current_filter == 'voided' %}
+                            <span class="status-badge voided">Voided</span>
+                            {% if event.void_reason %}
+                            <div style="font-size: 0.8em; color: #9ca3af; margin-top: 5px;">Reason: {{ event.void_reason
+                                }}</div>
                             {% endif %}
+                            {% else %}
+                            <span class="status-badge">{{ event.status|capitalize }}</span>
                             {% endif %}
                         </td>
                         <td>{{ event.location or 'N/A' }}</td>
-                        <td>{{ event.manpower_required or 0 }}M{{ event.participant_count or 0 }}B</td>
                         <td>{{ event.participant_count or 0 }} users</td>
                         <td>{{ category_display.get(event.category, event.category) if event.category else 'N/A' }}</td>
                         <td class="actions-cell">
+                            {% if current_filter == 'pending' %}
+                            <form action="{{ url_for('admin.admin_approve_event', event_id=event.event_id) }}"
+                                method="POST" style="display:inline;">
+                                <button type="submit" class="action-icon approve" title="Approve"><i
+                                        class="bi bi-check-lg"></i></button>
+                            </form>
                             <button class="action-icon edit edit-event-btn" data-event-id="{{ event.event_id }}"
                                 data-title="{{ event.title|e }}" data-datetime="{{ event.start_datetime }}"
                                 data-location="{{ event.location|e }}" data-category="{{ event.category }}"
                                 data-status="{{ event.status }}" data-led-by="{{ event.led_by }}"
-                                data-max-capacity="{{ event.max_capacity or '' }}">
-                                <i class="bi bi-pencil-square"></i>
-                            </button>
+                                data-max-capacity="{{ event.max_capacity or '' }}" title="Edit"><i
+                                    class="bi bi-pencil-square"></i></button>
                             <form action="{{ url_for('admin.admin_delete_event', event_id=event.event_id) }}"
                                 method="POST" style="display:inline;"
                                 onsubmit="return confirm('Are you sure you want to delete this event?');">
-                                <button type="submit" class="action-icon delete">
-                                    <i class="bi bi-trash"></i>
-                                </button>
+                                <button type="submit" class="action-icon delete" title="Delete"><i
+                                        class="bi bi-trash"></i></button>
                             </form>
-                        </td>
-                    </tr>
-                    {% else %}
-                    <tr>
-                        <td colspan="8" style="text-align: center; color: #9ca3af; padding: 40px;">
-                            No events found for this filter.
+                            {% elif current_filter == 'past' or current_filter == 'voided' %}
+                            <span style="color: #6b7280;">—</span>
+                            {% endif %}
                         </td>
                     </tr>
                     {% endfor %}
+                    {% else %}
+                    <tr>
+                        <td colspan="7" style="text-align: center; color: #9ca3af; padding: 40px;">No events found for
+                            this filter.</td>
+                    </tr>
+                    {% endif %}
+                    {% endif %}
                 </tbody>
             </table>
         </div>
@@ -155,8 +246,24 @@
                         <input type="text" name="title" class="form-input" placeholder="Enter event title" required>
                     </div>
                     <div class="form-group">
+                        <label class="form-label">Max Capacity</label>
+                        <input type="number" name="max_capacity" class="form-input" placeholder="Optional">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">GRC</label>
+                        <select name="grc_id" id="create_grc" class="form-input"
+                            onchange="updateLocationOptions(this.value, 'create_location')">
+                            <option value="">Select GRC (Required for Location)</option>
+                            {% for grc in grcs %}
+                            <option value="{{ grc.grc_id }}">{{ grc.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
                         <label class="form-label">Location</label>
-                        <input type="text" name="location" class="form-input" placeholder="Event location" required>
+                        <select name="location" id="create_location" class="form-input" required>
+                            <option value="">Select GRC first</option>
+                        </select>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Start Date/Time</label>
@@ -179,19 +286,6 @@
                             <option value="employee">Employee</option>
                             <option value="youth">Youth</option>
                             <option value="senior">Senior</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Max Capacity</label>
-                        <input type="number" name="max_capacity" class="form-input" placeholder="Optional">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">GRC</label>
-                        <select name="grc_id" class="form-input">
-                            <option value="">Select GRC (Optional)</option>
-                            {% for grc in grcs %}
-                            <option value="{{ grc.grc_id }}">{{ grc.name }}</option>
-                            {% endfor %}
                         </select>
                     </div>
                 </div>
@@ -283,7 +377,66 @@
         </div>
     </div>
 
+    <!-- Void Reason Modal -->
+    <div id="voidModal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h2>Void Event</h2>
+                <button class="modal-close" onclick="closeVoidModal()">&times;</button>
+            </div>
+            <form id="voidForm" action="" method="POST">
+                <div class="form-group">
+                    <label class="form-label">Reason for Voiding</label>
+                    <textarea name="void_reason" class="form-input" rows="4"
+                        placeholder="e.g., Duplicate entry, Cancelled by organizer..." required></textarea>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-cancel" onclick="closeVoidModal()">Cancel</button>
+                    <button type="submit" class="btn-submit" style="background-color: #ef4444;">Confirm Void</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Admin JS -->
+    <script>
+        // GRC Locations Map from Backend
+        const GRC_LOCATIONS = {
+            1: ['Toa Payoh CC', 'Toa Payoh Stadium', 'Toa Payoh Library'],
+            2: ['Bishan CC', 'Bishan Sports Hall', 'Bishan Park'],
+            3: ['Ang Mo Kio CC', 'Ang Mo Kio Hub', 'Bishan-Ang Mo Kio Park'],
+            4: ['Tampines Hub', 'Tampines CC', 'Tampines Regional Library'],
+            5: ['Jurong The Frontier CC', 'Jurong Lake Gardens', 'Jurong Regional Library'],
+            6: ['Yishun CC', 'Yishun Park', 'Northpoint City Community Space'],
+            7: ['Punggol CC', 'Punggol Community Garden', 'One Punggol'],
+            8: ['Bedok CC', 'Bedok Reservoir', 'Heartbeat @ Bedok']
+        };
+
+        function updateLocationOptions(grcId, locationSelectId) {
+            const select = document.getElementById(locationSelectId);
+            select.innerHTML = '<option value="">Select Location</option>';
+
+            if (grcId && GRC_LOCATIONS[grcId]) {
+                GRC_LOCATIONS[grcId].forEach(loc => {
+                    const option = document.createElement('option');
+                    option.value = loc;
+                    option.textContent = loc;
+                    select.appendChild(option);
+                });
+            } else {
+                select.innerHTML = '<option value="">Select GRC first</option>';
+            }
+        }
+
+        function openVoidModal(url) {
+            document.getElementById('voidForm').action = url;
+            document.getElementById('voidModal').classList.add('active');
+        }
+
+        function closeVoidModal() {
+            document.getElementById('voidModal').classList.remove('active');
+        }
+    </script>
     <script src="{{ url_for('static', filename='js/admin/manage_events.js') }}"></script>
 </body>
 
