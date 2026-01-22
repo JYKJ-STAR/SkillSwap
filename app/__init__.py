@@ -52,6 +52,7 @@ def create_admin_app():
     app = Flask(__name__, template_folder='HTML_Files', static_folder='Styling')
     app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "admin-secret-key")
     app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)
+    app.config['TEMPLATES_AUTO_RELOAD'] = True
 
     # Register ONLY admin blueprint
     from .Python_Files.Admin import admin_bp
