@@ -140,6 +140,18 @@ function updateSteps() {
     document.getElementById('signupSection').scrollIntoView({ behavior: 'smooth' });
 }
 
+// Helper to calculate age
+function calculateAge(birthDateString) {
+    const today = new Date();
+    const birthDate = new Date(birthDateString);
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const m = today.getMonth() - birthDate.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+    }
+    return age;
+}
+
 async function validateStep(step) {
     if (step === 1) {
         const email = document.getElementById('email').value;
@@ -187,15 +199,17 @@ async function validateStep(step) {
 
     } else if (step === 2) {
         const phone = document.getElementById('phone').value;
+        const birthDateInput = document.getElementById('birth_date');
+
         if (!document.getElementById('firstName').value || !document.getElementById('lastName').value) {
             showToast('Please enter your name.', 'warning'); return false;
         }
-        if (!document.getElementById('age').value || !document.getElementById('schoolProfession').value || !document.getElementById('language').value) {
+        if (!birthDateInput.value || !document.getElementById('schoolProfession').value || !document.getElementById('language').value) {
             showToast('Please complete all required fields.', 'warning'); return false;
         }
 
         // Age validation based on role
-        const age = parseInt(document.getElementById('age').value);
+        const age = calculateAge(birthDateInput.value);
         let minAge = 12;
         let maxAge = 80;
 
@@ -208,7 +222,7 @@ async function validateStep(step) {
         }
 
         if (age < minAge || age > maxAge) {
-            showToast(`For ${selectedRole === 'youth' ? 'Youth' : 'Seniors'}, age must be between ${minAge} and ${maxAge} years.`, 'error');
+            showToast(`For ${selectedRole === 'youth' ? 'Youth' : 'Seniors'}, you must be between ${minAge} and ${maxAge} years old (Your age: ${age}).`, 'error');
             return false;
         }
 
@@ -259,21 +273,53 @@ async function nextStep(step) {
     if (currentStep === 2) {
         const label = document.getElementById('schoolProfessionLabel');
         const input = document.getElementById('schoolProfession');
-        const ageInput = document.getElementById('age');
+        const birthDateInput = document.getElementById('birth_date');
+
+        // Calculate date ranges
+        const today = new Date();
+        const formatDate = (date) => date.toISOString().split('T')[0];
+
+        // Youth: 15-35 years old
+        // Senior: 36-80 years old
+
+        let minDate, maxDate;
 
         if (selectedRole === 'youth') {
             label.textContent = 'School / University OR Profession';
             input.placeholder = 'School / Profession';
-            ageInput.min = 15;
-            ageInput.max = 35;
-            ageInput.placeholder = "Age (15-35)";
+
+            // Max date = 15 years ago
+            const dMax = new Date();
+            dMax.setFullYear(today.getFullYear() - 15);
+            maxDate = formatDate(dMax);
+
+            // Min date = 35 years ago
+            const dMin = new Date();
+            dMin.setFullYear(today.getFullYear() - 35);
+            minDate = formatDate(dMin);
+
         } else {
             label.textContent = 'Current or Former Profession';
             input.placeholder = 'Profession';
-            ageInput.min = 36;
-            ageInput.max = 80;
-            ageInput.placeholder = "Age (36-80)";
+
+            // Max date = 36 years ago
+            const dMax = new Date();
+            dMax.setFullYear(today.getFullYear() - 36);
+            maxDate = formatDate(dMax);
+
+            // Min date = 80 years ago
+            const dMin = new Date();
+            dMin.setFullYear(today.getFullYear() - 80);
+            minDate = formatDate(dMin);
         }
+
+        // Note: Input type='date' min attribute is the earliest date (oldest person), max is latest (youngest person)
+        // So min attribute gets the "minDate" calculated (oldest), max attribute gets "maxDate" (youngest)
+        // Wait, logic check:
+        // A 35 year old was born in 1990 (Min Date)
+        // A 15 year old was born in 2010 (Max Date)
+        birthDateInput.setAttribute('min', minDate);
+        birthDateInput.setAttribute('max', maxDate);
     }
     updateSteps();
 }
@@ -304,7 +350,7 @@ async function submitForm(hasVerification) {
     formData.append('password', document.getElementById('password').value);
     formData.append('firstName', document.getElementById('firstName').value);
     formData.append('lastName', document.getElementById('lastName').value);
-    formData.append('age', document.getElementById('age').value);
+    formData.append('birthDate', document.getElementById('birth_date').value); // Changed to birthDate
     formData.append('phone', document.getElementById('phone') ? document.getElementById('phone').value : '');
     formData.append('schoolProfession', document.getElementById('schoolProfession').value);
     formData.append('language', document.getElementById('language').value);

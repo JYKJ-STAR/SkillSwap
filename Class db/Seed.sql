@@ -14,9 +14,9 @@ INSERT INTO grc (name, region) VALUES
 ('Bedok', 'East');
 
 -- USERS (Youth, Senior only - Admin now in separate table)
-INSERT INTO user (grc_id, name, role, password_hash, age, phone, email, verification_status, total_points) VALUES
-(1, 'Jayden Yip', 'youth', 'demo_hash', 17, '91234568', 'youth@skillswap.local', 'verified', 50),
-(1, 'Mdm Tan',  'senior', 'demo_hash', 68, '91234569', 'senior@skillswap.local', 'verified', 100);
+INSERT INTO user (grc_id, name, role, password_hash, birth_date, phone, email, verification_status, total_points) VALUES
+(1, 'Jayden Yip', 'youth', 'demo_hash', '2009-01-01', '91234568', 'youth@skillswap.local', 'verified', 50),
+(1, 'Mdm Tan',  'senior', 'demo_hash', '1958-01-01', '91234569', 'senior@skillswap.local', 'verified', 100);
 
 -- ADMIN USERS (Separate table)
 INSERT INTO admin (name, email, password_hash, privileged) VALUES

@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS user (
   grc_id INTEGER,
   name TEXT NOT NULL,
   password_hash TEXT NOT NULL,
-  age INTEGER,
+  birth_date TEXT,
   phone TEXT UNIQUE,
   email TEXT UNIQUE,
   
