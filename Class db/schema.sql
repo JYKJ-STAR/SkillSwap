@@ -30,6 +30,8 @@ CREATE TABLE IF NOT EXISTS user (
   display_name TEXT GENERATED ALWAYS AS (name || ' (' || role || ')') VIRTUAL,
   verification_status TEXT NOT NULL DEFAULT 'unverified' CHECK (verification_status IN ('unverified','pending','verified')),
   language_pref TEXT DEFAULT 'English',
+  profession TEXT,
+  bio TEXT,
   total_points INTEGER NOT NULL DEFAULT 0,
   created_at TEXT NOT NULL DEFAULT (datetime('now')),
   FOREIGN KEY (grc_id) REFERENCES grc(grc_id) ON DELETE SET NULL
@@ -90,7 +92,7 @@ CREATE TABLE IF NOT EXISTS help_request (
   requester_id INTEGER NOT NULL,
   skill_id INTEGER NOT NULL,
   preferred_time TEXT,
-  status TEXT NOT NULL DEFAULT 'open' CHECK (status IN ('open','matched','closed','cancelled')),
+  status TEXT NOT NULL DEFAULT 'open' CHECK (status IN ('open','matched','closed','cancelled','pending','approved','voided','ended')),
   created_at TEXT NOT NULL DEFAULT (datetime('now')),
   FOREIGN KEY (requester_id) REFERENCES user(user_id) ON DELETE CASCADE,
   FOREIGN KEY (skill_id) REFERENCES skill(skill_id) ON DELETE CASCADE
@@ -110,7 +112,8 @@ CREATE TABLE IF NOT EXISTS event (
   start_datetime TEXT NOT NULL,
   end_datetime TEXT,
   location TEXT,
-  status TEXT NOT NULL DEFAULT 'open' CHECK (status IN ('open','closed','cancelled')),
+  status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('open','closed','cancelled','pending','approved','published','voided','ended')),
+  void_reason TEXT,
   max_capacity INTEGER,
   base_points_teacher INTEGER DEFAULT 0,
   base_points_buddy INTEGER DEFAULT 0,

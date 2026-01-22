@@ -39,6 +39,41 @@ ADMIN_USERS = [
     }
 ]
 
+def reset_events(cursor):
+    """Reset events table with seed data - all set to Published status"""
+    import os
+    
+    # Delete all events and reset auto-increment counter
+    cursor.execute("DELETE FROM event")
+    cursor.execute("DELETE FROM sqlite_sequence WHERE name='event'")
+    print("✓ Deleted all existing events and reset IDs")
+    
+    # Read and execute seed.sql for events only
+    seed_path = os.path.join(os.path.dirname(__file__), 'seed.sql')
+    
+    if os.path.exists(seed_path):
+        with open(seed_path, 'r', encoding='utf-8') as f:
+            seed_sql = f.read()
+        
+        # Execute only the event INSERT statements
+        statements = seed_sql.split(';')
+        event_count = 0
+        for stmt in statements:
+            if 'INSERT INTO event' in stmt:
+                try:
+                    cursor.execute(stmt.strip() + ';')
+                    event_count += 1
+                except Exception as e:
+                    print(f"  ⚠ Skipped statement: {e}")
+        
+        print(f"✓ Inserted {event_count} event batches from seed.sql")
+        
+        # Update all events to Published status
+        cursor.execute("UPDATE event SET status = 'published'")
+        print("✓ Set all events to 'Published' status")
+    else:
+        print(f"⚠ seed.sql not found at {seed_path}")
+
 def reset_users(cursor):
     """Reset users table"""
     # Delete all users and reset auto-increment counter
@@ -102,12 +137,13 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Reset database tables.')
     parser.add_argument('--users', action='store_true', help='Reset users table only')
     parser.add_argument('--admins', action='store_true', help='Reset admins table only')
-    # If no flags are provided, it will run default behavior (both)
+    parser.add_argument('--events', action='store_true', help='Reset events table with seed data (all Published)')
+    # If no flags are provided, it will run default behavior (both users & admins)
     
     args = parser.parse_args()
     
     # Check if any specific flag was set
-    if args.users or args.admins:
+    if args.users or args.admins or args.events:
         conn = sqlite3.connect(DB_PATH)
         cursor = conn.cursor()
         try:
@@ -115,6 +151,8 @@ if __name__ == '__main__':
                 reset_users(cursor)
             if args.admins:
                 reset_admins(cursor)
+            if args.events:
+                reset_events(cursor)
             
             conn.commit()
             print("\n✅ Selected tables reset complete!")
@@ -126,5 +164,5 @@ if __name__ == '__main__':
         finally:
             conn.close()
     else:
-        # Default behavior: Reset everything
+        # Default behavior: Reset users and admins only
         reset_database()
