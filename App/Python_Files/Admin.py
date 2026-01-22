@@ -262,17 +262,206 @@ def create_event():
     start_datetime = request.form.get('start_datetime')
     location = request.form.get('location')
     grc_id = request.form.get('grc_id') or None
+    category = request.form.get('category', 'social_games')
+    led_by = request.form.get('led_by', 'employee')
+    max_capacity = request.form.get('max_capacity') or None
     
-    admin_id = session.get('user_id', 1)
+    admin_id = session.get('admin_id', 1)
     
     conn = get_db_connection()
     conn.execute(
-        """INSERT INTO event (created_by_user_id, grc_id, title, description, start_datetime, location)
-           VALUES (?, ?, ?, ?, ?, ?)""",
-        (admin_id, grc_id, title, description, start_datetime, location)
+        """INSERT INTO event (created_by_user_id, grc_id, title, description, start_datetime, location, category, led_by, max_capacity)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+        (admin_id, grc_id, title, description, start_datetime, location, category, led_by, max_capacity)
     )
     conn.commit()
     conn.close()
     flash("Event created successfully.", "success")
+    
+    # Redirect back to the referring page or manage events
+    referer = request.referrer
+    if referer and 'manage-events' in referer:
+        return redirect(url_for('admin.admin_manage_events'))
     return redirect(url_for('admin.admin_dashboard'))
 
+
+# =====================================================
+# EVENT MANAGEMENT PAGE
+# =====================================================
+@admin_bp.route('/manage-events')
+@admin_required
+def admin_manage_events():
+    """Display the event management page with filters."""
+    filter_status = request.args.get('filter', 'all')
+    
+    conn = get_db_connection()
+    
+    # Build query based on filter
+    base_query = """
+        SELECT 
+            e.event_id, 
+            e.title, 
+            e.start_datetime, 
+            e.location, 
+            e.status, 
+            e.category,
+            e.led_by,
+            e.max_capacity,
+            g.name as grc_name,
+            (SELECT COUNT(*) FROM event_booking eb WHERE eb.event_id = e.event_id AND eb.status = 'booked') as participant_count,
+            (SELECT COALESCE(SUM(required_count), 0) FROM event_role_requirement err WHERE err.event_id = e.event_id) as manpower_required
+        FROM event e
+        LEFT JOIN grc g ON e.grc_id = g.grc_id
+    """
+    
+    # Apply filters 
+    if filter_status == 'pending':
+        # Pending = status is 'open' and start_datetime is in the future
+        base_query += " WHERE e.status = 'open' AND datetime(e.start_datetime) > datetime('now')"
+    elif filter_status == 'approved':
+        # Approved = status is 'open' (all open events)
+        base_query += " WHERE e.status = 'open'"
+    elif filter_status == 'past':
+        # Past = cancelled OR start_datetime is in the past
+        base_query += " WHERE e.status = 'cancelled' OR datetime(e.start_datetime) < datetime('now')"
+    
+    base_query += " ORDER BY e.start_datetime DESC"
+    
+    events = conn.execute(base_query).fetchall()
+    
+    # GRCs for event creation/edit forms
+    grcs = conn.execute("SELECT grc_id, name FROM grc").fetchall()
+    
+    # Category display mapping
+    category_display = {
+        'tech_digital': '🖥️ Tech & Digital',
+        'life_skills': '🍳 Life Skills',
+        'health_wellness': '🧘 Health & Wellness',
+        'culture_creative': '🎨 Culture & Creative',
+        'social_games': '🎲 Social & Games',
+        'community_projects': '🛠️ Community Projects'
+    }
+    
+    conn.close()
+    
+    return render_template('admin/admin_manage_events.html',
+                           user_name=session.get('admin_name'),
+                           admin_email=session.get('admin_email', 'Admin@123.com'),
+                           events=events,
+                           grcs=grcs,
+                           category_display=category_display,
+                           current_filter=filter_status)
+
+
+@admin_bp.route('/update-event/<int:event_id>', methods=['POST'])
+@admin_required
+def admin_update_event(event_id):
+    """Update an existing event."""
+    title = request.form.get('title')
+    description = request.form.get('description')
+    start_datetime = request.form.get('start_datetime')
+    location = request.form.get('location')
+    grc_id = request.form.get('grc_id') or None
+    category = request.form.get('category', 'social_games')
+    led_by = request.form.get('led_by', 'employee')
+    status = request.form.get('status', 'open')
+    max_capacity = request.form.get('max_capacity') or None
+    
+    conn = get_db_connection()
+    conn.execute(
+        """UPDATE event 
+           SET title = ?, description = ?, start_datetime = ?, location = ?, 
+               grc_id = ?, category = ?, led_by = ?, status = ?, max_capacity = ?
+           WHERE event_id = ?""",
+        (title, description, start_datetime, location, grc_id, category, led_by, status, max_capacity, event_id)
+    )
+    conn.commit()
+    conn.close()
+    
+    flash("Event updated successfully.", "success")
+    return redirect(url_for('admin.admin_manage_events'))
+
+
+@admin_bp.route('/delete-event/<int:event_id>', methods=['POST'])
+@admin_required
+def admin_delete_event(event_id):
+    """Delete an event."""
+    conn = get_db_connection()
+    conn.execute("DELETE FROM event WHERE event_id = ?", (event_id,))
+    conn.commit()
+    conn.close()
+    
+    flash("Event deleted successfully.", "success")
+    return redirect(url_for('admin.admin_manage_events'))
+
+
+# =====================================================
+# USER MANAGEMENT PAGE
+# =====================================================
+@admin_bp.route('/manage-users')
+@admin_required
+def admin_manage_users():
+    """Display the user management page."""
+    conn = get_db_connection()
+    
+    # Get all users
+    all_users = conn.execute(
+        """SELECT user_id, name, email, phone, role, verification_status, total_points, created_at
+           FROM user ORDER BY created_at DESC"""
+    ).fetchall()
+    
+    conn.close()
+    
+    return render_template('admin/admin_manage_users.html',
+                           user_name=session.get('admin_name'),
+                           admin_email=session.get('admin_email', 'Admin@123.com'),
+                           all_users=all_users)
+
+
+# =====================================================
+# SUPPORT TICKETS PAGE
+# =====================================================
+@admin_bp.route('/support-tickets')
+@admin_required
+def admin_support_tickets():
+    """Display the support tickets management page."""
+    conn = get_db_connection()
+    
+    # Get all support tickets
+    tickets = conn.execute(
+        """SELECT st.ticket_id, st.subject, st.description, st.status, st.created_at,
+                  u.name as user_name, u.email as user_email
+           FROM support_ticket st
+           JOIN user u ON st.user_id = u.user_id
+           ORDER BY st.created_at DESC"""
+    ).fetchall()
+    
+    conn.close()
+    
+    return render_template('admin/admin_support_tickets.html',
+                           user_name=session.get('admin_name'),
+                           admin_email=session.get('admin_email', 'Admin@123.com'),
+                           tickets=tickets)
+
+
+# =====================================================
+# MANAGE REWARDS PAGE (Placeholder)
+# =====================================================
+@admin_bp.route('/manage-rewards')
+@admin_required
+def admin_manage_rewards():
+    """Display the rewards management page."""
+    conn = get_db_connection()
+    
+    # Get all rewards
+    rewards = conn.execute(
+        """SELECT reward_id, name, description, points_required, is_active, total_quantity
+           FROM reward ORDER BY points_required ASC"""
+    ).fetchall()
+    
+    conn.close()
+    
+    return render_template('admin/admin_manage_rewards.html',
+                           user_name=session.get('admin_name'),
+                           admin_email=session.get('admin_email', 'Admin@123.com'),
+                           rewards=rewards)

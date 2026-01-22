@@ -26,20 +26,17 @@
             <a href="{{ url_for('admin.admin_dashboard') }}" class="nav-item active">
                 <i class="bi bi-speedometer2"></i> Dashboard
             </a>
-            <a href="#" class="nav-item">
+            <a href="{{ url_for('admin.admin_manage_users') }}" class="nav-item">
                 <i class="bi bi-people"></i> User Management
             </a>
-            <a href="#" class="nav-item">
-                <i class="bi bi-person-check"></i> Pending Approvals
-            </a>
-            <a href="#" class="nav-item">
+            <a href="{{ url_for('admin.admin_manage_events') }}" class="nav-item">
                 <i class="bi bi-calendar-event"></i> Events
             </a>
-            <a href="#" class="nav-item">
+            <a href="{{ url_for('admin.admin_manage_rewards') }}" class="nav-item">
                 <i class="bi bi-gift"></i> Rewards
             </a>
-            <a href="#" class="nav-item">
-                <i class="bi bi-flag"></i> Reports
+            <a href="{{ url_for('admin.admin_support_tickets') }}" class="nav-item">
+                <i class="bi bi-headset"></i> Support Tickets
             </a>
         </nav>
     </div>
