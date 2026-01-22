@@ -294,6 +294,17 @@
          }
      }
 
+     a.support-option {
+         text-decoration: none;
+         /* Removes the underline */
+         color: inherit;
+         /* Keeps your original text color */
+         cursor: pointer;
+         /* Shows the hand icon on hover */
+         display: top;
+         /* Ensures the icon and text stay aligned */
+     }
+
      /* Page Switching */
      .page {
          display: none;
@@ -605,12 +616,91 @@
          line-height: 1.6;
      }
 
+     .detail-section {
+         margin-bottom: 1rem;
+     }
+
+     .detail-label {
+         font-size: 0.8rem;
+         font-weight: 600;
+         color: #888;
+         text-transform: uppercase;
+         letter-spacing: 0.5px;
+         margin-bottom: 0.25rem;
+     }
+
+     .detail-value {
+         font-size: 0.95rem;
+         color: #1a1a1a;
+     }
+
      .agent-reply-title {
          font-size: 1rem;
          font-weight: 600;
          text-align: right;
          margin-bottom: 0.75rem;
          color: #1a1a1a;
+     }
+
+     .select-ticket-msg {
+         text-align: center;
+         color: #888;
+         padding: 2rem;
+     }
+
+     .form-success {
+         display: flex;
+         align-items: center;
+         gap: 0.75rem;
+         padding: 1rem 1.25rem;
+         background-color: #dcfce7;
+         border: 1px solid #22c55e;
+         border-radius: 10px;
+         margin-top: 1rem;
+     }
+
+     .form-success svg {
+         width: 24px;
+         height: 24px;
+         color: #22c55e;
+         flex-shrink: 0;
+     }
+
+     .form-success p {
+         font-size: 0.95rem;
+         color: #166534;
+     }
+
+     .empty-tickets {
+         padding: 3rem;
+         text-align: center;
+         color: #666;
+         background-color: #fff;
+         border-radius: 12px;
+         border: 1px solid #e5e5e5;
+     }
+
+     .pending-notice {
+         display: flex;
+         align-items: center;
+         gap: 0.5rem;
+         padding: 1rem;
+         background-color: #fef3c7;
+         border: 1px solid #f59e0b;
+         border-radius: 8px;
+         margin-top: 1rem;
+     }
+
+     .pending-notice svg {
+         width: 20px;
+         height: 20px;
+         color: #d97706;
+         flex-shrink: 0;
+     }
+
+     .pending-notice p {
+         font-size: 0.9rem;
+         color: #92400e;
      }
 
      @media (max-width: 1024px) {
@@ -629,6 +719,148 @@
      }
 
      /* Live Chats Page Styles */
+     .chat-view {
+         display: none;
+     }
+
+     .chat-view.active {
+         display: block;
+     }
+
+     .chat-list-header {
+         display: flex;
+         justify-content: space-between;
+         align-items: flex-start;
+         gap: 1rem;
+         flex-wrap: wrap;
+         margin-bottom: 0.5rem;
+     }
+
+     .new-chat-btn {
+         display: flex;
+         align-items: center;
+         gap: 0.5rem;
+         padding: 0.85rem 1.5rem;
+         background-color: #22c55e;
+         color: #fff;
+         border: none;
+         border-radius: 10px;
+         font-family: inherit;
+         font-size: 0.95rem;
+         font-weight: 600;
+         cursor: pointer;
+         transition: all 0.2s ease;
+     }
+
+     .new-chat-btn:hover {
+         background-color: #16a34a;
+         transform: translateY(-1px);
+     }
+
+     .new-chat-btn svg {
+         width: 20px;
+         height: 20px;
+     }
+
+     .chat-list {
+         display: flex;
+         flex-direction: column;
+         gap: 0.75rem;
+     }
+
+     .chat-list-item {
+         display: flex;
+         gap: 1rem;
+         padding: 1.25rem;
+         background-color: #fff;
+         border: 1.5px solid #e5e5e5;
+         border-radius: 12px;
+         cursor: pointer;
+         transition: all 0.2s ease;
+     }
+
+     .chat-list-item:hover {
+         border-color: #ccc;
+         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+     }
+
+     .chat-list-avatar {
+         width: 50px;
+         height: 50px;
+         background-color: #e5e5e5;
+         border-radius: 50%;
+         display: flex;
+         align-items: center;
+         justify-content: center;
+         flex-shrink: 0;
+     }
+
+     .chat-list-avatar svg {
+         width: 28px;
+         height: 28px;
+         color: #888;
+     }
+
+     .chat-list-info {
+         flex: 1;
+         min-width: 0;
+     }
+
+     .chat-list-top {
+         display: flex;
+         justify-content: space-between;
+         align-items: center;
+         margin-bottom: 0.35rem;
+     }
+
+     .chat-list-name {
+         font-size: 1rem;
+         font-weight: 600;
+         color: #1a1a1a;
+     }
+
+     .chat-list-time {
+         font-size: 0.8rem;
+         color: #888;
+     }
+
+     .chat-list-preview {
+         font-size: 0.9rem;
+         color: #666;
+         margin-bottom: 0.5rem;
+         white-space: nowrap;
+         overflow: hidden;
+         text-overflow: ellipsis;
+     }
+
+     .chat-list-meta {
+         display: flex;
+         align-items: center;
+         gap: 1rem;
+     }
+
+     .chat-status {
+         font-size: 0.75rem;
+         font-weight: 600;
+         padding: 0.3rem 0.75rem;
+         border-radius: 20px;
+         color: #fff;
+     }
+
+     .status-ongoing {
+         background-color: #f97316;
+     }
+
+     .status-resolved {
+         background-color: #22c55e;
+     }
+
+     .chat-duration {
+         font-size: 0.8rem;
+         color: #888;
+     }
+
+     /* Chat Back Link */
      .chat-back-link {
          display: inline-flex;
          align-items: center;
@@ -818,36 +1050,6 @@
 
      .send-btn:hover {
          background-color: #333;
-     }
-
-     @media (max-width: 768px) {
-         .chat-header {
-             flex-direction: column;
-             gap: 1rem;
-             align-items: flex-start;
-         }
-
-         .chat-input-area {
-             flex-wrap: wrap;
-         }
-
-         .chat-input {
-             order: 2;
-             flex: 1 1 100%;
-         }
-
-         .attachment-btn {
-             order: 1;
-         }
-
-         .send-btn {
-             order: 3;
-             flex: 1 1 100%;
-         }
-
-         .message {
-             max-width: 90%;
-         }
      }
 
      /* Typing Indicator */
