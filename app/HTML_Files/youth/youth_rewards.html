@@ -1,9 +1,295 @@
 {% extends "shared/base.html" %}
 {% block title %}SkillSwap - Youth Rewards{% endblock %}
+
+{% block styles %}
+<link href="{{ url_for('static', filename='css/youth/youth_rewards.css') }}" rel="stylesheet">
+{% endblock %}
+
 {% block content %}
-<div class="container py-5">
-    <h1 class="mb-4">Your Rewards</h1>
-    <p class="lead">Redeem your points for amazing perks.</p>
-    <div class="alert alert-info">Rewards feature coming soon!</div>
+<!-- Back Button -->
+<a href="{{ url_for('dashboard.dashboard') }}" class="back-btn">
+    <i class="bi bi-arrow-left"></i> Back
+</a>
+
+<!-- Main Container -->
+<div class="rewards-container">
+    <!-- Sidebar -->
+    <aside class="rewards-sidebar">
+        <div class="profile-avatar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
+            </svg>
+        </div>
+        <h2 class="profile-name">{{ user.name if user else 'User' }}</h2>
+        <p class="profile-age">{{ user.age if user and user.age else '' }} Years Old</p>
+        <p class="profile-points" id="user-points" data-points="{{ user.points if user else 0 }}">
+            {{ user.points if user else 0 }} Points
+        </p>
+        <button class="claim-rewards-btn" onclick="document.querySelector('[data-tab=my-rewards]').click()">
+            Claim Rewards
+        </button>
+
+        <h3 class="sidebar-section-title">Skills</h3>
+        <div class="skill-tags">
+            {% if user and user.skills %}
+            {% for skill in user.skills %}
+            <span class="skill-tag">{{ skill }}</span>
+            {% endfor %}
+            {% else %}
+            <span class="skill-tag">No skills added</span>
+            {% endif %}
+        </div>
+
+        <h3 class="sidebar-section-title">Interests</h3>
+        <div class="skill-tags">
+            {% if user and user.interests %}
+            {% for interest in user.interests %}
+            <span class="skill-tag">{{ interest }}</span>
+            {% endfor %}
+            {% else %}
+            <span class="skill-tag">No interests added</span>
+            {% endif %}
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="rewards-content">
+        <h1 class="page-title">Redeem Rewards</h1>
+
+        <!-- Tabs -->
+        <div class="rewards-tabs">
+            <button class="rewards-tab active" data-tab="redeem">Redeem Rewards</button>
+            <button class="rewards-tab" data-tab="my-rewards">My Rewards</button>
+        </div>
+
+        <!-- Redeem Rewards Tab Content -->
+        <div class="tab-content active" id="redeem-content">
+            <div class="rewards-grid">
+                {% if rewards %}
+                {% for reward in rewards %}
+                <div class="reward-card">
+                    <div class="reward-header">
+                        <div class="reward-image"></div>
+                        <div class="reward-info">
+                            <h3>{{ reward.name }}</h3>
+                            <p class="vendor">{{ reward.vendor }}</p>
+                            <p class="points">{{ reward.points }} Points</p>
+                        </div>
+                    </div>
+                    <button class="redeem-btn" data-name="{{ reward.name|e }}" data-vendor="{{ reward.vendor|e }}"
+                        data-points="{{ reward.points }}">
+                        Redeem Award
+                    </button>
+                </div>
+                {% endfor %}
+                {% else %}
+                <!-- Demo rewards when no data is passed -->
+                <div class="reward-card">
+                    <div class="reward-header">
+                        <div class="reward-image"></div>
+                        <div class="reward-info">
+                            <h3>$5 NTUC FairPrice Voucher</h3>
+                            <p class="vendor">NTUC Fair Price</p>
+                            <p class="points">5000 Points</p>
+                        </div>
+                    </div>
+                    <button class="redeem-btn" data-name="$5 NTUC FairPrice Voucher" data-vendor="NTUC Fair Price"
+                        data-points="5000">Redeem Award</button>
+                </div>
+
+                <div class="reward-card">
+                    <div class="reward-header">
+                        <div class="reward-image"></div>
+                        <div class="reward-info">
+                            <h3>$5 KOI Voucher</h3>
+                            <p class="vendor">KOI</p>
+                            <p class="points">5000 Points</p>
+                        </div>
+                    </div>
+                    <button class="redeem-btn" data-name="$5 KOI Voucher" data-vendor="KOI" data-points="5000">Redeem
+                        Award</button>
+                </div>
+
+                <div class="reward-card">
+                    <div class="reward-header">
+                        <div class="reward-image"></div>
+                        <div class="reward-info">
+                            <h3>$5 Starbucks Voucher</h3>
+                            <p class="vendor">Starbucks</p>
+                            <p class="points">5000 Points</p>
+                        </div>
+                    </div>
+                    <button class="redeem-btn" data-name="$5 Starbucks Voucher" data-vendor="Starbucks"
+                        data-points="5000">Redeem Award</button>
+                </div>
+
+                <div class="reward-card">
+                    <div class="reward-header">
+                        <div class="reward-image"></div>
+                        <div class="reward-info">
+                            <h3>$10 NTUC FairPrice Voucher</h3>
+                            <p class="vendor">NTUC Fair Price</p>
+                            <p class="points">8000 Points</p>
+                        </div>
+                    </div>
+                    <button class="redeem-btn" data-name="$10 NTUC FairPrice Voucher" data-vendor="NTUC Fair Price"
+                        data-points="8000">Redeem Award</button>
+                </div>
+
+                <div class="reward-card">
+                    <div class="reward-header">
+                        <div class="reward-image"></div>
+                        <div class="reward-info">
+                            <h3>$10 Giant Voucher</h3>
+                            <p class="vendor">Giant</p>
+                            <p class="points">10000 Points</p>
+                        </div>
+                    </div>
+                    <button class="redeem-btn" data-name="$10 Giant Voucher" data-vendor="Giant"
+                        data-points="10000">Redeem Award</button>
+                </div>
+
+                <div class="reward-card">
+                    <div class="reward-header">
+                        <div class="reward-image"></div>
+                        <div class="reward-info">
+                            <h3>$10 Chagee Voucher</h3>
+                            <p class="vendor">Chagee</p>
+                            <p class="points">8000 Points</p>
+                        </div>
+                    </div>
+                    <button class="redeem-btn" data-name="$10 Chagee Voucher" data-vendor="Chagee"
+                        data-points="8000">Redeem Award</button>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- My Rewards Tab Content -->
+        <div class="tab-content" id="my-rewards-content">
+            <div class="rewards-grid">
+                {% if user_rewards %}
+                {% for reward in user_rewards %}
+                <div class="reward-card">
+                    <div class="reward-header">
+                        <div class="reward-image"></div>
+                        <div class="reward-info">
+                            <h3>{{ reward.name }}</h3>
+                            <p class="vendor">{{ reward.vendor }}</p>
+                        </div>
+                    </div>
+                    <button class="claim-btn" data-name="{{ reward.name|e }}"
+                        data-vendor="{{ reward.vendor|e }}">Claim</button>
+                </div>
+                {% endfor %}
+                {% else %}
+                <!-- Demo user rewards -->
+                <div class="reward-card">
+                    <div class="reward-header">
+                        <div class="reward-image"></div>
+                        <div class="reward-info">
+                            <h3>$5 NTUC FairPrice Voucher</h3>
+                            <p class="vendor">NTUC Fair Price</p>
+                        </div>
+                    </div>
+                    <button class="claim-btn" data-name="$5 NTUC FairPrice Voucher"
+                        data-vendor="NTUC Fair Price">Claim</button>
+                </div>
+
+                <div class="reward-card">
+                    <div class="reward-header">
+                        <div class="reward-image"></div>
+                        <div class="reward-info">
+                            <h3>$5 KOI Voucher</h3>
+                            <p class="vendor">KOI</p>
+                        </div>
+                    </div>
+                    <button class="claim-btn" data-name="$5 KOI Voucher" data-vendor="KOI">Claim</button>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </main>
 </div>
+
+<!-- Error Snackbar -->
+<div class="snackbar" id="snackbar">
+    <span class="snackbar-message">Error: Insufficient points</span>
+    <button class="snackbar-dismiss">Dismiss</button>
+</div>
+
+<!-- Redeem Confirmation Modal -->
+<div class="modal-overlay" id="redeem-modal">
+    <div class="rewards-modal">
+        <h2 class="modal-title">Confirm Redemption?</h2>
+        <div class="modal-reward-card">
+            <div class="modal-reward-image"></div>
+            <div class="modal-reward-info">
+                <h3 id="redeem-modal-title">Reward Title</h3>
+                <p class="vendor" id="redeem-modal-vendor">Vendor</p>
+                <p class="points" id="redeem-modal-points">0 Points</p>
+            </div>
+        </div>
+        <div class="modal-buttons">
+            <button class="modal-btn secondary" onclick="hideRedeemModal()">Cancel</button>
+            <button class="modal-btn primary" onclick="confirmRedeem()">Confirm</button>
+        </div>
+    </div>
+</div>
+
+<!-- Claim Reward Modal (from My Rewards) -->
+<div class="modal-overlay" id="claim-modal">
+    <div class="rewards-modal">
+        <h2 class="modal-title">Claim Reward?</h2>
+        <div class="modal-reward-card">
+            <div class="modal-reward-image"></div>
+            <div class="modal-reward-info">
+                <h3 id="claim-modal-title">$5 NTUC FairPrice Voucher</h3>
+                <p class="vendor" id="claim-modal-vendor">NTUC Fair Price</p>
+            </div>
+        </div>
+        <div class="modal-buttons">
+            <button class="modal-btn secondary" onclick="hideClaimModal()">Change my mind</button>
+            <button class="modal-btn primary"
+                onclick="showVendorModal(document.getElementById('claim-modal-title').textContent, document.getElementById('claim-modal-vendor').textContent); hideClaimModal();">Claim
+                Rewards</button>
+        </div>
+    </div>
+</div>
+
+<!-- Submitted Modal -->
+<div class="modal-overlay submitted-modal" id="submitted-modal">
+    <div class="rewards-modal">
+        <h2 class="modal-title">Submitted</h2>
+        <p class="submitted-text">
+            Notify admin for rewards approval.<br>
+            Once approved, rewards will be sent to<br>
+            your My Rewards page.
+        </p>
+        <div class="modal-buttons">
+            <button class="modal-btn" onclick="hideSubmittedModal()">Return</button>
+        </div>
+    </div>
+</div>
+
+<!-- Show the Vendor Modal -->
+<div class="modal-overlay" id="vendor-modal">
+    <div class="rewards-modal">
+        <h2 class="modal-title">Show the Vendor</h2>
+        <div class="modal-reward-card">
+            <div class="modal-reward-image"></div>
+            <div class="modal-reward-info">
+                <h3 id="vendor-modal-title">$5 NTUC FairPrice Voucher</h3>
+                <p class="vendor" id="vendor-modal-vendor">NTUC Fair Price</p>
+            </div>
+        </div>
+        <div class="modal-buttons">
+            <button class="modal-btn secondary" onclick="hideVendorModal()">Change my mind</button>
+            <button class="modal-btn primary" onclick="dismissReward()">Dismiss Reward</button>
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/youth/youth_rewards.js') }}"></script>
 {% endblock %}

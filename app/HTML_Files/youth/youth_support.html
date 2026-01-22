@@ -84,7 +84,7 @@
                     </div>
                 </div>
 
-                <div class="faq-item open">
+                <div class="faq-item">
                     <button class="faq-question">
                         How do I sign up for events
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -105,13 +105,18 @@
             <h3 class="help-section-title">Still need Help?</h3>
             <div class="contact-cards">
                 <div class="contact-card">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                        stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
-                        <polyline points="22,6 12,13 2,6" />
-                    </svg>
-                    <div class="contact-card-title">Email Support</div>
-                    <div class="contact-card-subtitle">Response within 24h</div>
+                    <a href="https://mail.google.com/mail/?view=cm&fs=1&to=support@skillswap.sg" class="support-option">
+
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                            <polyline points="22,6 12,13 2,6" />
+                        </svg>
+                        <div class="option-text">
+                            <div class="contact-card-title">Email Support</div>
+                            <div class="contact-card-subtitle">Response within 24h</div>
+                        </div>
+                    </a>
                 </div>
                 <div class="contact-card">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -131,20 +136,22 @@
             <p class="page-subtitle">We take safety seriously</p>
             <div class="divider"></div>
 
-            <div class="report-form">
+            <div class="report-form" id="safety-report-form">
                 <div class="form-group">
                     <label class="form-label">Who is involved</label>
-                    <input type="text" class="form-input" placeholder="Enter name or leave blank if unknown">
+                    <input type="text" class="form-input" id="involved-person"
+                        placeholder="Enter name or leave blank if unknown">
                 </div>
 
                 <div class="form-group">
                     <label class="form-label">Issue Type</label>
                     <div class="select-wrapper">
-                        <select class="form-select">
-                            <option value="inappropriate">Inappropriate Behavior</option>
-                            <option value="harassment">Harassment</option>
-                            <option value="spam">Spam</option>
-                            <option value="other">Other</option>
+                        <select class="form-select" id="issue-type">
+                            <option value="Inappropriate Behavior">Inappropriate Behavior</option>
+                            <option value="Harassment">Harassment</option>
+                            <option value="Spam">Spam</option>
+                            <option value="Safety Concern">Safety Concern</option>
+                            <option value="Other">Other</option>
                         </select>
                         <svg class="select-arrow" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -156,10 +163,13 @@
                 <div class="form-group">
                     <label class="form-label">Event Name</label>
                     <div class="select-wrapper">
-                        <select class="form-select placeholder">
-                            <option value="event1">Workshop: Web Development</option>
-                            <option value="event2">Seminar: AI Basics</option>
-                            <option value="event3">Meetup: Networking</option>
+                        <select class="form-select" id="event-name">
+                            <option value="" disabled selected>Select an event</option>
+                            <option value="Workshop: Web Development">Workshop: Web Development</option>
+                            <option value="Seminar: AI Basics">Seminar: AI Basics</option>
+                            <option value="Meetup: Networking">Meetup: Networking</option>
+                            <option value="Workshop: Python Programming">Workshop: Python Programming</option>
+                            <option value="Other">Other / Not Event Related</option>
                         </select>
                         <svg class="select-arrow" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -170,17 +180,27 @@
 
                 <div class="form-group">
                     <label class="form-label">Description of Incident</label>
-                    <textarea class="form-textarea" placeholder="Description" rows="4"></textarea>
+                    <textarea class="form-textarea" id="incident-description"
+                        placeholder="Please describe what happened in detail..." rows="4"></textarea>
                 </div>
 
                 <div class="form-group">
-                    <div class="upload-area">
-                        <span class="upload-text">Upload Screenshot</span>
-                        <input type="file" class="upload-input" accept="image/*">
+                    <div class="upload-area" id="upload-area">
+                        <span class="upload-text">Upload Screenshot (Optional)</span>
+                        <input type="file" class="upload-input" id="screenshot-upload" accept="image/*">
                     </div>
                 </div>
 
-                <button class="submit-btn">Submit Report</button>
+                <button class="submit-btn" id="submit-report-btn">Submit Report</button>
+
+                <div class="form-success" id="form-success" style="display: none;">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                        <polyline points="22 4 12 14.01 9 11.01" />
+                    </svg>
+                    <p>Report submitted successfully! You can view it in My Tickets.</p>
+                </div>
             </div>
         </div>
 
@@ -192,66 +212,18 @@
                     <p class="page-subtitle">View all tickets submitted here</p>
                     <div class="divider"></div>
 
-                    <div class="tickets-list">
-                        <div class="ticket-card active" data-ticket="1">
-                            <h4 class="ticket-title">Inappropriate Behavior</h4>
-                            <p class="ticket-description">During the 'Intro to Watercolor' workshop, a participant
-                                repeatedly disrupted the session by shouting over the host and using offensive language
-                                in the voice chat. Several senior attendees expressed discomfort.</p>
-                            <div class="ticket-meta">
-                                <span class="ticket-id">ID: T-001</span>
-                                <span class="ticket-date">Submitted: 15 - 1 - 2026</span>
-                                <span class="ticket-status status-progress">In Progress</span>
-                            </div>
-                        </div>
+                    <div class="tickets-list" id="tickets-list">
+                        <!-- Tickets will be loaded dynamically -->
+                    </div>
 
-                        <div class="ticket-card" data-ticket="2">
-                            <h4 class="ticket-title">Inappropriate Behavior</h4>
-                            <p class="ticket-description">The student partner for my scheduled 'Smartphone Basics'
-                                1-on-1 session did not show up and did not reply to my messages for over 30 minutes.</p>
-                            <div class="ticket-meta">
-                                <span class="ticket-id">ID: T-002</span>
-                                <span class="ticket-date">Submitted: 10 - 8 - 2025</span>
-                                <span class="ticket-status status-resolved">Resolved</span>
-                            </div>
-                        </div>
-
-                        <div class="ticket-card" data-ticket="3">
-                            <h4 class="ticket-title">Inappropriate Behavior</h4>
-                            <p class="ticket-description">User was using offensive language in the public event chat
-                                room during the 'Community Gardening' webinar yesterday.</p>
-                            <div class="ticket-meta">
-                                <span class="ticket-id">ID: T-003</span>
-                                <span class="ticket-date">Submitted: 10 - 8 - 2025</span>
-                                <span class="ticket-status status-resolved">Resolved</span>
-                            </div>
-                        </div>
-
-                        <div class="ticket-card" data-ticket="4">
-                            <h4 class="ticket-title">Spam</h4>
-                            <p class="ticket-description">This user posted a link to a suspicious third-party betting
-                                site on my profile wall multiple times.</p>
-                            <div class="ticket-meta">
-                                <span class="ticket-id">ID: T-004</span>
-                                <span class="ticket-date">Submitted: 10 - 8 - 2025</span>
-                                <span class="ticket-status status-resolved">Resolved</span>
-                            </div>
-                        </div>
+                    <div class="empty-tickets" id="empty-tickets" style="display: none;">
+                        <p>No tickets found. Submit a report in the Safety Center to create a ticket.</p>
                     </div>
                 </div>
 
-                <div class="ticket-detail-panel">
-                    <h3 class="detail-id">ID: T-001</h3>
-                    <div class="detail-box">
-                        <p>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor
-                            invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et
-                            accusam</p>
-                    </div>
-                    <h4 class="agent-reply-title">Agent Reply</h4>
-                    <div class="detail-box">
-                        <p>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor
-                            invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et
-                            accusam</p>
+                <div class="ticket-detail-panel" id="ticket-detail-panel">
+                    <div id="ticket-detail-content">
+                        <p class="select-ticket-msg">Select a ticket to view details</p>
                     </div>
                 </div>
             </div>
@@ -259,52 +231,160 @@
 
         <!-- Live Chats Page -->
         <div id="live-chats-page" class="page">
-            <h2 class="content-title">Live Chats</h2>
-            <p class="page-subtitle">View live chat</p>
-            <div class="divider"></div>
+            <!-- Chat List View -->
+            <div id="chat-list-view" class="chat-view active">
+                <div class="chat-list-header">
+                    <div>
+                        <h2 class="content-title">Live Chats</h2>
+                        <p class="page-subtitle">View your conversations with support</p>
+                    </div>
+                    <button class="new-chat-btn" id="start-new-chat">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="5" x2="12" y2="19" />
+                            <line x1="5" y1="12" x2="19" y2="12" />
+                        </svg>
+                        Start New Chat
+                    </button>
+                </div>
+                <div class="divider"></div>
 
-            <a href="#" class="chat-back-link">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="19" y1="12" x2="5" y2="12" />
-                    <polyline points="12 19 5 12 12 5" />
-                </svg>
-                Back
-            </a>
-
-            <div class="chat-container">
-                <div class="chat-header">
-                    <div class="chat-user-info">
-                        <div class="chat-avatar">
+                <div class="chat-list">
+                    <div class="chat-list-item" data-chat="1">
+                        <div class="chat-list-avatar">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
                                 stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
                                 <circle cx="12" cy="7" r="4" />
                             </svg>
                         </div>
-                        <div class="chat-user-details">
-                            <h4 class="chat-user-name">John Doe</h4>
-                            <p class="chat-duration">Conversation lasted X minutes</p>
+                        <div class="chat-list-info">
+                            <div class="chat-list-top">
+                                <h4 class="chat-list-name">Chan Yi Liang</h4>
+                                <span class="chat-list-time">Today, 2:30 PM</span>
+                            </div>
+                            <p class="chat-list-preview">I'll look into the points issue for you right away.</p>
+                            <div class="chat-list-meta">
+                                <span class="chat-status status-ongoing">Ongoing</span>
+                                <span class="chat-duration">5 messages</span>
+                            </div>
                         </div>
                     </div>
-                    <button class="end-chat-btn">End Chat</button>
-                </div>
 
-                <div class="chat-body">
-                    <div class="chat-messages">
-
+                    <div class="chat-list-item" data-chat="2">
+                        <div class="chat-list-avatar">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                                <circle cx="12" cy="7" r="4" />
+                            </svg>
+                        </div>
+                        <div class="chat-list-info">
+                            <div class="chat-list-top">
+                                <h4 class="chat-list-name">Jayden Yip</h4>
+                                <span class="chat-list-time">Yesterday, 10:15 AM</span>
+                            </div>
+                            <p class="chat-list-preview">Your event registration has been confirmed. See you there!</p>
+                            <div class="chat-list-meta">
+                                <span class="chat-status status-resolved">Resolved</span>
+                                <span class="chat-duration">8 messages</span>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="chat-input-area">
-                        <button class="attachment-btn">
+                    <div class="chat-list-item" data-chat="3">
+                        <div class="chat-list-avatar">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path
-                                    d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" />
+                                stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                                <circle cx="12" cy="7" r="4" />
                             </svg>
-                        </button>
-                        <input type="text" class="chat-input" placeholder="Type your message">
-                        <button class="send-btn">Send Reply</button>
+                        </div>
+                        <div class="chat-list-info">
+                            <div class="chat-list-top">
+                                <h4 class="chat-list-name">Caius Chan</h4>
+                                <span class="chat-list-time">Jan 15, 2025</span>
+                            </div>
+                            <p class="chat-list-preview">Your account has been verified successfully. You're all set!
+                            </p>
+                            <div class="chat-list-meta">
+                                <span class="chat-status status-resolved">Resolved</span>
+                                <span class="chat-duration">6 messages</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="chat-list-item" data-chat="4">
+                        <div class="chat-list-avatar">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                                <circle cx="12" cy="7" r="4" />
+                            </svg>
+                        </div>
+                        <div class="chat-list-info">
+                            <div class="chat-list-top">
+                                <h4 class="chat-list-name">Dickson Lim</h4>
+                                <span class="chat-list-time">Jan 10, 2025</span>
+                            </div>
+                            <p class="chat-list-preview">We're still looking into your refund request. I'll update you
+                                shortly.</p>
+                            <div class="chat-list-meta">
+                                <span class="chat-status status-ongoing">Ongoing</span>
+                                <span class="chat-duration">4 messages</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat Conversation View -->
+            <div id="chat-conversation-view" class="chat-view">
+                <a href="#" class="chat-back-link" id="back-to-chat-list">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="19" y1="12" x2="5" y2="12" />
+                        <polyline points="12 19 5 12 12 5" />
+                    </svg>
+                    Back to Chats
+                </a>
+
+                <div class="chat-container">
+                    <div class="chat-header">
+                        <div class="chat-user-info">
+                            <div class="chat-avatar">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                                    <circle cx="12" cy="7" r="4" />
+                                </svg>
+                            </div>
+                            <div class="chat-user-details">
+                                <h4 class="chat-user-name">Support Agent</h4>
+                                <p class="chat-duration">Select a chat to view</p>
+                            </div>
+                        </div>
+                        <button class="end-chat-btn">End Chat</button>
+                    </div>
+
+                    <div class="chat-body">
+                        <div class="chat-messages">
+                            <!-- Messages will be loaded dynamically -->
+                        </div>
+
+                        <div class="chat-input-area">
+                            <button class="attachment-btn">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <path
+                                        d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" />
+                                </svg>
+                            </button>
+                            <input type="text" class="chat-input" placeholder="Type your message">
+                            <button class="send-btn">Send Reply</button>
+                        </div>
                     </div>
                 </div>
             </div>
