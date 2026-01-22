@@ -121,7 +121,8 @@
 
 /* Form Styles */
 .settings-form input:disabled,
-.settings-form textarea:disabled {
+.settings-form textarea:disabled,
+.settings-form select:disabled {
     background-color: transparent;
     border: 1px solid transparent;
     /* Look like plain text */

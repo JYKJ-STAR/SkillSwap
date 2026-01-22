@@ -57,6 +57,18 @@ function updateSteps() {
     document.getElementById('progressFill').style.width = `${(currentStep / totalSteps) * 100}%`;
 }
 
+// Calculate age from birth date
+function calculateAge(birthDateString) {
+    const birthDate = new Date(birthDateString);
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const m = today.getMonth() - birthDate.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+    }
+    return age;
+}
+
 // Validate current step
 function validateStep(step) {
     if (step === 1) {
@@ -66,13 +78,14 @@ function validateStep(step) {
         }
     } else if (step === 2) {
         if (!document.getElementById('firstName').value || !document.getElementById('lastName').value ||
-            !document.getElementById('age').value || !document.getElementById('schoolProfession').value ||
+            !document.getElementById('birth_date').value || !document.getElementById('schoolProfession').value ||
             !document.getElementById('language').value || !document.getElementById('phone').value) {
             showToast('Please complete all required fields.', 'warning');
             return false;
         }
         const phone = document.getElementById('phone').value;
-        const age = parseInt(document.getElementById('age').value);
+        const birthDateInput = document.getElementById('birth_date');
+        const age = calculateAge(birthDateInput.value);
 
         // Age validation based on role
         let minAge = 12;
@@ -87,7 +100,7 @@ function validateStep(step) {
         }
 
         if (age < minAge || age > maxAge) {
-            showToast(`For ${selectedRole === 'youth' ? 'Youth' : 'Seniors'}, age must be between ${minAge} and ${maxAge} years.`, 'error');
+            showToast(`For ${selectedRole === 'youth' ? 'Youth' : 'Seniors'}, you must be between ${minAge} and ${maxAge} years old (Your age: ${age}).`, 'error');
             return false;
         }
 
@@ -119,21 +132,30 @@ function nextStep(step) {
     if (currentStep === 2) {
         const label = document.getElementById('schoolProfessionLabel');
         const input = document.getElementById('schoolProfession');
-        const ageInput = document.getElementById('age');
+        const birthDateInput = document.getElementById('birth_date');
+
+        const today = new Date();
+        const formatDate = (date) => date.toISOString().split('T')[0];
+
+        let minYearDiff, maxYearDiff;
 
         if (selectedRole === 'youth') {
             label.innerHTML = '<i class="bi bi-mortarboard-fill"></i> School/University';
             input.placeholder = 'School / Profession';
-            ageInput.min = 15;
-            ageInput.max = 35;
-            ageInput.placeholder = "Age (15-35)";
+            minYearDiff = 15;
+            maxYearDiff = 35;
         } else {
             label.innerHTML = '<i class="bi bi-briefcase-fill"></i> Profession';
             input.placeholder = 'Profession';
-            ageInput.min = 36;
-            ageInput.max = 80;
-            ageInput.placeholder = "Age (36-80)";
+            minYearDiff = 36;
+            maxYearDiff = 80;
         }
+
+        const maxDate = new Date(today.getFullYear() - minYearDiff, today.getMonth(), today.getDate());
+        const minDate = new Date(today.getFullYear() - maxYearDiff, today.getMonth(), today.getDate());
+
+        birthDateInput.max = formatDate(maxDate);
+        birthDateInput.min = formatDate(minDate);
     }
 
     updateSteps();
@@ -153,7 +175,7 @@ async function submitGoogleSignup() {
         role: selectedRole,
         firstName: document.getElementById('firstName').value,
         lastName: document.getElementById('lastName').value,
-        age: document.getElementById('age').value,
+        birthDate: document.getElementById('birth_date').value,
         phone: document.getElementById('phone').value,
         schoolProfession: document.getElementById('schoolProfession').value,
         language: document.getElementById('language').value,

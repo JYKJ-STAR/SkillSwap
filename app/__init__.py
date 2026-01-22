@@ -35,12 +35,14 @@ def create_app():
     from .Python_Files.Support import support_bp
     from .Python_Files.Events import events_bp
     from .Python_Files.Rewards import rewards_bp
+    from .Python_Files.settings import settings_bp
     
     app.register_blueprint(home_bp)
     app.register_blueprint(dashboard_bp)
     app.register_blueprint(support_bp)
     app.register_blueprint(events_bp)
     app.register_blueprint(rewards_bp)
+    app.register_blueprint(settings_bp)
 
     return app
 
@@ -52,6 +54,7 @@ def create_admin_app():
     app = Flask(__name__, template_folder='HTML_Files', static_folder='Styling')
     app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "admin-secret-key")
     app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)
+    app.config['TEMPLATES_AUTO_RELOAD'] = True
 
     # Register ONLY admin blueprint
     from .Python_Files.Admin import admin_bp

@@ -13,24 +13,26 @@
         <i class="bi bi-arrow-left me-1"></i> Back
     </a>
 
-    <h2 class="fw-bold mb-4">Settings</h2>
+    <h2 class="fw-bold mb-4" id="pageTitle">Settings</h2>
 
     <div class="row">
         <!-- Sidebar -->
         <div class="col-lg-3 d-none d-lg-block">
             <nav class="settings-sidebar">
                 <div class="section-title">Account</div>
-                <a href="#" class="nav-link active">
+                <button class="nav-link active w-100 text-start border-0 bg-transparent" id="navProfile">
                     <i class="bi bi-person"></i> Profile
-                </a>
-                <a href="#" class="nav-link">
+                </button>
+                {% if not user.is_google_user %}
+                <button class="nav-link w-100 text-start border-0 bg-transparent" id="navPassword">
                     <i class="bi bi-shield-lock"></i> Password
-                </a>
+                </button>
+                {% endif %}
 
                 <div class="section-title">Others</div>
-                <a href="#" class="nav-link">
+                <button class="nav-link w-100 text-start border-0 bg-transparent" id="navSkills">
                     <i class="bi bi-award"></i> Skills
-                </a>
+                </button>
                 <a href="#" class="nav-link">
                     <i class="bi bi-patch-check"></i> Verification
                 </a>
@@ -42,90 +44,210 @@
 
         <!-- Main Content -->
         <div class="col-lg-9">
-            <form id="settingsForm" class="settings-form is-readonly">
-                <!-- Profile Header -->
-                <div class="d-flex align-items-center gap-4 mb-5">
-                    <!-- Profile Image -->
-                    <div class="profile-avatar-container">
-                        {% if user.profile_photo %}
-                        <img src="{{ url_for('static', filename='img/users/profiles/' + user.profile_photo) }}"
-                            alt="Profile" class="profile-avatar" id="avatarPreview">
-                        {% else %}
-                        <img src="https://ui-avatars.com/api/?name={{ user.first_name }}+{{ user.last_name }}&background=1e293b&color=fff&size=128"
-                            alt="Profile" class="profile-avatar" id="avatarPreview">
-                        {% endif %}
-
-                        <!-- Upload Button (only visible when editing) -->
-                        <label for="profile_photo" class="profile-upload-btn" title="Change Photo">
-                            <i class="bi bi-camera-fill"></i>
-                        </label>
-                        <input type="file" id="profile_photo" name="profile_photo" accept="image/*" hidden disabled>
-                    </div>
-
-                    <!-- Header Info -->
-                    <div>
-                        <div class="d-flex align-items-center flex-wrap gap-2 mb-2">
-                            {% if user.verification_status == 'verified' %}
-                            <div class="d-flex align-items-center text-success fw-bold small">
-                                <i class="bi bi-patch-check-fill me-1"></i> Verified Account
-                            </div>
+            <!-- PROFILE SECTION -->
+            <div id="profileSection">
+                <form id="settingsForm" class="settings-form is-readonly">
+                    <!-- Profile Header -->
+                    <div class="d-flex align-items-center gap-4 mb-5">
+                        <!-- Profile Image -->
+                        <div class="profile-avatar-container">
+                            {% if user.profile_photo %}
+                            <img src="{{ url_for('static', filename='img/users/profiles/' + user.profile_photo) }}"
+                                alt="Profile" class="profile-avatar" id="avatarPreview">
                             {% else %}
-                            <div class="d-flex align-items-center text-muted fw-bold small">
-                                <i class="bi bi-x-circle-fill me-1"></i> Account Unverified
-                            </div>
-                            <span class="text-muted">|</span>
-                            <span class="text-muted small">You cannot connect with others until verified</span>
-                            <button type="button" class="btn btn-sm btn-secondary ms-2"
-                                style="background:#e5e7eb; color: #374151; border:none; font-size: 0.75rem; padding: 0.25rem 0.75rem; border-radius: 4px;">Verify
-                                Now</button>
+                            <img src="https://ui-avatars.com/api/?name={{ user.first_name }}+{{ user.last_name }}&background=1e293b&color=fff&size=128"
+                                alt="Profile" class="profile-avatar" id="avatarPreview">
                             {% endif %}
+
+                            <!-- Upload Button (only visible when editing) -->
+                            <label for="profile_photo" class="profile-upload-btn" title="Change Photo">
+                                <i class="bi bi-camera-fill"></i>
+                            </label>
+                            <input type="file" id="profile_photo" name="profile_photo" accept="image/*" hidden disabled>
                         </div>
-                        <div class="text-muted fw-medium">{{ user.role|capitalize }} | {{ user.age }} Years Old</div>
+
+                        <!-- Header Info -->
+                        <div>
+                            <div class="d-flex align-items-center flex-wrap gap-2 mb-2">
+                                {% if user.verification_status == 'verified' %}
+                                <div class="d-flex align-items-center text-success fw-bold small">
+                                    <i class="bi bi-patch-check-fill me-1"></i> Verified Account
+                                </div>
+                                {% else %}
+                                <div class="d-flex align-items-center text-muted fw-bold small">
+                                    <i class="bi bi-x-circle-fill me-1"></i> Account Unverified
+                                </div>
+                                <span class="text-muted">|</span>
+                                <span class="text-muted small">You cannot connect with others until verified</span>
+                                <button type="button" class="btn btn-sm btn-secondary ms-2"
+                                    style="background:#e5e7eb; color: #374151; border:none; font-size: 0.75rem; padding: 0.25rem 0.75rem; border-radius: 4px;">Verify
+                                    Now</button>
+                                {% endif %}
+                            </div>
+                            <div class="text-muted fw-medium">{{ user.role|capitalize }} | {{ user.age }} Years Old
+                            </div>
+                        </div>
                     </div>
+
+                    <!-- Form Fields -->
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <label class="form-label text-muted small text-uppercase">First Name</label>
+                            <input type="text" class="form-control-plaintext form-input-global" name="first_name"
+                                value="{{ user.first_name }}" disabled required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label text-muted small text-uppercase">Language</label>
+                            <!-- Using text input if disabled, select if enabled? For simplicity text input that becomes select or just text. 
+                                 Theme request implies "View personal details". Let's stick to text for now or simple input. -->
+                            <input type="text" class="form-control-plaintext form-input-global" name="language"
+                                value="{{ user.language }}" disabled>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label text-muted small text-uppercase">Last Name</label>
+                            <input type="text" class="form-control-plaintext form-input-global" name="last_name"
+                                value="{{ user.last_name }}" disabled required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label text-muted small text-uppercase">Profession/School</label>
+                            <input type="text" class="form-control-plaintext form-input-global" name="profession"
+                                value="{{ user.profession }}" placeholder="Add your profession" disabled>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label text-muted small text-uppercase">GRC (Constituency)</label>
+                            <select class="form-select form-input-global" name="grc_id" disabled>
+                                <option value="">Select your GRC</option>
+                                {% for grc in grcs %}
+                                <option value="{{ grc.grc_id }}" {% if user.grc_id==grc.grc_id %}selected{% endif %}>
+                                    {{ grc.name }} ({{ grc.region }})
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label text-muted small text-uppercase">Birth Date</label>
+                            <input type="date" class="form-control-plaintext form-input-global" name="birth_date"
+                                value="{{ user.birth_date }}" disabled>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label text-muted small text-uppercase">Bio</label>
+                            <textarea class="form-control-plaintext form-input-global" name="bio" rows="4"
+                                placeholder="Short sentence about yourself" disabled>{{ user.bio }}</textarea>
+                        </div>
+                    </div>
+
+                    <!-- Edit Button (Hide when editing) -->
+                    <div class="d-flex justify-content-end mt-5" id="editContainer">
+                        <div class="d-flex gap-2">
+                            <button type="button" id="stopEditBtn" class="btn btn-outline-secondary d-none"
+                                style="padding: 0.75rem 2rem;">Stop Editing</button>
+                            <button type="button" id="editBtn" class="btn btn-secondary"
+                                style="background: #9ca3af; color: white; border: none; padding: 0.75rem 2rem;">Edit
+                                Profile</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- PASSWORD SECTION -->
+            <div id="passwordSection" class="d-none">
+                <h4 class="fw-bold mb-4">Change Password</h4>
+                <form id="passwordForm" class="settings-form">
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <label class="form-label text-muted small text-uppercase">Email</label>
+                            <input type="email" class="form-control form-input-global bg-light" value="{{ user.email }}"
+                                readonly disabled>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-muted small text-uppercase">New Password</label>
+                            <input type="password" class="form-control form-input-global" name="new_password"
+                                placeholder="••••••">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-muted small text-uppercase">Current Password</label>
+                            <input type="password" class="form-control form-input-global" name="current_password"
+                                placeholder="••••••">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-muted small text-uppercase">Confirm New Password</label>
+                            <input type="password" class="form-control form-input-global" name="confirm_password"
+                                placeholder="••••••">
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end mt-5">
+                        <button type="button" id="updatePassBtn" class="btn btn-secondary"
+                            style="background: #9ca3af; color: white; border: none; padding: 0.75rem 2rem;">Update
+                            Password</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- SKILLS SECTION -->
+            <div id="skillsSection" class="d-none">
+                <h4 class="fw-bold mb-2">Manage Skills</h4>
+                <p class="text-muted mb-4">Update the skills you want to teach or learn to find better matches</p>
+
+                <!-- Custom Tabs -->
+                <div class="d-flex text-center mb-4" style="border-bottom: 2px solid #e5e7eb;">
+                    <button class="flex-fill py-3 border-0 bg-transparent fw-bold" id="tabTeach"
+                        style="border-bottom: 2px solid black; margin-bottom: -2px;">Teach</button>
+                    <button class="flex-fill py-3 border-0 bg-transparent text-muted" id="tabLearn"
+                        style="margin-bottom: -2px;">Learn</button>
                 </div>
 
-                <!-- Form Fields -->
-                <div class="row g-4">
-                    <div class="col-md-6">
-                        <label class="form-label text-muted small text-uppercase">First Name</label>
-                        <input type="text" class="form-control-plaintext form-input-global" name="first_name"
-                            value="{{ user.first_name }}" disabled required>
+                <!-- Teacher Skills Container -->
+                <div id="teachContainer">
+                    <h6 class="fw-bold small text-uppercase text-muted mb-3">Skills I can teach</h6>
+                    <div class="p-4 rounded-3 mb-4" style="background-color: #d1d5db;">
+                        <!-- Gray background from image -->
+                        <div class="d-flex flex-wrap gap-2" id="teachSelectedList">
+                            <!-- Selected Pills will act here -->
+                        </div>
+                        <div id="teachEmptyState" class="text-muted small fst-italic mt-2 d-none">No skills selected
+                        </div>
                     </div>
 
-                    <div class="col-md-6">
-                        <label class="form-label text-muted small text-uppercase">Language</label>
-                        <!-- Using text input if disabled, select if enabled? For simplicity text input that becomes select or just text. 
-                             Theme request implies "View personal details". Let's stick to text for now or simple input. -->
-                        <input type="text" class="form-control-plaintext form-input-global" name="language"
-                            value="{{ user.language }}" disabled>
+                    <h6 class="fw-bold small text-uppercase text-muted mb-3">Add more:</h6>
+                    <div class="d-flex flex-wrap gap-2 mb-4" id="teachSuggestedList">
+                        <!-- Suggested Pills -->
                     </div>
 
-                    <div class="col-md-6">
-                        <label class="form-label text-muted small text-uppercase">Last Name</label>
-                        <input type="text" class="form-control-plaintext form-input-global" name="last_name"
-                            value="{{ user.last_name }}" disabled required>
-                    </div>
-
-                    <div class="col-md-6">
-                        <label class="form-label text-muted small text-uppercase">Profession</label>
-                        <input type="text" class="form-control-plaintext form-input-global" name="profession"
-                            value="{{ user.profession }}" placeholder="Add your profession" disabled>
-                    </div>
-
-                    <div class="col-12">
-                        <label class="form-label text-muted small text-uppercase">Bio</label>
-                        <textarea class="form-control-plaintext form-input-global" name="bio" rows="4"
-                            placeholder="Short sentence about yourself" disabled>{{ user.bio }}</textarea>
-                    </div>
+                    <h6 class="fw-bold small text-uppercase text-muted mb-2">Can't find? Write Yourself</h6>
+                    <input type="text" class="form-control form-input-global mb-4" id="teachCustomInput"
+                        placeholder="Type a skill and press Enter">
                 </div>
 
-                <!-- Edit Button (Hide when editing) -->
-                <div class="d-flex justify-content-end mt-5" id="editContainer">
-                    <button type="button" id="editBtn" class="btn btn-secondary"
-                        style="background: #9ca3af; color: white; border: none; padding: 0.75rem 2rem;">Edit
-                        Profile</button>
+                <!-- Learner Skills Container (Hidden by default) -->
+                <div id="learnContainer" class="d-none">
+                    <h6 class="fw-bold small text-uppercase text-muted mb-3">Skills I want to learn</h6>
+                    <div class="p-4 rounded-3 mb-4" style="background-color: #d1d5db;">
+                        <div class="d-flex flex-wrap gap-2" id="learnSelectedList">
+                            <!-- Selected Pills -->
+                        </div>
+                        <div id="learnEmptyState" class="text-muted small fst-italic mt-2 d-none">No skills selected
+                        </div>
+                    </div>
+
+                    <h6 class="fw-bold small text-uppercase text-muted mb-3">Add more:</h6>
+                    <div class="d-flex flex-wrap gap-2 mb-4" id="learnSuggestedList">
+                        <!-- Suggested Pills -->
+                    </div>
+
+                    <h6 class="fw-bold small text-uppercase text-muted mb-2">Can't find? Write Yourself</h6>
+                    <input type="text" class="form-control form-input-global mb-4" id="learnCustomInput"
+                        placeholder="Type a skill and press Enter">
                 </div>
-            </form>
+
+                <!-- Save Action Removed (Using Sticky Bar) -->
+            </div>
         </div>
     </div>
 </div>
@@ -142,5 +264,11 @@
 {% endblock %}
 
 {% block scripts %}
+<!-- Data Storage for Skills -->
+<script type="application/json" id="data-teach-skills">{{ teach_skills | tojson }}</script>
+<script type="application/json" id="data-learn-skills">{{ learn_skills | tojson }}</script>
+<script type="application/json" id="data-all-skills">{{ all_skills | tojson }}</script>
+
+<script src="{{ url_for('static', filename='js/toast.js') }}"></script>
 <script src="{{ url_for('static', filename='js/settings.js') }}"></script>
 {% endblock %}

@@ -163,9 +163,10 @@ def register():
     first_name = data.get('firstName', '')
     last_name = data.get('lastName', '')
     name = f"{first_name} {last_name}".strip() or email.split('@')[0]
-    age = data.get('age')
+    birth_date = data.get('birthDate')
     phone = data.get('phone')
     language = data.get('language', 'English')
+    profession = data.get('schoolProfession')
     
     # Validation
     if not email or not password:
@@ -191,11 +192,11 @@ def register():
     conn = get_db_connection()
     try:
         cur = conn.cursor()
-        # Insert User (with verification_photo)
+        # Insert User (with verification_photo and profession)
         cur.execute(
-            """INSERT INTO user (name, email, password_hash, role, age, phone, language_pref, verification_status, verification_photo)
-               VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', ?)""",
-            (name, email, password_hash, role, age, phone, language, verification_photo)
+            """INSERT INTO user (name, email, password_hash, role, birth_date, phone, language_pref, profession, verification_status, verification_photo)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?)""",
+            (name, email, password_hash, role, birth_date, phone, language, profession, verification_photo)
         )
         user_id = cur.lastrowid
         
@@ -314,9 +315,10 @@ def complete_google_signup():
     role = data.get('role')
     first_name = data.get('firstName')
     last_name = data.get('lastName')
-    age = data.get('age')
+    birth_date = data.get('birthDate')
     phone = data.get('phone')
     language = data.get('language')
+    profession = data.get('schoolProfession')
     teach_skills = data.get('teachSkills', [])
     learn_skills = data.get('learnSkills', [])
     
@@ -332,11 +334,11 @@ def complete_google_signup():
     try:
         cur = conn.cursor()
         
-        # Insert User with all details
+        # Insert User with all details (Added profession)
         cur.execute(
-            """INSERT INTO user (name, email, role, verification_status, password_hash, language_pref, age, phone)
-               VALUES (?, ?, ?, 'verified', 'google_oauth', ?, ?, ?)""",
-            (name, google_info['email'], role, language, age, phone)
+            """INSERT INTO user (name, email, role, verification_status, password_hash, language_pref, birth_date, phone, profession)
+               VALUES (?, ?, ?, 'verified', 'google_oauth', ?, ?, ?, ?)""",
+            (name, google_info['email'], role, language, birth_date, phone, profession)
         )
         user_id = cur.lastrowid
         

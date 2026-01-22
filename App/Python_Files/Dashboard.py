@@ -1,9 +1,5 @@
-from flask import Blueprint, render_template, session, redirect, url_for, flash, request, jsonify, current_app
+from flask import Blueprint, render_template, session, redirect, url_for, flash
 from app.db import get_db_connection
-from werkzeug.utils import secure_filename
-import os
-import json
-from datetime import datetime
 
 dashboard_bp = Blueprint('dashboard', __name__)
 
@@ -68,98 +64,4 @@ def activities():
     return render_template('youth/youth_activities.html')
 
 
-@dashboard_bp.route('/settings')
-def settings():
-    if 'user_id' not in session:
-        return redirect(url_for('home.login_page'))
-    
-    user_id = session['user_id']
-    conn = get_db_connection()
-    user = conn.execute("SELECT * FROM user WHERE user_id = ?", (user_id,)).fetchone()
-    conn.close()
-    
-    if not user:
-        session.clear()
-        flash("User not found. Please log in again.", "error")
-        return redirect(url_for('home.login_page'))
-    
-    # Process Name
-    full_name = user['name'] or ''
-    parts = full_name.split(' ', 1)
-    first_name = parts[0]
-    last_name = parts[1] if len(parts) > 1 else ''
-    
-    # Prepare User Data for Template
-    user_data = {
-        'first_name': first_name,
-        'last_name': last_name,
-        'email': user['email'],
-        'age': user['age'],
-        'role': user['role'],
-        'language': user['language_pref'],
-        'profession': user['profession'] or '',
-        'bio': user['bio'] or '',
-        'verification_status': user['verification_status'],
-        'profile_photo': user['profile_photo'],
-    }
-    
-    return render_template('shared/settings.html', user=user_data)
 
-@dashboard_bp.route('/settings/update', methods=['POST'])
-def update_settings():
-    if 'user_id' not in session:
-        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
-    
-    try:
-        user_id = session['user_id']
-        # Handle FormData which might include file
-        first_name = request.form.get('first_name')
-        last_name = request.form.get('last_name')
-        language = request.form.get('language')
-        profession = request.form.get('profession')
-        bio = request.form.get('bio')
-        
-        name = f"{first_name} {last_name}".strip()
-        
-        conn = get_db_connection()
-        cur = conn.cursor()
-        
-        # Helper for file upload
-        profile_photo = None
-        if 'profile_photo' in request.files:
-            file = request.files['profile_photo']
-            if file and file.filename:
-                filename = secure_filename(file.filename)
-                timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
-                final_filename = f"profile_{user_id}_{timestamp}_{filename}"
-                
-                upload_folder = os.path.join(current_app.static_folder, 'img', 'users', 'profiles')
-                os.makedirs(upload_folder, exist_ok=True)
-                
-                file.save(os.path.join(upload_folder, final_filename))
-                profile_photo = final_filename
-
-        # Update Query
-        if profile_photo:
-            cur.execute("""
-                UPDATE user 
-                SET name = ?, language_pref = ?, profession = ?, bio = ?, profile_photo = ?
-                WHERE user_id = ?
-            """, (name, language, profession, bio, profile_photo, user_id))
-        else:
-             cur.execute("""
-                UPDATE user 
-                SET name = ?, language_pref = ?, profession = ?, bio = ?
-                WHERE user_id = ?
-            """, (name, language, profession, bio, user_id))
-            
-        conn.commit()
-        conn.close()
-        
-        # Update Session Name if changed
-        session['user_name'] = name
-        
-        return jsonify({'success': True, 'message': 'Profile updated successfully', 'new_photo': profile_photo})
-        
-    except Exception as e:
-        return jsonify({'success': False, 'message': str(e)}), 500
