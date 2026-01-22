@@ -12,6 +12,19 @@ admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
 # =====================================================
 # DECORATOR: Require Admin Role
 # =====================================================
+
+# Hardcoded Locations Map (GRC ID -> List of Locations)
+GRC_LOCATIONS = {
+    1: ['Toa Payoh CC', 'Toa Payoh Stadium', 'Toa Payoh Library'],
+    2: ['Bishan CC', 'Bishan Sports Hall', 'Bishan Park'],
+    3: ['Ang Mo Kio CC', 'Ang Mo Kio Hub', 'Bishan-Ang Mo Kio Park'],
+    4: ['Tampines Hub', 'Tampines CC', 'Tampines Regional Library'],
+    5: ['Jurong The Frontier CC', 'Jurong Lake Gardens', 'Jurong Regional Library'],
+    6: ['Yishun CC', 'Yishun Park', 'Northpoint City Community Space'],
+    7: ['Punggol CC', 'Punggol Community Garden', 'One Punggol'],
+    8: ['Bedok CC', 'Bedok Reservoir', 'Heartbeat @ Bedok']
+} 
+
 def admin_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -268,10 +281,24 @@ def create_event():
     
     admin_id = session.get('admin_id', 1)
     
+    # Date/Time Validation: Event cannot be scheduled in the past
+    if start_datetime:
+        try:
+            event_dt = datetime.strptime(start_datetime, '%Y-%m-%dT%H:%M')
+            if event_dt < datetime.now():
+                flash("Invalid date/time: Event cannot be scheduled in the past.", "error")
+                return redirect(request.referrer or url_for('admin.admin_manage_events'))
+            
+            # Standardize format for SQLite (space instead of T)
+            start_datetime = event_dt.strftime('%Y-%m-%d %H:%M:%S')
+        except ValueError:
+            flash("Invalid date/time format.", "error")
+            return redirect(request.referrer or url_for('admin.admin_manage_events'))
+    
     conn = get_db_connection()
     conn.execute(
-        """INSERT INTO event (created_by_user_id, grc_id, title, description, start_datetime, location, category, led_by, max_capacity)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+        """INSERT INTO event (created_by_user_id, grc_id, title, description, start_datetime, location, category, led_by, max_capacity, status)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')""",
         (admin_id, grc_id, title, description, start_datetime, location, category, led_by, max_capacity)
     )
     conn.commit()
@@ -292,7 +319,7 @@ def create_event():
 @admin_required
 def admin_manage_events():
     """Display the event management page with filters."""
-    filter_status = request.args.get('filter', 'all')
+    filter_status = request.args.get('filter', 'pending')
     
     conn = get_db_connection()
     
@@ -314,18 +341,29 @@ def admin_manage_events():
         LEFT JOIN grc g ON e.grc_id = g.grc_id
     """
     
-    # Apply filters 
+    # Apply filters based on new status workflow
     if filter_status == 'pending':
-        # Pending = status is 'open' and start_datetime is in the future
-        base_query += " WHERE e.status = 'open' AND datetime(e.start_datetime) > datetime('now')"
+        base_query += " WHERE e.status = 'pending'"
     elif filter_status == 'approved':
-        # Approved = status is 'open' (all open events)
-        base_query += " WHERE e.status = 'open'"
+        # Show both Approved (Unpublished) and Published events
+        base_query += " WHERE e.status IN ('approved', 'published')"
     elif filter_status == 'past':
-        # Past = cancelled OR start_datetime is in the past
-        base_query += " WHERE e.status = 'cancelled' OR datetime(e.start_datetime) < datetime('now')"
+        # Exclude archived past events (those with [ARCHIVED] in void_reason)
+        base_query += " WHERE e.status IN ('ended', 'cancelled') AND (e.void_reason IS NULL OR e.void_reason NOT LIKE '%[ARCHIVED]%')"
+    elif filter_status == 'voided':
+        # Exclude archived voided events (those with [ARCHIVED] in void_reason)
+        base_query += " WHERE e.status = 'voided' AND (e.void_reason IS NULL OR e.void_reason NOT LIKE '%[ARCHIVED]%')"
     
-    base_query += " ORDER BY e.start_datetime DESC"
+    # Sorting logic
+    if filter_status == 'approved':
+        # Approved tab: Unpublished (approved) first, then Published, grouped by Category
+        base_query += """ ORDER BY 
+            CASE WHEN e.status = 'approved' THEN 0 ELSE 1 END,
+            e.category ASC, 
+            e.start_datetime DESC"""
+    else:
+        # Others: Sort by Start Date DESC
+        base_query += " ORDER BY e.start_datetime DESC"
     
     events = conn.execute(base_query).fetchall()
     
@@ -385,14 +423,151 @@ def admin_update_event(event_id):
 @admin_bp.route('/delete-event/<int:event_id>', methods=['POST'])
 @admin_required
 def admin_delete_event(event_id):
-    """Delete an event."""
+    """Delete an event permanently (only for pending events)."""
     conn = get_db_connection()
     conn.execute("DELETE FROM event WHERE event_id = ?", (event_id,))
     conn.commit()
     conn.close()
     
     flash("Event deleted successfully.", "success")
-    return redirect(url_for('admin.admin_manage_events'))
+    return redirect(url_for('admin.admin_manage_events', filter='pending'))
+
+
+@admin_bp.route('/approve-event/<int:event_id>', methods=['POST'])
+@admin_required
+def admin_approve_event(event_id):
+    """Approve a pending event (pending -> approved)."""
+    conn = get_db_connection()
+    conn.execute("UPDATE event SET status = 'approved' WHERE event_id = ?", (event_id,))
+    conn.commit()
+    conn.close()
+    
+    flash("Event approved successfully.", "success")
+    return redirect(url_for('admin.admin_manage_events', filter='approved'))
+
+
+@admin_bp.route('/publish-event/<int:event_id>', methods=['POST'])
+@admin_required
+def admin_publish_event(event_id):
+    """Publish an approved event (approved -> published)."""
+    conn = get_db_connection()
+    conn.execute("UPDATE event SET status = 'published' WHERE event_id = ?", (event_id,))
+    conn.commit()
+    conn.close()
+    
+    flash("Event published successfully! It is now visible to users.", "success")
+    return redirect(url_for('admin.admin_manage_events', filter='approved'))
+
+
+@admin_bp.route('/void-event/<int:event_id>', methods=['POST'])
+@admin_required
+def admin_void_event(event_id):
+    """Void an approved event (approved -> voided)."""
+    void_reason = request.form.get('void_reason', 'No reason provided')
+    conn = get_db_connection()
+    
+    # Get event title and check if it was published
+    event = conn.execute("SELECT title, status FROM event WHERE event_id = ?", (event_id,)).fetchone()
+    event_title = event['title'] if event else 'Unknown Event'
+    was_published = event['status'] == 'published' if event else False
+    
+    # Get all registered participants with details for this event
+    participants = conn.execute("""
+        SELECT DISTINCT u.user_id, u.name, u.role
+        FROM event_booking eb 
+        JOIN user u ON eb.user_id = u.user_id
+        WHERE eb.event_id = ? AND eb.status = 'booked'
+    """, (event_id,)).fetchall()
+    
+    # Update event status to voided
+    conn.execute("UPDATE event SET status = 'voided', void_reason = ? WHERE event_id = ?", (void_reason, event_id))
+    
+    # Create notifications for all registered participants
+    notification_message = f"The event '{event_title}' you registered for has been cancelled by the organisers. We apologise for any inconvenience caused."
+    for participant in participants:
+        conn.execute("""
+            INSERT INTO notification (user_id, message, created_at) 
+            VALUES (?, ?, datetime('now'))
+        """, (participant['user_id'], notification_message))
+    
+    conn.commit()
+    conn.close()
+    
+    # If this was a published event with participants, show confirmation page
+    if was_published and participants:
+        # Store participant info in session for confirmation page
+        session['cancelled_event'] = {
+            'event_id': event_id,
+            'event_title': event_title,
+            'void_reason': void_reason,
+            'participants': [{'name': p['name'], 'role': p['role']} for p in participants]
+        }
+        return redirect(url_for('admin.event_cancellation_confirm'))
+    
+    # Show different message based on whether participants were notified
+    if participants:
+        flash(f"Event voided successfully. All {len(participants)} registered participants have been notified.", "success")
+    else:
+        flash("Event voided successfully.", "success")
+    return redirect(url_for('admin.admin_manage_events', filter='voided'))
+
+
+@admin_bp.route('/event-cancellation-confirm')
+@admin_required
+def event_cancellation_confirm():
+    """Display the event cancellation confirmation page."""
+    cancelled_event = session.pop('cancelled_event', None)
+    
+    if not cancelled_event:
+        flash("No cancellation details found.", "warning")
+        return redirect(url_for('admin.admin_manage_events', filter='voided'))
+    
+    return render_template('admin/admin_event_cancellation.html',
+                           event_title=cancelled_event['event_title'],
+                           void_reason=cancelled_event['void_reason'],
+                           participants=cancelled_event['participants'])
+
+
+@admin_bp.route('/end-event/<int:event_id>', methods=['POST'])
+@admin_required
+def admin_end_event(event_id):
+    """End an approved event (approved -> ended/past)."""
+    conn = get_db_connection()
+    conn.execute("UPDATE event SET status = 'ended' WHERE event_id = ?", (event_id,))
+    conn.commit()
+    conn.close()
+    
+    flash("Event ended and moved to Past.", "success")
+    return redirect(url_for('admin.admin_manage_events', filter='past'))
+
+
+@admin_bp.route('/clear-tab/<tab_name>', methods=['POST'])
+@admin_required
+def admin_clear_tab(tab_name):
+    """Clear all events from Voided or Past tab (UI only, data preserved).
+    
+    This sets a 'hidden' flag on events so they don't appear in the UI,
+    but the data remains in the database for record-keeping.
+    """
+    if tab_name not in ['voided', 'past']:
+        flash("Invalid tab specified.", "error")
+        return redirect(url_for('admin.admin_manage_events'))
+    
+    conn = get_db_connection()
+    
+    if tab_name == 'voided':
+        # Mark voided events as archived
+        conn.execute("UPDATE event SET void_reason = COALESCE(void_reason, '') || ' [ARCHIVED]' WHERE status = 'voided' AND (void_reason IS NULL OR void_reason NOT LIKE '%[ARCHIVED]%')")
+        flash("All voided events have been cleared from view.", "success")
+    elif tab_name == 'past':
+        # Mark past events as archived using void_reason field
+        conn.execute("UPDATE event SET void_reason = '[ARCHIVED]' WHERE status IN ('ended', 'cancelled') AND (void_reason IS NULL OR void_reason NOT LIKE '%[ARCHIVED]%')")
+        flash("All past events have been cleared from view.", "success")
+    
+    conn.commit()
+    conn.close()
+    
+    return redirect(url_for('admin.admin_manage_events', filter=tab_name))
 
 
 # =====================================================
