@@ -1,0 +1,146 @@
+{% extends "shared/base.html" %}
+
+{% block title %}Settings - SkillSwap{% endblock %}
+
+{% block styles %}
+<link href="{{ url_for('static', filename='css/shared/settings.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Back Link (optional based on screenshot "Back") -->
+    <a href="{{ url_for('dashboard.dashboard') }}" class="text-decoration-none text-muted mb-4 d-inline-block">
+        <i class="bi bi-arrow-left me-1"></i> Back
+    </a>
+
+    <h2 class="fw-bold mb-4">Settings</h2>
+
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-lg-3 d-none d-lg-block">
+            <nav class="settings-sidebar">
+                <div class="section-title">Account</div>
+                <a href="#" class="nav-link active">
+                    <i class="bi bi-person"></i> Profile
+                </a>
+                <a href="#" class="nav-link">
+                    <i class="bi bi-shield-lock"></i> Password
+                </a>
+
+                <div class="section-title">Others</div>
+                <a href="#" class="nav-link">
+                    <i class="bi bi-award"></i> Skills
+                </a>
+                <a href="#" class="nav-link">
+                    <i class="bi bi-patch-check"></i> Verification
+                </a>
+                <a href="#" class="nav-link">
+                    <i class="bi bi-file-text"></i> Privacy Policy
+                </a>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-lg-9">
+            <form id="settingsForm" class="settings-form is-readonly">
+                <!-- Profile Header -->
+                <div class="d-flex align-items-center gap-4 mb-5">
+                    <!-- Profile Image -->
+                    <div class="profile-avatar-container">
+                        {% if user.profile_photo %}
+                        <img src="{{ url_for('static', filename='img/users/profiles/' + user.profile_photo) }}"
+                            alt="Profile" class="profile-avatar" id="avatarPreview">
+                        {% else %}
+                        <img src="https://ui-avatars.com/api/?name={{ user.first_name }}+{{ user.last_name }}&background=1e293b&color=fff&size=128"
+                            alt="Profile" class="profile-avatar" id="avatarPreview">
+                        {% endif %}
+
+                        <!-- Upload Button (only visible when editing) -->
+                        <label for="profile_photo" class="profile-upload-btn" title="Change Photo">
+                            <i class="bi bi-camera-fill"></i>
+                        </label>
+                        <input type="file" id="profile_photo" name="profile_photo" accept="image/*" hidden disabled>
+                    </div>
+
+                    <!-- Header Info -->
+                    <div>
+                        <div class="d-flex align-items-center flex-wrap gap-2 mb-2">
+                            {% if user.verification_status == 'verified' %}
+                            <div class="d-flex align-items-center text-success fw-bold small">
+                                <i class="bi bi-patch-check-fill me-1"></i> Verified Account
+                            </div>
+                            {% else %}
+                            <div class="d-flex align-items-center text-muted fw-bold small">
+                                <i class="bi bi-x-circle-fill me-1"></i> Account Unverified
+                            </div>
+                            <span class="text-muted">|</span>
+                            <span class="text-muted small">You cannot connect with others until verified</span>
+                            <button type="button" class="btn btn-sm btn-secondary ms-2"
+                                style="background:#e5e7eb; color: #374151; border:none; font-size: 0.75rem; padding: 0.25rem 0.75rem; border-radius: 4px;">Verify
+                                Now</button>
+                            {% endif %}
+                        </div>
+                        <div class="text-muted fw-medium">{{ user.role|capitalize }} | {{ user.age }} Years Old</div>
+                    </div>
+                </div>
+
+                <!-- Form Fields -->
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <label class="form-label text-muted small text-uppercase">First Name</label>
+                        <input type="text" class="form-control-plaintext form-input-global" name="first_name"
+                            value="{{ user.first_name }}" disabled required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label text-muted small text-uppercase">Language</label>
+                        <!-- Using text input if disabled, select if enabled? For simplicity text input that becomes select or just text. 
+                             Theme request implies "View personal details". Let's stick to text for now or simple input. -->
+                        <input type="text" class="form-control-plaintext form-input-global" name="language"
+                            value="{{ user.language }}" disabled>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label text-muted small text-uppercase">Last Name</label>
+                        <input type="text" class="form-control-plaintext form-input-global" name="last_name"
+                            value="{{ user.last_name }}" disabled required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label text-muted small text-uppercase">Profession</label>
+                        <input type="text" class="form-control-plaintext form-input-global" name="profession"
+                            value="{{ user.profession }}" placeholder="Add your profession" disabled>
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label text-muted small text-uppercase">Bio</label>
+                        <textarea class="form-control-plaintext form-input-global" name="bio" rows="4"
+                            placeholder="Short sentence about yourself" disabled>{{ user.bio }}</textarea>
+                    </div>
+                </div>
+
+                <!-- Edit Button (Hide when editing) -->
+                <div class="d-flex justify-content-end mt-5" id="editContainer">
+                    <button type="button" id="editBtn" class="btn btn-secondary"
+                        style="background: #9ca3af; color: white; border: none; padding: 0.75rem 2rem;">Edit
+                        Profile</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Unsaved Changes Sticky Bar -->
+<div class="unsaved-changes-bar" id="unsavedBar">
+    <span class="fs-5">You have Unsaved Changes</span>
+    <div class="d-flex gap-3">
+        <button type="button" id="clearBtn" class="btn btn-link text-decoration-none text-dark fw-bold">Clear</button>
+        <button type="button" id="saveBtn" class="btn btn-dark px-4 rounded-pill">Save Changes</button>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/settings.js') }}"></script>
+{% endblock %}

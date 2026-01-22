@@ -30,6 +30,8 @@ CREATE TABLE IF NOT EXISTS user (
   display_name TEXT GENERATED ALWAYS AS (name || ' (' || role || ')') VIRTUAL,
   verification_status TEXT NOT NULL DEFAULT 'unverified' CHECK (verification_status IN ('unverified','pending','verified')),
   language_pref TEXT DEFAULT 'English',
+  profession TEXT,
+  bio TEXT,
   total_points INTEGER NOT NULL DEFAULT 0,
   created_at TEXT NOT NULL DEFAULT (datetime('now')),
   FOREIGN KEY (grc_id) REFERENCES grc(grc_id) ON DELETE SET NULL
