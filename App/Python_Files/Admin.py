@@ -464,6 +464,8 @@ def admin_publish_event(event_id):
 def admin_void_event(event_id):
     """Void an approved event (approved -> voided)."""
     void_reason = request.form.get('void_reason', 'No reason provided')
+    notify_users = request.form.get('notify_users') == 'yes'  # Check if checkbox is checked
+    
     conn = get_db_connection()
     
     # Get event title and check if it was published
@@ -482,19 +484,22 @@ def admin_void_event(event_id):
     # Update event status to voided
     conn.execute("UPDATE event SET status = 'voided', void_reason = ? WHERE event_id = ?", (void_reason, event_id))
     
-    # Create notifications for all registered participants
-    notification_message = f"The event '{event_title}' you registered for has been cancelled by the organisers. We apologise for any inconvenience caused."
-    for participant in participants:
-        conn.execute("""
-            INSERT INTO notification (user_id, message, created_at) 
-            VALUES (?, ?, datetime('now'))
-        """, (participant['user_id'], notification_message))
+    # Create notifications only if checkbox is checked
+    notified_count = 0
+    if notify_users and participants:
+        notification_message = f"The event '{event_title}' you registered for has been cancelled by the organisers. We apologise for any inconvenience caused."
+        for participant in participants:
+            conn.execute("""
+                INSERT INTO notification (user_id, message, created_at) 
+                VALUES (?, ?, datetime('now'))
+            """, (participant['user_id'], notification_message))
+            notified_count += 1
     
     conn.commit()
     conn.close()
     
-    # If this was a published event with participants, show confirmation page
-    if was_published and participants:
+    # If this was a published event with participants and notifications were sent, show confirmation page
+    if was_published and participants and notify_users:
         # Store participant info in session for confirmation page
         session['cancelled_event'] = {
             'event_id': event_id,
@@ -504,11 +509,11 @@ def admin_void_event(event_id):
         }
         return redirect(url_for('admin.event_cancellation_confirm'))
     
-    # Show different message based on whether participants were notified
-    if participants:
-        flash(f"Event voided successfully. All {len(participants)} registered participants have been notified.", "success")
+    # Show appropriate message based on notification status
+    if notified_count > 0:
+        flash(f"Event removed successfully. All {notified_count} registered participants have been notified.", "success")
     else:
-        flash("Event voided successfully.", "success")
+        flash("Event removed successfully.", "success")
     return redirect(url_for('admin.admin_manage_events', filter='voided'))
 
 

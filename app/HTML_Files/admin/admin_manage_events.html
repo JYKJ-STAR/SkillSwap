@@ -379,20 +379,24 @@
 
     <!-- Void Reason Modal -->
     <div id="voidModal" class="modal-overlay">
-        <div class="modal-content" style="max-width: 500px;">
-            <div class="modal-header">
-                <h2>Void Event</h2>
-                <button class="modal-close" onclick="closeVoidModal()">&times;</button>
+        <div class="modal-content" style="max-width: 500px; background: #8a8a8a;">
+            <div class="modal-header" style="border-bottom: none; padding-bottom: 10px;">
+                <h2 style="color: #1a1a1a; font-size: 1.5em; font-weight: 600;">Remove Event?</h2>
+                <button class="modal-close" onclick="closeVoidModal()" style="color: #1a1a1a;">&times;</button>
             </div>
             <form id="voidForm" action="" method="POST">
-                <div class="form-group">
-                    <label class="form-label">Reason for Voiding</label>
-                    <textarea name="void_reason" class="form-input" rows="4"
-                        placeholder="e.g., Duplicate entry, Cancelled by organizer..." required></textarea>
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label class="form-label" style="display: flex; align-items: center; gap: 8px; font-size: 0.9em; margin-bottom: 8px; color: #1a1a1a;">
+                        <input type="checkbox" name="notify_users" value="yes" checked style="width: 16px; height: 16px;">
+                        Notify all mentors and mentees?
+                    </label>
+                    <label class="form-label" style="font-size: 0.75em; color: #1a1a1a; margin-bottom: 5px;">Reasoning</label>
+                    <textarea name="void_reason" class="form-input" rows="3"
+                        placeholder="" style="background: #6b6b6b; border: 1px solid #5a5a5a; color: #fff; font-size: 0.85em;"></textarea>
                 </div>
-                <div class="modal-actions">
-                    <button type="button" class="btn-cancel" onclick="closeVoidModal()">Cancel</button>
-                    <button type="submit" class="btn-submit" style="background-color: #ef4444;">Confirm Void</button>
+                <div class="modal-actions" style="gap: 15px;">
+                    <button type="button" class="btn-cancel" onclick="closeVoidModal()" style="background: #b8b8b8; color: #1a1a1a; flex: 1; padding: 10px;">Return</button>
+                    <button type="submit" class="btn-submit" style="background-color: #4a4a4a; color: #fff; flex: 1; padding: 10px;">Yes Remove Event</button>
                 </div>
             </form>
         </div>

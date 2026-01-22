@@ -384,3 +384,145 @@ body {
     min-height: 100vh;
     padding: 40px;
 }
+
+/* =====================================================
+   ENHANCED VOID/REMOVE EVENT MODAL STYLES
+   ===================================================== */
+
+/* Void Modal Specific Enhancements */
+#voidModal .modal-content {
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6);
+    animation: modalFadeIn 0.3s ease-out;
+    border-top: 4px solid #ef4444;
+    /* Red accent border */
+    background: linear-gradient(135deg, #4b5563 0%, #374151 100%);
+}
+
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Custom Checkbox Styling */
+#voidModal input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 18px;
+    height: 18px;
+    border: 2px solid #4a4a4a;
+    border-radius: 4px;
+    background: #6b6b6b;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+#voidModal input[type="checkbox"]:hover {
+    border-color: #60a5fa;
+    background: #5a5a5a;
+}
+
+#voidModal input[type="checkbox"]:checked {
+    background: linear-gradient(135deg, #f87171, #ef4444);
+    border-color: #ef4444;
+    box-shadow: 0 0 8px rgba(239, 68, 68, 0.4);
+}
+
+#voidModal input[type="checkbox"]:checked::after {
+    content: "✓";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+/* Enhanced Checkbox Label */
+#voidModal .form-label {
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+#voidModal .form-label:hover {
+    color: #f3f4f6 !important;
+}
+
+/* Textarea Enhancement */
+#voidModal textarea.form-input {
+    resize: vertical;
+    min-height: 80px;
+    transition: all 0.2s ease;
+}
+
+#voidModal textarea.form-input:focus {
+    background: #1f2937;
+    border-color: #f87171;
+    box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.2);
+}
+
+/* Enhanced Button Styling */
+#voidModal .btn-cancel {
+    transition: all 0.2s ease;
+    font-weight: 500;
+}
+
+#voidModal .btn-cancel:hover {
+    background: #d1d1d1;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+#voidModal .btn-submit {
+    transition: all 0.2s ease;
+    font-weight: 600;
+    background: linear-gradient(135deg, #f87171, #dc2626) !important;
+    color: white !important;
+    border: none;
+}
+
+#voidModal .btn-submit:hover {
+    background: linear-gradient(135deg, #fca5a5, #ef4444) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+}
+
+#voidModal .btn-submit:active,
+#voidModal .btn-cancel:active {
+    transform: translateY(0);
+}
+
+/* Close Button Enhancement */
+#voidModal .modal-close {
+    transition: all 0.2s ease;
+    background: rgba(239, 68, 68, 0.2);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+#voidModal .modal-close:hover {
+    background: #ef4444;
+    color: white !important;
+    transform: rotate(90deg);
+    box-shadow: 0 0 12px rgba(239, 68, 68, 0.5);
+}
+
+/* Modal Actions Responsive */
+@media (max-width: 500px) {
+    #voidModal .modal-actions {
+        flex-direction: column;
+    }
+
+    #voidModal .btn-cancel,
+    #voidModal .btn-submit {
+        width: 100%;
+    }
+}
