@@ -239,56 +239,6 @@ def reject_user(user_id):
     flash("User rejected.", "info")
     return redirect(url_for('admin.admin_dashboard'))
 
-@admin_bp.route('/delete-user/<int:user_id>', methods=['POST'])
-@admin_required
-def delete_user(user_id):
-    """Delete a user from the User Management page."""
-    conn = get_db_connection()
-    
-    # Get user name for flash message
-    user = conn.execute("SELECT name FROM user WHERE user_id = ?", (user_id,)).fetchone()
-    user_name = user['name'] if user else 'Unknown'
-    
-    conn.execute("DELETE FROM user WHERE user_id = ?", (user_id,))
-    conn.commit()
-    conn.close()
-    flash(f"User '{user_name}' has been deleted.", "success")
-    return redirect(url_for('admin.admin_manage_users'))
-
-
-@admin_bp.route('/edit-user/<int:user_id>', methods=['POST'])
-@admin_required
-def edit_user(user_id):
-    """Edit a user's name and email from the User Management page."""
-    new_name = request.form.get('name')
-    new_email = request.form.get('email')
-    
-    if not new_name or not new_email:
-        flash("Name and email are required.", "error")
-        return redirect(url_for('admin.admin_manage_users'))
-    
-    conn = get_db_connection()
-    
-    # Check if email is already taken by another user
-    existing = conn.execute(
-        "SELECT user_id FROM user WHERE email = ? AND user_id != ?", 
-        (new_email, user_id)
-    ).fetchone()
-    
-    if existing:
-        flash("This email is already in use by another user.", "error")
-        conn.close()
-        return redirect(url_for('admin.admin_manage_users'))
-    
-    conn.execute(
-        "UPDATE user SET name = ?, email = ? WHERE user_id = ?",
-        (new_name, new_email, user_id)
-    )
-    conn.commit()
-    conn.close()
-    flash(f"User details updated successfully.", "success")
-    return redirect(url_for('admin.admin_manage_users'))
-
 # =====================================================
 # POINTS MANAGEMENT
 # =====================================================
@@ -634,10 +584,9 @@ def admin_manage_users():
     """Display the user management page."""
     conn = get_db_connection()
     
-    # Get all users with extended details for the new UI including verification_photo
+    # Get all users
     all_users = conn.execute(
-        """SELECT user_id, name, email, phone, role, verification_status, total_points, 
-                  created_at, birth_date, language_pref, profession, verification_photo
+        """SELECT user_id, name, email, phone, role, verification_status, total_points, created_at
            FROM user ORDER BY created_at DESC"""
     ).fetchall()
     
@@ -647,47 +596,6 @@ def admin_manage_users():
                            user_name=session.get('admin_name'),
                            admin_email=session.get('admin_email', 'Admin@123.com'),
                            all_users=all_users)
-
-
-@admin_bp.route('/verify-user/<int:user_id>', methods=['POST'])
-@admin_required
-def verify_user(user_id):
-    """Approve a user's verification from User Management page."""
-    conn = get_db_connection()
-    conn.execute(
-        "UPDATE user SET verification_status = 'verified' WHERE user_id = ?",
-        (user_id,)
-    )
-    conn.commit()
-    conn.close()
-    flash("User has been verified successfully.", "success")
-    return redirect(url_for('admin.admin_manage_users'))
-
-
-@admin_bp.route('/reject-verification/<int:user_id>', methods=['POST'])
-@admin_required
-def reject_verification(user_id):
-    """Reject a user's verification - delete their verification photo."""
-    conn = get_db_connection()
-    
-    # Get the current verification photo
-    user = conn.execute("SELECT verification_photo FROM user WHERE user_id = ?", (user_id,)).fetchone()
-    
-    if user and user['verification_photo']:
-        # Delete the file from filesystem
-        photo_path = os.path.join(current_app.static_folder, 'img', 'users', 'verification', user['verification_photo'])
-        if os.path.exists(photo_path):
-            os.remove(photo_path)
-    
-    # Clear the verification photo and set status to unverified
-    conn.execute(
-        "UPDATE user SET verification_photo = NULL, verification_status = 'unverified' WHERE user_id = ?",
-        (user_id,)
-    )
-    conn.commit()
-    conn.close()
-    flash("User verification has been rejected and photo removed.", "info")
-    return redirect(url_for('admin.admin_manage_users'))
 
 
 # =====================================================

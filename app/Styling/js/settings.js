@@ -10,43 +10,29 @@ document.addEventListener('DOMContentLoaded', function () {
     const pageTitle = document.getElementById('pageTitle');
     const navSkills = document.getElementById('navSkills');
     const skillsSection = document.getElementById('skillsSection');
-    const navVerification = document.getElementById('navVerification');
-    const verificationSection = document.getElementById('verificationSection');
-    const navPrivacy = document.getElementById('navPrivacy');
-    const privacySection = document.getElementById('privacySection');
 
     function switchSection(section) {
-        // Hide all first
-        profileSection.classList.add('d-none');
-        passwordSection.classList.add('d-none');
-        skillsSection.classList.add('d-none');
-        if (verificationSection) verificationSection.classList.add('d-none');
-        if (privacySection) privacySection.classList.add('d-none');
-
-        // Deactivate navs
-        navProfile.classList.remove('active');
-        if (navPassword) navPassword.classList.remove('active');
-        navSkills.classList.remove('active');
-        if (navVerification) navVerification.classList.remove('active');
-        if (navPrivacy) navPrivacy.classList.remove('active');
-
-        // Show specific
         if (section === 'profile') {
             profileSection.classList.remove('d-none');
+            passwordSection.classList.add('d-none');
             navProfile.classList.add('active');
+            navPassword.classList.remove('active');
+            // pageTitle.textContent = 'Settings'; // Or keep generic
         } else if (section === 'password') {
+            profileSection.classList.add('d-none');
             passwordSection.classList.remove('d-none');
+            skillsSection.classList.add('d-none');
+            navProfile.classList.remove('active');
             navPassword.classList.add('active');
+            navSkills.classList.remove('active');
         } else if (section === 'skills') {
+            profileSection.classList.add('d-none');
+            passwordSection.classList.add('d-none');
             skillsSection.classList.remove('d-none');
+            navProfile.classList.remove('active');
+            if (navPassword) navPassword.classList.remove('active');
             navSkills.classList.add('active');
             renderSkills('teach'); // Init default tab
-        } else if (section === 'verification') {
-            verificationSection.classList.remove('d-none');
-            navVerification.classList.add('active');
-        } else if (section === 'privacy') {
-            privacySection.classList.remove('d-none');
-            navPrivacy.classList.add('active');
         }
     }
 
@@ -55,12 +41,6 @@ document.addEventListener('DOMContentLoaded', function () {
         navPassword.addEventListener('click', () => switchSection('password'));
     }
     navSkills.addEventListener('click', () => switchSection('skills'));
-    if (navVerification) {
-        navVerification.addEventListener('click', () => switchSection('verification'));
-    }
-    if (navPrivacy) {
-        navPrivacy.addEventListener('click', () => switchSection('privacy'));
-    }
 
 
     // --- Profile Logic ---
@@ -565,126 +545,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 saveBtn.innerText = 'Save Changes';
                 saveBtn.disabled = false;
             });
-    }
-
-    // --- Verification Logic ---
-    const btnVerifyNow = document.getElementById('btnVerifyNow');
-    if (btnVerifyNow && navVerification) {
-        btnVerifyNow.addEventListener('click', (e) => {
-            e.preventDefault();
-            navVerification.click(); // Trigger section switch
-        });
-    }
-
-    const verificationFile = document.getElementById('verificationFile');
-    const uploadZone = document.getElementById('uploadZone');
-    const uploadPlaceholder = document.getElementById('uploadPlaceholder');
-    const uploadPreviewContainer = document.getElementById('uploadPreviewContainer');
-    const uploadPreview = document.getElementById('uploadPreview');
-    const submitVerificationBtn = document.getElementById('submitVerificationBtn');
-
-    let selectedVerificationFile = null;
-
-    function handleVerificationFile(file) {
-        selectedVerificationFile = file;
-        const reader = new FileReader();
-        reader.onload = function (e) {
-            if (uploadPreview) uploadPreview.src = e.target.result;
-            if (uploadPlaceholder) uploadPlaceholder.classList.add('d-none');
-            if (uploadPreviewContainer) uploadPreviewContainer.classList.remove('d-none');
-            if (submitVerificationBtn) {
-                submitVerificationBtn.disabled = false;
-                submitVerificationBtn.style.backgroundColor = '#1f2937'; // Active dark color
-            }
-        };
-        reader.readAsDataURL(file);
-    }
-
-    if (verificationFile) {
-        verificationFile.addEventListener('change', function () {
-            if (this.files && this.files[0]) {
-                handleVerificationFile(this.files[0]);
-            }
-        });
-    }
-
-    if (uploadZone) {
-        uploadZone.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            uploadZone.style.backgroundColor = '#e5e7eb';
-            uploadZone.style.borderColor = '#6b7280';
-        });
-
-        uploadZone.addEventListener('dragleave', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            uploadZone.style.backgroundColor = '#f3f4f6';
-            uploadZone.style.borderColor = '#e5e7eb';
-        });
-
-        uploadZone.addEventListener('drop', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            uploadZone.style.backgroundColor = '#f3f4f6';
-            uploadZone.style.borderColor = '#e5e7eb';
-
-            if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]) {
-                const file = e.dataTransfer.files[0];
-                if (file.type.startsWith('image/')) {
-                    // Sync with input if possible, but rely on selectedVerificationFile
-                    try {
-                        verificationFile.files = e.dataTransfer.files;
-                    } catch (err) {
-                        console.log("Browser doesn't support setting input files via JS, using variable fallback");
-                    }
-                    handleVerificationFile(file);
-                } else {
-                    showToast('Please upload an image file (JPG, PNG).', 'error');
-                }
-            }
-        });
-    }
-
-    if (submitVerificationBtn) {
-        submitVerificationBtn.addEventListener('click', function () {
-            // Use the variable if set (drag drop), else input (click sel)
-            const file = selectedVerificationFile || (verificationFile.files.length > 0 ? verificationFile.files[0] : null);
-
-            if (!file) {
-                showToast('Please select a file first.', 'warning');
-                return;
-            }
-
-            const formData = new FormData();
-            formData.append('verificationPhoto', file);
-
-            const originalText = this.innerText;
-            this.innerText = 'Uploading...';
-            this.disabled = true;
-
-            fetch('/settings/upload_verification', {
-                method: 'POST',
-                body: formData
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        showToast('Verification document uploaded! Pending review.', 'success');
-                        setTimeout(() => location.reload(), 1500);
-                    } else {
-                        showToast('Error uploading: ' + data.message, 'error');
-                        this.innerText = originalText;
-                        this.disabled = false;
-                    }
-                })
-                .catch(err => {
-                    console.error(err);
-                    showToast('An error occurred.', 'error');
-                    this.innerText = originalText;
-                    this.disabled = false;
-                });
-        });
     }
 
 });

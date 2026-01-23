@@ -192,14 +192,11 @@ def register():
     conn = get_db_connection()
     try:
         cur = conn.cursor()
-        # Determine initial verification status
-        initial_status = 'pending' if verification_photo else 'unverified'
-
         # Insert User (with verification_photo and profession)
         cur.execute(
             """INSERT INTO user (name, email, password_hash, role, birth_date, phone, language_pref, profession, verification_status, verification_photo)
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-            (name, email, password_hash, role, birth_date, phone, language, profession, initial_status, verification_photo)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?)""",
+            (name, email, password_hash, role, birth_date, phone, language, profession, verification_photo)
         )
         user_id = cur.lastrowid
         
@@ -340,7 +337,7 @@ def complete_google_signup():
         # Insert User with all details (Added profession)
         cur.execute(
             """INSERT INTO user (name, email, role, verification_status, password_hash, language_pref, birth_date, phone, profession)
-               VALUES (?, ?, ?, 'unverified', 'google_oauth', ?, ?, ?, ?)""",
+               VALUES (?, ?, ?, 'verified', 'google_oauth', ?, ?, ?, ?)""",
             (name, google_info['email'], role, language, birth_date, phone, profession)
         )
         user_id = cur.lastrowid

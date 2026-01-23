@@ -30,8 +30,7 @@ def dashboard():
         'points': user['total_points'],
         'events_completed': 12, # Still mock for now
         'total_hours': 45,      # Still mock for now
-        'impact_score': 98,      # Still mock for now
-        'profile_photo': user['profile_photo']
+        'impact_score': 98      # Still mock for now
     }
 
     # Mock Upcoming Events
