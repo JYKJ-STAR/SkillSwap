@@ -22,5 +22,3 @@ venv\Scripts\python.exe "Class db/reset_database.py" --admins
 ```
 venv\Scripts\python.exe "Class db/reset_database.py" --events
 ```
-
-## Reset Events (Restore Seed Data as Published)

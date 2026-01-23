@@ -76,7 +76,7 @@
                         <th>Join Date</th>
                         <th>Email</th>
                         <th>Role</th>
-                        <th>Age</th>
+                        <th>Birthdate</th>
                         <th>Language</th>
                         <th>School/Profession</th>
                         <th>Status</th>
@@ -90,15 +90,7 @@
                         <td>{{ user.created_at[:10] if user.created_at else 'N/A' }}</td>
                         <td>{{ user.email }}</td>
                         <td>{{ user.role|capitalize }}</td>
-                        <td>
-                            {% if user.birth_date %}
-                            {% set birth_year = user.birth_date[:4]|int %}
-                            {% set current_year = 2026 %}
-                            {{ current_year - birth_year }}
-                            {% else %}
-                            N/A
-                            {% endif %}
-                        </td>
+                        <td>{{ user.birth_date or 'N/A' }}</td>
                         <td>{{ user.language_pref or 'English' }}</td>
                         <td>{{ user.profession or 'N/A' }}</td>
                         <td>

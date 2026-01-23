@@ -17,14 +17,16 @@ USERS = [
         'name': 'JaydenYip',
         'email': 'Jayden@gmail.com',
         'password': 'Jayden@1',
-        'role': 'youth'
+        'role': 'youth',
+        'birth_date': '2000-05-15'
     },
     {
         'id': 2,
         'name': 'Dickson',
         'email': 'Dickson@gmail.com',
         'password': 'Dickson@1',
-        'role': 'senior'
+        'role': 'senior',
+        'birth_date': '1955-10-20'
     }
 ]
 
@@ -85,9 +87,9 @@ def reset_users(cursor):
     for user in USERS:
         password_hash = generate_password_hash(user['password'])
         cursor.execute(
-            """INSERT INTO user (user_id, name, email, password_hash, role, verification_status)
-               VALUES (?, ?, ?, ?, ?, 'verified')""",
-            (user['id'], user['name'], user['email'], password_hash, user['role'])
+            """INSERT INTO user (user_id, name, email, password_hash, role, birth_date, verification_status)
+               VALUES (?, ?, ?, ?, ?, ?, 'verified')""",
+            (user['id'], user['name'], user['email'], password_hash, user['role'], user.get('birth_date'))
         )
         print(f"✓ Created {user['role']}: {user['email']} (ID: {user['id']})")
 
