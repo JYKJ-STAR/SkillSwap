@@ -62,38 +62,58 @@
 }
 
 /* Edit Overlay (Hidden by default) */
+/* Edit Overlay (Hidden by default) */
+/* Edit Overlay (Hidden by default) */
+/* Edit Overlay (Hidden by default) */
 .profile-upload-btn {
     position: absolute;
-    bottom: 0;
-    right: 0;
-    width: 36px;
-    height: 36px;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
     border-radius: 50%;
-    background: var(--primary-teal);
+    background: rgba(0, 0, 0, 0.6);
     color: white;
-    border: 2px solid white;
+    /* Use Flexbox for robust centering */
     display: flex;
-    /* Flex but hidden via opacity/visibility if needed */
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    box-shadow: var(--shadow-sm);
-    transition: all 0.2s ease;
     opacity: 0;
     pointer-events: none;
-    transform: scale(0.8);
+    transition: all 0.3s ease;
+    font-size: 2rem;
+    backdrop-filter: blur(2px);
+    z-index: 10;
+    margin: 0;
+    padding: 0;
+    border: none;
 }
 
 .profile-upload-btn:hover {
-    background: var(--primary-teal-light);
-    transform: scale(1.1);
+    background: rgba(0, 0, 0, 0.7);
+    transform: none;
 }
 
-/* Show upload button when editing */
-.is-editing .profile-upload-btn {
+/* Show upload button when editing AND hovering the container */
+.is-editing .profile-avatar-container:hover .profile-upload-btn {
     opacity: 1;
     pointer-events: auto;
+}
+
+.profile-upload-btn i {
     transform: scale(1);
+    transition: transform 0.2s ease;
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: normal !important;
+    display: block !important;
+    text-align: center;
+    color: white !important;
+}
+
+.profile-upload-btn:hover i {
+    transform: scale(1.1);
 }
 
 /* Verification Badge */
@@ -136,7 +156,10 @@
     font-weight: 600;
     color: var(--text-dark);
     margin-bottom: 0.5rem;
-    display: block;
+    /* Center align emoji and text */
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
 /* Special styling for disabled inputs to mimic text provided in requirements */
@@ -173,3 +196,13 @@
     font-weight: 600;
     color: var(--text-dark);
 }
+/* Verification Section Styles */
+.verification-success-box {
+    background: linear-gradient(135deg, #c8f7c5 0%, #a8e6a3 100%);
+    border-radius: 12px;
+    padding: 24px;
+    max-width: 400px;
+    box-shadow: var(--shadow-sm);
+    color: #1a4d1a;
+}
+
