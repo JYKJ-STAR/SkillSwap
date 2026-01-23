@@ -285,7 +285,7 @@ async function nextStep(step) {
         let minDate, maxDate;
 
         if (selectedRole === 'youth') {
-            label.textContent = 'School / University OR Profession';
+            label.innerHTML = '<i class="bi bi-mortarboard"></i>  School / University OR Profession';
             input.placeholder = 'School / Profession';
 
             // Max date = 15 years ago
@@ -299,7 +299,7 @@ async function nextStep(step) {
             minDate = formatDate(dMin);
 
         } else {
-            label.textContent = 'Current or Former Profession';
+            label.innerHTML = '<i class="bi bi-mortarboard"></i>  Current or Former Profession';
             input.placeholder = 'Profession';
 
             // Max date = 36 years ago

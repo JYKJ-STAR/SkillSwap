@@ -262,3 +262,40 @@ def update_skills():
         
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)}), 500
+
+@settings_bp.route('/settings/upload_verification', methods=['POST'])
+def upload_verification():
+    if 'user_id' not in session:
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+    
+    try:
+        user_id = session['user_id']
+        file = request.files.get('verificationPhoto')
+        
+        if not file:
+             return jsonify({'success': False, 'message': 'No file uploaded'}), 400
+             
+        if file.filename:
+            filename = secure_filename(file.filename)
+            timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+            final_filename = f"{timestamp}_{filename}"
+            
+            # Use 'verification' folder (singular) to match Home.py and Admin corrections
+            upload_folder = os.path.join(current_app.static_folder, 'img', 'users', 'verification')
+            os.makedirs(upload_folder, exist_ok=True)
+            
+            file.save(os.path.join(upload_folder, final_filename))
+            
+            # Update DB
+            conn = get_db_connection()
+            cur = conn.cursor()
+            cur.execute("UPDATE user SET verification_photo = ?, verification_status = 'pending' WHERE user_id = ?", 
+                        (final_filename, user_id))
+            conn.commit()
+            conn.close()
+            
+            return jsonify({'success': True, 'message': 'Upload successful'})
+            
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
+
