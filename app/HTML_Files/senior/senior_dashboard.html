@@ -17,7 +17,7 @@
                 You have <strong>{{ user.points or 0 }}</strong> points. Keep learning and sharing!
             </p>
             <div class="welcome-actions-senior">
-                <a href="{{ url_for('dashboard.activities') }}" class="btn-senior-primary">📊 View Progress</a>
+                <a href="{{ url_for('schedule.schedule') }}" class="btn-senior-primary">📊 View Progress</a>
                 <a href="{{ url_for('events.events') }}" class="btn-senior-primary">📅 Find Events</a>
             </div>
         </div>
@@ -40,7 +40,7 @@
         <div class="action-buttons-grid-senior">
             <a href="{{ url_for('events.events') }}" class="action-btn-senior">📅 View Events</a>
             <a href="{{ url_for('support.support') }}" class="action-btn-senior">💬 Get Help</a>
-            <a href="{{ url_for('dashboard.activities') }}" class="action-btn-senior">⏰ View Schedule</a>
+            <a href="{{ url_for('schedule.schedule') }}" class="action-btn-senior">⏰ View Schedule</a>
             <a href="{{ url_for('rewards.rewards') }}" class="action-btn-senior">🏆 View Rewards</a>
             <a href="{{ url_for('settings.settings') }}" class="action-btn-senior">👤 View Profile</a>
             <a href="{{ url_for('home.logout') }}" class="action-btn-senior action-btn-logout">🚪 Log Out</a>
@@ -148,7 +148,7 @@
     <section class="activities-section-senior">
         <div class="activities-header-senior">
             <h2 class="activities-title-senior">📆 Your Upcoming Activities</h2>
-            <a href="{{ url_for('dashboard.activities') }}" class="view-all-link-senior">View All Upcoming Events</a>
+            <a href="{{ url_for('schedule.schedule') }}" class="view-all-link-senior">View All Upcoming Events</a>
         </div>
 
         <div class="events-scroll-senior">

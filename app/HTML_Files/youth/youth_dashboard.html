@@ -17,7 +17,7 @@
                 You have <strong>{{ user.points }}</strong> points in awaiting redemption. Keep up the great work!
             </p>
             <div class="welcome-actions">
-                <a href="{{ url_for('dashboard.activities') }}" class="btn">View Progress</a>
+                <a href="{{ url_for('schedule.schedule') }}" class="btn">View Progress</a>
                 <a href="{{ url_for('events.events') }}" class="btn">Find Events</a>
             </div>
         </div>
@@ -46,7 +46,7 @@
         <div class="section-card">
             <h2 class="section-title">Learn or teach new skill</h2>
             <p class="section-subtitle">Discover activities and opportunities</p>
-            <a href="{{ url_for('dashboard.activities') }}" class="btn">Find Activities</a>
+            <a href="{{ url_for('schedule.schedule') }}" class="btn">Find Activities</a>
         </div>
     </div>
 
@@ -126,7 +126,7 @@
     <section class="activities-section">
         <div class="activities-header">
             <h2 class="activities-title">Your Upcoming Activities</h2>
-            <a href="{{ url_for('dashboard.activities') }}" class="view-all-link">
+            <a href="{{ url_for('schedule.schedule') }}" class="view-all-link">
                 View All Upcoming Events
             </a>
         </div>

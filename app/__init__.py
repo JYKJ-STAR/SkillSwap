@@ -36,6 +36,7 @@ def create_app():
     from .Python_Files.Events import events_bp
     from .Python_Files.Rewards import rewards_bp
     from .Python_Files.settings import settings_bp
+    from .Python_Files.Schedule import schedule_bp
     
     app.register_blueprint(home_bp)
     app.register_blueprint(dashboard_bp)
@@ -43,6 +44,7 @@ def create_app():
     app.register_blueprint(events_bp)
     app.register_blueprint(rewards_bp)
     app.register_blueprint(settings_bp)
+    app.register_blueprint(schedule_bp)
 
     return app
 

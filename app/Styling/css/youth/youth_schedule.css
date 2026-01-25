@@ -1,0 +1,715 @@
+/* ========================================
+   YOUTH SCHEDULE CSS
+   Synced with Global Design Tokens
+   ======================================== */
+
+/* Note: Base resets handled by global.css */
+
+/* ========================================
+   MAIN LAYOUT
+   ======================================== */
+.main-container {
+    display: flex;
+    padding: 30px 40px;
+    gap: 40px;
+    background: var(--page-bg-light);
+    /* Sync with global background */
+    min-height: calc(100vh - 70px);
+    /* Adjust for navbar height */
+}
+
+/* ========================================
+   SIDEBAR - USER PROFILE
+   ======================================== */
+.sidebar {
+    width: 280px;
+    flex-shrink: 0;
+    /* Optional: Add background to match other pages */
+    /* background: white; */
+    /* padding: 20px; */
+    /* border-radius: var(--radius-lg); */
+}
+
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: var(--text-dark);
+    text-decoration: none;
+    font-size: 0.9rem;
+    margin-bottom: 20px;
+    font-weight: 500;
+}
+
+.back-link:hover {
+    color: var(--primary-teal);
+}
+
+.profile-card {
+    text-align: center;
+}
+
+.avatar {
+    width: 160px;
+    height: 160px;
+    background: var(--dark-slate);
+    /* global token: #1e293b approx #4a4a4a */
+    border-radius: 50%;
+    margin: 0 auto 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.avatar-icon {
+    width: 80px;
+    height: 80px;
+    border: 4px solid #888;
+    border-radius: 50%;
+    position: relative;
+}
+
+.avatar-icon::after {
+    content: '';
+    position: absolute;
+    bottom: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 40px;
+    border: 4px solid #888;
+    border-radius: 50%;
+    border-bottom: none;
+}
+
+.profile-name {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: var(--text-dark);
+}
+
+.profile-age {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 8px;
+}
+
+.profile-points {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 15px;
+}
+
+.claim-rewards-btn {
+    background: var(--dark-slate);
+    /* #4a4a4a -> --dark-slate */
+    color: white;
+    border: none;
+    padding: 10px 25px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    margin-bottom: 25px;
+    transition: background 0.3s ease;
+}
+
+.claim-rewards-btn:hover {
+    background: var(--text-dark);
+}
+
+.section-title {
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: var(--text-dark);
+}
+
+.tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.tag {
+    background: var(--text-secondary);
+    /* #6b6b6b approx */
+    color: white;
+    padding: 6px 14px;
+    border-radius: 15px;
+    font-size: 0.75rem;
+}
+
+/* ========================================
+   CONTENT AREA - SCHEDULE
+   ======================================== */
+.content {
+    flex: 1;
+}
+
+.page-title {
+    font-family: var(--font-display);
+    font-size: 2.2rem;
+    font-weight: 700;
+    margin-bottom: 25px;
+    color: var(--text-dark);
+}
+
+/* Filter Tabs */
+.filter-tabs {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.filter-tab {
+    padding: 10px 40px;
+    border-radius: 25px;
+    border: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-family: var(--font-primary);
+}
+
+.filter-tab.all {
+    background: #d4d4d4;
+    color: var(--text-secondary);
+}
+
+.filter-tab.completed {
+    background: var(--text-dark);
+    /* #333 */
+    color: white;
+}
+
+.filter-tab.upcoming {
+    background: #d4d4d4;
+    color: var(--text-secondary);
+}
+
+.filter-tab.active {
+    background: var(--text-dark);
+    /* #333 */
+    color: white;
+}
+
+/* Event Cards */
+.event-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.event-card {
+    background: white;
+    border-radius: 15px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.event-thumbnail {
+    width: 80px;
+    height: 80px;
+    background: repeating-linear-gradient(135deg,
+            #f0f0f0,
+            #f0f0f0 5px,
+            #e5e5e5 5px,
+            #e5e5e5 10px);
+    border-radius: 10px;
+    flex-shrink: 0;
+}
+
+.event-details {
+    flex: 1;
+}
+
+.event-title {
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 5px;
+    color: var(--text-dark);
+}
+
+.event-meta {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin-bottom: 10px;
+}
+
+.event-actions {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+/* Completed View Buttons */
+.log-reflection-btn {
+    background: #e88a7d;
+    /* Kept specific color */
+    color: white;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: opacity 0.3s;
+}
+
+.log-reflection-btn:hover {
+    opacity: 0.9;
+}
+
+.log-reflection-btn.gray {
+    background: var(--text-secondary);
+    /* #6b6b6b */
+}
+
+.points-text {
+    color: var(--text-dark);
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.hours-text {
+    color: var(--text-dark);
+    font-size: 0.9rem;
+}
+
+/* Upcoming View Buttons */
+.info-badge {
+    background: var(--text-secondary);
+    /* #6b6b6b */
+    color: white;
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+/* Status Badges */
+.status-badge {
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.status-badge.pending-approval {
+    background: var(--text-secondary);
+    color: white;
+}
+
+.status-badge.completed {
+    background: var(--text-secondary);
+    color: white;
+}
+
+.status-badge.upcoming {
+    background: var(--text-secondary);
+    color: white;
+}
+
+.status-badge.pending {
+    background: var(--text-secondary);
+    color: white;
+}
+
+/* Action Icons (for Upcoming view) */
+.event-icon-actions {
+    display: flex;
+    gap: 10px;
+    margin-left: auto;
+}
+
+.icon-btn {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 1.5rem;
+    transition: transform 0.2s;
+}
+
+.icon-btn:hover {
+    transform: scale(1.1);
+}
+
+.icon-btn.approve {
+    color: var(--text-dark);
+}
+
+.icon-btn.delete {
+    color: var(--text-dark);
+}
+
+/* ========================================
+   MODALS (Global Overlay/Container)
+   ======================================== */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(100, 100, 100, 0.85);
+    /* User preferred overlay */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s, visibility 0.3s;
+}
+
+.modal-overlay.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.modal {
+    background: rgba(80, 80, 80, 0.95);
+    /* Dark Modal Theme */
+    border-radius: 20px;
+    padding: 40px 50px;
+    max-width: 600px;
+    width: 100%;
+    text-align: center;
+    position: relative;
+    /* Reset text align for certain children if needed */
+}
+
+/* Reset modal title inside modal to white per user design */
+.modal .modal-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 10px;
+    margin-top: 20px;
+}
+
+.modal .modal-subtitle {
+    color: #ccc;
+    font-size: 0.95rem;
+    margin-bottom: 25px;
+}
+
+.modal .back-link {
+    position: absolute;
+    top: 20px;
+    left: 25px;
+    color: white;
+    text-decoration: none;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.modal .back-link:hover {
+    text-decoration: underline;
+}
+
+/* ========================================
+   FEEDBACK MODAL SPECIFIC
+   ======================================== */
+.star-rating {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.star {
+    font-size: 2.5rem;
+    color: #888;
+    cursor: pointer;
+    transition: color 0.2s, transform 0.2s;
+}
+
+.star:hover,
+.star.active {
+    color: #ffd700;
+    transform: scale(1.1);
+}
+
+.star::before {
+    content: '☆';
+}
+
+.star.active::before {
+    content: '★';
+}
+
+.feedback-textarea {
+    width: 100%;
+    min-height: 150px;
+    background: #4a4a4a;
+    /* Keeping dark specific */
+    border: none;
+    border-radius: 10px;
+    padding: 20px;
+    color: white;
+    font-family: var(--font-primary);
+    font-size: 0.95rem;
+    resize: vertical;
+    margin-bottom: 20px;
+}
+
+.feedback-textarea::placeholder {
+    color: #999;
+}
+
+.feedback-textarea:focus {
+    outline: 2px solid #666;
+}
+
+.points-indicator {
+    color: #4ade80;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 15px;
+}
+
+.submit-btn {
+    background: #e5e5e5;
+    color: var(--text-dark);
+    border: none;
+    padding: 15px 40px;
+    border-radius: 30px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.submit-btn:hover {
+    background: #d0d0d0;
+}
+
+/* ========================================
+   UPLOAD MODAL SPECIFIC
+   ======================================== */
+.upload-area {
+    background: repeating-linear-gradient(135deg,
+            #f5f5f5,
+            #f5f5f5 10px,
+            #ebebeb 10px,
+            #ebebeb 20px);
+    border-radius: 15px;
+    padding: 50px 30px;
+    margin-bottom: 30px;
+    cursor: pointer;
+    transition: background 0.3s;
+    border: 2px dashed transparent;
+}
+
+.upload-area:hover {
+    border-color: #999;
+}
+
+.upload-area.dragover {
+    border-color: #666;
+    background: #e8e8e8;
+}
+
+.camera-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.camera-icon svg {
+    width: 60px;
+    height: 60px;
+    stroke: var(--text-dark);
+    stroke-width: 2;
+    fill: none;
+}
+
+.upload-text {
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: var(--text-dark);
+    margin-bottom: 8px;
+}
+
+.upload-format {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.file-input {
+    display: none;
+}
+
+.preview-container {
+    display: none;
+    margin-bottom: 20px;
+}
+
+.preview-image {
+    max-width: 100%;
+    max-height: 200px;
+    border-radius: 10px;
+}
+
+.preview-name {
+    color: white;
+    /* Changed to white because modal is dark */
+    font-size: 0.9rem;
+    margin-top: 10px;
+}
+
+/* ========================================
+   WITHDRAW MODAL SPECIFIC (Button Overrides etc)
+   ======================================== */
+/* Re-use feedback textarea styles for reasoning but with border */
+.textarea-label {
+    position: relative;
+    text-align: left;
+}
+
+.textarea-label .label-text {
+    position: absolute;
+    top: -10px;
+    left: 15px;
+    background: rgba(80, 80, 80, 0.95);
+    padding: 0 8px;
+    color: #aaa;
+    font-size: 0.85rem;
+}
+
+.reasoning-textarea {
+    width: 100%;
+    min-height: 120px;
+    background: transparent;
+    border: 2px solid #666;
+    border-radius: 10px;
+    padding: 15px 20px;
+    color: white;
+    font-family: var(--font-primary);
+    font-size: 0.95rem;
+    resize: vertical;
+    margin-bottom: 30px;
+}
+
+.reasoning-textarea:focus {
+    outline: none;
+    border-color: #888;
+}
+
+.button-container {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+}
+
+.btn {
+    padding: 15px 40px;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s;
+    border: none;
+    min-width: 180px;
+}
+
+.btn-cancel {
+    background: #e5e5e5;
+    color: var(--text-dark);
+}
+
+.btn-cancel:hover {
+    background: #d0d0d0;
+}
+
+.btn-withdraw {
+    background: #4a4a4a;
+    color: white;
+}
+
+.btn-withdraw:hover {
+    background: #333;
+}
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+@media (max-width: 900px) {
+    .main-container {
+        flex-direction: column;
+        gap: 20px;
+        padding: 20px;
+    }
+
+    .sidebar {
+        width: 100%;
+    }
+}
+
+@media (max-width: 600px) {
+    .modal {
+        padding: 30px 25px;
+    }
+
+    .modal-title {
+        font-size: 1.5rem;
+    }
+
+    .star {
+        font-size: 2rem;
+    }
+
+    .button-container {
+        flex-direction: column;
+    }
+
+    .btn {
+        width: 100%;
+    }
+
+    .filter-tabs {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .event-card {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .event-actions {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .event-icon-actions {
+        margin-left: 0;
+        justify-content: center;
+    }
+}

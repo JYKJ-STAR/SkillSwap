@@ -1,0 +1,230 @@
+{% extends "shared/base.html" %}
+{% block title %}SkillSwap - My Schedule{% endblock %}
+
+{% block styles %}
+<link href="{{ url_for('static', filename='css/youth/youth_schedule.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<!-- ========================================
+     MAIN CONTENT
+     ======================================== -->
+<main class="main-container">
+    <!-- Sidebar - User Profile -->
+    <aside class="sidebar">
+        <a href="{{ url_for('dashboard.dashboard') }}" class="back-link">← Back</a>
+
+        <div class="profile-card">
+            <div class="avatar">
+                <!-- Using a placeholder or user image if available -->
+                <div class="avatar-icon"></div>
+            </div>
+
+            <h2 class="profile-name">{{ user.name }}</h2>
+            <p class="profile-age">{{ user.age }} Years Old</p>
+            <p class="profile-points">{{ user.points }} Points</p>
+
+            <button class="claim-rewards-btn">Claim Rewards</button>
+
+            <h3 class="section-title">Skills</h3>
+            <div class="tags">
+                {% if user.skills %}
+                {% for skill in user.skills %}
+                <span class="tag">{{ skill }}</span>
+                {% endfor %}
+                {% else %}
+                <span class="tag" style="background: transparent; color: var(--text-muted); padding-left: 0;">No skills
+                    added</span>
+                {% endif %}
+            </div>
+
+            <h3 class="section-title">Interest</h3>
+            <div class="tags">
+                {% if user.interests %}
+                {% for interest in user.interests %}
+                <span class="tag">{{ interest }}</span>
+                {% endfor %}
+                {% else %}
+                <span class="tag" style="background: transparent; color: var(--text-muted); padding-left: 0;">No
+                    interests added</span>
+                {% endif %}
+            </div>
+        </div>
+    </aside>
+
+    <!-- Content - Schedule -->
+    <section class="content">
+        <h1 class="page-title">My Schedule</h1>
+
+        <!-- Filter Tabs -->
+        <div class="filter-tabs">
+            <button class="filter-tab all active">All</button>
+            <button class="filter-tab completed">Completed</button>
+            <button class="filter-tab upcoming">Upcoming</button>
+        </div>
+
+        <!-- Combined Empty State for "All" View -->
+        <div id="all-empty-state" class="text-muted text-center py-4" style="display: none;">
+            No events upcoming or completed.
+        </div>
+
+        <!-- Event List - COMPLETED VIEW -->
+        <div class="event-list" id="completed-view">
+            {% if completed_events %}
+            {% for event in completed_events %}
+            <div class="event-card">
+                <div class="event-thumbnail"></div>
+                <div class="event-details">
+                    <h3 class="event-title">{{ event.title }}</h3>
+                    <p class="event-meta">{{ event.display_date }} | {{ event.role_type|capitalize }}</p>
+                    <div class="event-actions">
+                        <button class="log-reflection-btn gray" onclick="openModal('feedback-modal')">Log
+                            Reflection</button>
+                        <span class="points-text">+{{ event.points }} Points</span>
+                        <span class="hours-text">+{{ event.hours_earned or 0 }} Hours</span>
+                    </div>
+                </div>
+                <span class="status-badge completed">Completed</span>
+            </div>
+            {% endfor %}
+            {% else %}
+            <p class="text-muted text-center py-4">No completed events yet.</p>
+            {% endif %}
+        </div>
+
+        <!-- Event List - UPCOMING VIEW (Hidden by default, toggle with JS) -->
+        <div class="event-list" id="upcoming-view" style="display: none;">
+            {% if upcoming_events %}
+            {% for event in upcoming_events %}
+            <div class="event-card">
+                <div class="event-thumbnail"></div>
+                <div class="event-details">
+                    <h3 class="event-title">{{ event.title }}</h3>
+                    <p class="event-meta">
+                        {{ event.display_date }}
+                        {% if event.display_time %}&nbsp;&nbsp; {{ event.display_time }}{% endif %}
+                        &nbsp;&nbsp; {{ event.role_type|capitalize }}
+                    </p>
+                    <div class="event-actions">
+                        <span class="info-badge">{{ event.points }} Points</span>
+                        <span class="info-badge">{{ event.hours_earned or 2 }} Hours</span>
+                    </div>
+                </div>
+                <span class="status-badge upcoming">Upcoming</span>
+                <div class="event-icon-actions">
+                    <button class="icon-btn approve" title="Upload Proof" onclick="openModal('upload-modal')">✓</button>
+                    <button class="icon-btn delete" title="Withdraw" onclick="openModal('withdraw-modal')">🗑</button>
+                </div>
+            </div>
+            {% endfor %}
+            {% else %}
+            <p class="text-muted text-center py-4">No upcoming events found.</p>
+            {% endif %}
+        </div>
+    </section>
+</main>
+
+<!-- ========================================
+     MODALS
+     ======================================== -->
+
+<!-- FEEDBACK POPUP MODAL -->
+<div class="modal-overlay" id="feedback-modal">
+    <div class="modal">
+        <!-- Back Link -->
+        <a href="#" class="back-link close-modal" data-target="feedback-modal">← Back</a>
+
+        <!-- Title -->
+        <h2 class="modal-title">How was your Session?</h2>
+
+        <!-- Subtitle -->
+        <p class="modal-subtitle">Your feedback help us improve</p>
+
+        <!-- Star Rating -->
+        <div class="star-rating">
+            <span class="star" data-rating="1"></span>
+            <span class="star" data-rating="2"></span>
+            <span class="star" data-rating="3"></span>
+            <span class="star" data-rating="4"></span>
+            <span class="star" data-rating="5"></span>
+        </div>
+
+        <!-- Feedback Textarea -->
+        <textarea class="feedback-textarea" placeholder="Share your thoughts"></textarea>
+
+        <!-- Points Indicator -->
+        <p class="points-indicator">+100 Points</p>
+
+        <!-- Submit Button -->
+        <button class="submit-btn" onclick="closeModal('feedback-modal')">Submit and Claim Points</button>
+    </div>
+</div>
+
+<!-- UPLOAD PHOTO POPUP MODAL -->
+<div class="modal-overlay" id="upload-modal">
+    <div class="modal">
+        <!-- Back Link -->
+        <a href="#" class="back-link close-modal" data-target="upload-modal">← Back</a>
+
+        <!-- Title -->
+        <h2 class="modal-title">Upload Photo with Attendees</h2>
+
+        <!-- Subtitle -->
+        <p class="modal-subtitle">Help us verify that u were here!</p>
+
+        <!-- Upload Area -->
+        <div class="upload-area" id="uploadArea">
+            <!-- Camera Icon -->
+            <div class="camera-icon">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="2" y="6" width="20" height="14" rx="2" ry="2" />
+                    <circle cx="12" cy="13" r="4" />
+                    <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                </svg>
+            </div>
+
+            <p class="upload-text">Click to upload photo ID</p>
+            <p class="upload-format">JPG or PNG</p>
+
+            <!-- Hidden File Input -->
+            <input type="file" class="file-input" id="fileInput" accept=".jpg,.jpeg,.png">
+        </div>
+
+        <!-- Preview Container (shown after upload) -->
+        <div class="preview-container" id="previewContainer">
+            <img src="" alt="Preview" class="preview-image" id="previewImage">
+            <p class="preview-name" id="previewName"></p>
+        </div>
+
+        <!-- Submit Button -->
+        <button class="submit-btn" onclick="closeModal('upload-modal')">Submit Photo</button>
+    </div>
+</div>
+
+<!-- WITHDRAW EVENT POPUP MODAL -->
+<div class="modal-overlay" id="withdraw-modal">
+    <div class="modal">
+        <!-- Title -->
+        <h2 class="modal-title">Withdraw from Event?</h2>
+
+        <!-- Subtitle -->
+        <p class="modal-subtitle">It is sad to see you leave, would you tell us why</p>
+
+        <!-- Reasoning Textarea -->
+        <div class="textarea-label">
+            <span class="label-text">Reasoning</span>
+            <textarea class="reasoning-textarea" placeholder=""></textarea>
+        </div>
+
+        <!-- Buttons -->
+        <div class="button-container">
+            <button class="btn btn-cancel close-modal" data-target="withdraw-modal">Change my mind</button>
+            <button class="btn btn-withdraw" onclick="closeModal('withdraw-modal')">Withdraw event</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/youth/youth_schedule.js') }}"></script>
+{% endblock %}

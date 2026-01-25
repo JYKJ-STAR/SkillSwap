@@ -57,12 +57,7 @@ def dashboard():
         # Fallback
         return render_template('senior/senior_dashboard.html', user=user_data, upcoming_events=upcoming_events)
 
-@dashboard_bp.route('/activities')
-def activities():
-    if 'user_id' not in session:
-         return redirect(url_for('home.login_page'))
-    # Only youth has this for now?
-    return render_template('youth/youth_activities.html')
+
 
 
 
