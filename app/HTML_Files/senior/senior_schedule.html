@@ -1,0 +1,83 @@
+{% extends "shared/base.html" %}
+
+{% block title %}SkillSwap - My Schedule{% endblock %}
+
+{% block styles %}
+<link href="{{ url_for('static', filename='css/senior/senior_schedule.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="main-container">
+    <!-- Back Link -->
+    <a href="{{ url_for('senior_dashboard.senior_dashboard') }}" class="back-link">← Back to Dashboard</a>
+
+    <!-- Page Title -->
+    <h1 class="page-title">My Schedule</h1>
+
+    <!-- Two Column Layout -->
+    <div class="schedule-columns">
+
+        <!-- ========================================
+             UPCOMING COLUMN
+             ======================================== -->
+        <div class="schedule-column">
+            <div class="column-header">
+                <h2 class="column-title">Upcoming</h2>
+            </div>
+            <div class="column-content">
+                {% if upcoming_events %}
+                {% for event in upcoming_events %}
+                <!-- Event Card -->
+                <div class="event-card">
+                    <div class="event-thumbnail"></div>
+                    <div class="event-details">
+                        <h3 class="event-title">{{ event.title }}</h3>
+                        <p class="event-date">{{ event.display_date }}</p>
+                        <p class="event-time">{{ event.display_time }}</p>
+                    </div>
+                    <div class="event-actions">
+                        <button class="btn-schedule btn-remove">Remove Event</button>
+                        <button class="btn-schedule btn-complete">Complete Event</button>
+                    </div>
+                </div>
+                {% endfor %}
+                {% else %}
+                <p class="text-white text-center">No upcoming events.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- ========================================
+             COMPLETED COLUMN
+             ======================================== -->
+        <div class="schedule-column">
+            <div class="column-header">
+                <h2 class="column-title">Completed</h2>
+            </div>
+            <div class="column-content">
+                {% if completed_events %}
+                {% for event in completed_events %}
+                <!-- Event Card -->
+                <div class="event-card">
+                    <div class="event-thumbnail"></div>
+                    <div class="event-details">
+                        <h3 class="event-title">{{ event.title }}</h3>
+                        <p class="event-date">{{ event.display_date }}</p>
+                        <p class="event-points">+{{ event.points or 0 }} Points</p>
+                    </div>
+                    <span class="status-badge">Event Completed</span>
+                </div>
+                {% endfor %}
+                {% else %}
+                <p class="text-white text-center">No completed events yet.</p>
+                {% endif %}
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/senior/senior_schedule.js') }}"></script>
+{% endblock %}

@@ -185,7 +185,8 @@
                             {% endif %}
 
                             <button class="action-icon void" title="Void"
-                                onclick="openVoidModal('{{ url_for('admin.admin_void_event', event_id=event.event_id) }}')">
+                                data-void-url="{{ url_for('admin.admin_void_event', event_id=event.event_id) }}"
+                                onclick="openVoidModal(this.dataset.voidUrl)">
                                 <i class="bi bi-x-circle"></i>
                             </button>
                             <form action="{{ url_for('admin.admin_end_event', event_id=event.event_id) }}" method="POST"
@@ -239,8 +240,9 @@
                                 data-title="{{ event.title|e }}" data-datetime="{{ event.start_datetime }}"
                                 data-location="{{ event.location|e }}" data-category="{{ event.category }}"
                                 data-status="{{ event.status }}" data-led-by="{{ event.led_by }}"
-                                data-max-capacity="{{ event.max_capacity or '' }}" title="Edit"><i
-                                    class="bi bi-pencil-square"></i></button>
+                                data-max-capacity="{{ event.max_capacity or '' }}"
+                                data-description="{{ event.description|e }}" data-grc-id="{{ event.grc_id }}"
+                                title="Edit"><i class="bi bi-pencil-square"></i></button>
                             <form action="{{ url_for('admin.admin_delete_event', event_id=event.event_id) }}"
                                 method="POST" style="display:inline;"
                                 onsubmit="return confirm('Are you sure you want to delete this event?');">
