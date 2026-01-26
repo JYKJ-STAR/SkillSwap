@@ -9,7 +9,11 @@
 
 {% block content %}
 <div class="senior-dashboard">
-    <!-- Notifications Section (Senior Accessible) -->
+    <!-- 
+        Notifications Section (Senior Accessible) 
+        - High contrast styling for accessibility
+        - Clear Dismiss/View actions
+    -->
     {% if notifications %}
     <div class="notifications-container-senior mb-4">
         {% for note in notifications %}
@@ -30,11 +34,15 @@
                 </div>
             </div>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"
-                style="font-size: 1.2rem;" onclick="dismissNotification({{ note.notification_id }})"></button>
+                style="font-size: 1.2rem;" onclick="dismissNotification('{{ note.notification_id }}')"></button>
         </div>
         {% endfor %}
     </div>
     <script>
+        /**
+         * Dismisses a notification via AJAX.
+         * @param {number} id - Notification ID
+         */
         function dismissNotification(id) {
             fetch(`{{ url_for('dashboard.dismiss_notification', notification_id=0) }}`.replace('0', id), {
                 method: 'POST'

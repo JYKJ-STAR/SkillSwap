@@ -11,6 +11,12 @@
  */
 
 // Tab switching logic
+/**
+ * Switches between Login and Signup tabs.
+ * Toggles visibility of respective sections and updates tab styling.
+ * 
+ * @param {string} tab - 'login' or 'signup'
+ */
 function switchTab(tab) {
     const tabs = document.querySelectorAll('.auth-tab');
     // If switching to login, show loginSection and login tab active
@@ -129,6 +135,10 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Navigation
+/**
+ * Updates the UI to show the current Step in the Multi-step Signup form.
+ * Updates the progress bar, step title, and visibility of step content.
+ */
 function updateSteps() {
     document.querySelectorAll('.step-content').forEach(el => el.classList.remove('active'));
     document.getElementById(`step${currentStep}`).classList.add('active');
@@ -141,6 +151,11 @@ function updateSteps() {
 }
 
 // Helper to calculate age
+/**
+ * Calculates age based on birth date string.
+ * @param {string} birthDateString - Date string (YYYY-MM-DD)
+ * @returns {number} Age in years
+ */
 function calculateAge(birthDateString) {
     const today = new Date();
     const birthDate = new Date(birthDateString);
@@ -152,6 +167,14 @@ function calculateAge(birthDateString) {
     return age;
 }
 
+/**
+ * Validates inputs for the given step.
+ * Performs checks for empty fields, regex patterns (email, password, phone),
+ * and logic specific to the step (age verification, skill selection).
+ * 
+ * @param {number} step - Current step number (1-3)
+ * @returns {Promise<boolean>} True if valid, False otherwise
+ */
 async function validateStep(step) {
     if (step === 1) {
         const email = document.getElementById('email').value;
@@ -263,6 +286,11 @@ async function validateStep(step) {
     return true;
 }
 
+/**
+ * Advances to the next step if validation passes.
+ * Updates the UI and sets dynamic constraints (e.g. date limits for next step).
+ * @param {number} step - Current step index
+ */
 async function nextStep(step) {
     const isValid = await validateStep(step);
     if (!isValid) return;
@@ -324,11 +352,21 @@ async function nextStep(step) {
     updateSteps();
 }
 
+/**
+ * Returns to the previous step.
+ * @param {number} step - Current step index
+ */
 function prevStep(step) {
     currentStep = step - 1;
     updateSteps();
 }
 
+/**
+ * Submits the Multi-step Signup Form via AJAX.
+ * Handles file upload via FormData.
+ * 
+ * @param {boolean} hasVerification - Whether the user opted to upload a verification photo.
+ */
 async function submitForm(hasVerification) {
     // Validate step 3 (skills) before submitting
     const isValid = await validateStep(3);
@@ -416,6 +454,9 @@ switchTab = function (tab) {
     originalSwitchTab(tab);
 }
 
+/**
+ * Verifies if the email exists in the database for Password Reset.
+ */
 async function verifyResetEmail() {
     const email = document.getElementById('fpEmail').value;
     if (!email) {
@@ -445,6 +486,9 @@ async function verifyResetEmail() {
     }
 }
 
+/**
+ * Submits the new password to reset the account.
+ */
 async function submitResetPassword() {
     const email = document.getElementById('fpEmail').value;
     const password = document.getElementById('fpNewPassword').value;

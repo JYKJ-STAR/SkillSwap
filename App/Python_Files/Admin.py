@@ -260,7 +260,11 @@ def reject_user(user_id):
 @admin_bp.route('/delete-user/<int:user_id>', methods=['POST'])
 @admin_required
 def delete_user(user_id):
-    """Delete a user from the User Management page."""
+    """
+    Delete a user from the User Management page.
+    This action is permanent and removes the user from the database.
+    Required for GDPR/Privacy compliance.
+    """
     conn = get_db_connection()
     
     # Get user name for flash message
@@ -277,7 +281,10 @@ def delete_user(user_id):
 @admin_bp.route('/edit-user/<int:user_id>', methods=['POST'])
 @admin_required
 def edit_user(user_id):
-    """Edit a user's name and email from the User Management page."""
+    """
+    Edit a user's basic details (Name, Email).
+    Checks for email modification to ensure uniqueness.
+    """
     new_name = request.form.get('name')
     new_email = request.form.get('email')
     
@@ -313,7 +320,10 @@ def edit_user(user_id):
 @admin_bp.route('/add_points/<int:user_id>', methods=['POST'])
 @admin_required
 def add_points(user_id):
-    """Add points to a user."""
+    """
+    Manually add points to a user's account.
+    Logs the transaction in 'points_transaction' table for audit.
+    """
     points = int(request.form.get('points', 0))
     remarks = request.form.get('remarks', 'Admin adjustment')
     
@@ -689,7 +699,10 @@ def admin_manage_users():
 @admin_bp.route('/verify-user/<int:user_id>', methods=['POST'])
 @admin_required
 def verify_user(user_id):
-    """Approve a user's verification from User Management page."""
+    """
+    Approve a user's verification from User Management page.
+    Sets status to 'verified'.
+    """
     conn = get_db_connection()
     conn.execute(
         "UPDATE user SET verification_status = 'verified' WHERE user_id = ?",
@@ -704,7 +717,11 @@ def verify_user(user_id):
 @admin_bp.route('/reject-verification/<int:user_id>', methods=['POST'])
 @admin_required
 def reject_verification(user_id):
-    """Reject a user's verification - delete their verification photo."""
+    """
+    Reject a user's verification request.
+    - Removes the uploaded verification photo from filesystem.
+    - Resets status to 'unverified' so they can try again.
+    """
     conn = get_db_connection()
     
     # Get the current verification photo

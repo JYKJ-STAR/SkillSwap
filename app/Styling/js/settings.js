@@ -15,6 +15,11 @@ document.addEventListener('DOMContentLoaded', function () {
     const navPrivacy = document.getElementById('navPrivacy');
     const privacySection = document.getElementById('privacySection');
 
+    /**
+     * Switches the active dashboard section.
+     * Manages visibility of content divs and active state of sidebar nav buttons.
+     * @param {string} section - 'profile', 'password', 'skills', 'verification', 'privacy'
+     */
     function switchSection(section) {
         // Hide all first
         profileSection.classList.add('d-none');
@@ -78,6 +83,10 @@ document.addEventListener('DOMContentLoaded', function () {
     let initialValues = {};
     let initialPhotoSrc = avatarPreview.src;
 
+    /**
+     * Captures the initial state of form inputs.
+     * Used to detect changes and enable/disable the 'Unsaved Changes' bar.
+     */
     function captureInitialValues() {
         inputs.forEach(input => {
             if (input.type !== 'file') {
@@ -118,6 +127,10 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // Check for changes (Profile)
+    /**
+     * Checks if current input values differ from initial values.
+     * Toggles the sticky 'Unsaved Changes' bar.
+     */
     function checkChanges() {
         let hasChanges = false;
 
@@ -224,6 +237,10 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
+    /**
+     * Submits updated profile data via AJAX.
+     * Handles text fields and profile photo upload.
+     */
     function saveProfile() {
         const formData = new FormData(form);
         const originalText = saveBtn.innerText;
@@ -290,6 +307,10 @@ document.addEventListener('DOMContentLoaded', function () {
     // Allow the "Update Password" button in form to also trigger it
     updatePassBtn.addEventListener('click', submitPasswordChange);
 
+    /**
+     * Submits password change request.
+     * Validates matching fields and password complexity before sending.
+     */
     function submitPasswordChange() {
         const formData = new FormData(passwordForm);
         const newPass = formData.get('new_password');
@@ -418,6 +439,11 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    /**
+     * Renders the skills UI for the selected tab (Teaach/Learn).
+     * Populates 'Selected' pills and 'Suggested' pills.
+     * @param {string} type - 'teach' or 'learn'
+     */
     function renderSkills(type) {
         if (!document.getElementById(`${type}SelectedList`)) return;
 
@@ -531,6 +557,9 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Save Skills
+    /**
+     * Saves the current state of Teach and Learn skills to the backend.
+     */
     function saveSkills() {
         saveBtn.innerText = 'Saving...'; // Also update sticky bar button
         saveBtn.disabled = true;
@@ -585,6 +614,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     let selectedVerificationFile = null;
 
+    /**
+     * Handles file selection for Verification.
+     * Shows a preview of the selected image.
+     */
     function handleVerificationFile(file) {
         selectedVerificationFile = file;
         const reader = new FileReader();

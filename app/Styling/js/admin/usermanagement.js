@@ -93,6 +93,16 @@ function initializeVerificationButtons() {
 /**
  * Open the verification modal with user data
  */
+/**
+ * Open the verification modal with user data.
+ * Populates fields and sets form actions for Approve/Reject.
+ * Handles display logic for existing vs missing photo.
+ * 
+ * @param {string} userId - ID of the user
+ * @param {string} userName - Name of the user
+ * @param {string} joinDate - Formatted join date
+ * @param {string} photo - Filename of the verification photo
+ */
 function openVerifyModal(userId, userName, joinDate, photo) {
     // Set user info
     document.getElementById('verifyUserName').textContent = userName;
@@ -151,6 +161,14 @@ function initializeEditButtons() {
 /**
  * Open the edit modal with user data
  */
+/**
+ * Open the edit modal with user data.
+ * Populates name and email fields for editing.
+ * 
+ * @param {string} userId 
+ * @param {string} userName 
+ * @param {string} userEmail 
+ */
 function openEditModal(userId, userName, userEmail) {
     // Set form action
     document.getElementById('editForm').action = `/admin/edit-user/${userId}`;
@@ -190,6 +208,13 @@ function initializeDeleteButtons() {
 
 /**
  * Open the delete confirmation modal
+ */
+/**
+ * Open the delete confirmation modal.
+ * Sets the form action to delete the specific user.
+ * 
+ * @param {string} userId 
+ * @param {string} userName 
  */
 function openDeleteModal(userId, userName) {
     // Set form action

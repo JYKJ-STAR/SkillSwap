@@ -10,6 +10,19 @@ settings_bp = Blueprint('settings', __name__)
 
 @settings_bp.route('/settings')
 def settings():
+    """
+    Settings Page Route.
+    
+    Fetches and prepares all necessary user data for the settings dashboard:
+    - User Profile (Name, Email, Role, etc.)
+    - Calculated Age
+    - Skills (Teach vs Learn)
+    - Verification Status
+    - GRC (Constituency) options
+    
+    Returns:
+        Rendered 'settings.html' template with user context.
+    """
     if 'user_id' not in session:
         return redirect(url_for('home.login_page'))
     
@@ -88,6 +101,17 @@ def settings():
 
 @settings_bp.route('/settings/update', methods=['POST'])
 def update_settings():
+    """
+    API Endpoint: Update User Profile Details.
+    
+    Handles updates for:
+    - Basic Info (Name, Language, Profession, Bio, Birth Date)
+    - GRC Location
+    - Profile Photo Upload
+    
+    Returns:
+        JSON response indicating success/failure and optionally the new photo filename.
+    """
     if 'user_id' not in session:
         return jsonify({'success': False, 'message': 'Unauthorized'}), 401
     
@@ -153,6 +177,12 @@ def update_settings():
 
 @settings_bp.route('/settings/update_password', methods=['POST'])
 def update_password():
+    """
+    API Endpoint: Update User Password.
+    
+    Validates current password and sets new password hash.
+    Restricted: Google OAuth users cannot change password here.
+    """
     if 'user_id' not in session:
         return jsonify({'success': False, 'message': 'Unauthorized'}), 401
     
@@ -207,6 +237,14 @@ def update_password():
 
 @settings_bp.route('/settings/update_skills', methods=['POST'])
 def update_skills():
+    """
+    API Endpoint: Update User Skills (Teach & Learn).
+    
+    Full sync approach: 
+    1. Deletes existing skill links for the user.
+    2. Re-inserts new skill links based on provided lists.
+    3. Auto-creates new skills if they don't exist in the master list.
+    """
     if 'user_id' not in session:
         return jsonify({'success': False, 'message': 'Unauthorized'}), 401
     
@@ -265,6 +303,11 @@ def update_skills():
 
 @settings_bp.route('/settings/upload_verification', methods=['POST'])
 def upload_verification():
+    """
+    API Endpoint: Upload Verification Document.
+    
+    Handles storing the ID photo and resetting status to 'pending' for admin review.
+    """
     if 'user_id' not in session:
         return jsonify({'success': False, 'message': 'Unauthorized'}), 401
     

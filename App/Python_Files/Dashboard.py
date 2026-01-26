@@ -5,6 +5,16 @@ dashboard_bp = Blueprint('dashboard', __name__)
 
 @dashboard_bp.route('/dashboard')
 def dashboard():
+    """
+    Main User Dashboard.
+    
+    Displays:
+    - User stats (Points, Hours, Impact).
+    - Upcoming events (next 5).
+    - Unread notifications.
+    
+    Directs to specific role-based template (Senior vs Youth).
+    """
     # Helper to clean session access
     if 'user_id' not in session:
         flash("Please log in first.", "warning")
@@ -72,12 +82,14 @@ def dashboard():
         })
     
     
-    notifications = conn.execute('''
+    notifications_rows = conn.execute('''
         SELECT notification_id, message, created_at, event_id 
         FROM notification 
         WHERE user_id = ? AND is_read = 0 
         ORDER BY created_at DESC
     ''', (user_id,)).fetchall()
+
+    notifications = [dict(row) for row in notifications_rows]
     
     conn.close()
 
@@ -103,7 +115,10 @@ def dashboard():
 
 @dashboard_bp.route('/notification/<int:notification_id>/dismiss', methods=['POST'])
 def dismiss_notification(notification_id):
-    """Mark notification as read (API for AJAX)."""
+    """
+    API Endpoint: Dismiss a notification.
+    Marks the notification as read via AJAX.
+    """
     if 'user_id' not in session:
         return {'status': 'error', 'message': 'Unauthorized'}, 401
     
@@ -119,7 +134,10 @@ def dismiss_notification(notification_id):
 
 @dashboard_bp.route('/notification/<int:notification_id>/view')
 def view_notification_details(notification_id):
-    """Mark notification as read and redirect to the relevant page."""
+    """
+    Handle notification click.
+    Marks as read and redirects to relevant page (e.g., Event Details).
+    """
     if 'user_id' not in session:
         flash("Please log in.", "warning")
         return redirect(url_for('home.login_page'))

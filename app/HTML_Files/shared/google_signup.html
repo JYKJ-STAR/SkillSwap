@@ -57,7 +57,11 @@
                         </div>
 
                         <form id="googleSignupForm" onsubmit="event.preventDefault();">
-                            <!-- STEP 1: Role Selection -->
+                            <!-- 
+                                STEP 1: Role Selection 
+                                - User selects between Youth and Senior
+                                - Required field
+                            -->
                             <div class="step-content active" id="step1">
                                 <div class="text-center mb-4">
                                     <h2 style="color: var(--text-light); font-size: 1.75rem; margin-bottom: 0.5rem;">
@@ -98,7 +102,11 @@
                                 </button>
                             </div>
 
-                            <!-- STEP 2: Personal Details -->
+                            <!-- 
+                                STEP 2: Personal Details 
+                                - Prefilled with Google Data (Name)
+                                - Additional fields: School/Profession, Language, DOB, Phone
+                            -->
                             <div class="step-content" id="step2">
                                 <button type="button" class="back-btn" onclick="prevStep(2)">
                                     <i class="bi bi-arrow-left"></i> Back
@@ -170,7 +178,11 @@
                                 </button>
                             </div>
 
-                            <!-- STEP 3: Skills -->
+                            <!-- 
+                                STEP 3: Skills 
+                                - Selection of skills to Teach and Learn
+                                - Same logic as standard signup
+                            -->
                             <div class="step-content" id="step3">
                                 <button type="button" class="back-btn" onclick="prevStep(3)">
                                     <i class="bi bi-arrow-left"></i> Back

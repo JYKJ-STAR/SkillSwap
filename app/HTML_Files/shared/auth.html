@@ -135,7 +135,11 @@
                             </button>
                         </div>
 
-                        <!-- Login Form -->
+                        <!-- 
+                            LOGIN FORM SECTION 
+                            - Default active view
+                            - Handled by methods=['POST'] to /login
+                        -->
                         <div id="loginSection" class="auth-form {{ 'active' if active_tab == 'login' else '' }}">
                             <form id="loginForm" action="{{ url_for('home.login_submit') }}" method="POST">
                                 <div class="form-group">
@@ -188,7 +192,11 @@
                             </a>
                         </div>
 
-                        <!-- Forgot Password Form -->
+                        <!-- 
+                            FORGOT PASSWORD SECTION 
+                            - Initially hidden
+                            - Toggled via JS (showForgotPassword)
+                        -->
                         <div id="forgotPasswordSection" class="auth-form">
                             <h3 class="mb-4 text-center">Reset Password</h3>
                             <p class="text-center text-muted mb-4 small">Enter your email to reset your password.</p>
@@ -248,7 +256,11 @@
                             </div>
 
                             <form id="signupForm" onsubmit="event.preventDefault();">
-                                <!-- STEP 1: Account Type & Credentials -->
+                                <!-- 
+                                    SIGNUP STEP 1: Account Type & Credentials 
+                                    - Role selection (Youth/Senior)
+                                    - Email and Password
+                                -->
                                 <div class="step-content active" id="step1">
                                     <!-- Role Selection -->
                                     <div class="role-section">
@@ -310,7 +322,11 @@
                                     </div>
                                 </div>
 
-                                <!-- STEP 2: Personal Details -->
+                                <!-- 
+                                    SIGNUP STEP 2: Personal Details 
+                                    - Name, DOB, Phone, Language
+                                    - Dynamic Age Validation based on Role
+                                -->
                                 <div class="step-content" id="step2">
                                     <button type="button" class="back-btn" onclick="prevStep(2)">
                                         <i class="bi bi-arrow-left"></i> Back
@@ -387,7 +403,11 @@
                                     </div>
                                 </div>
 
-                                <!-- STEP 3: Skills Selection -->
+                                <!-- 
+                                    SIGNUP STEP 3: Skills Selection 
+                                    - Teach (Offers) and Learn (Interests)
+                                    - Tag selection and custom input
+                                -->
                                 <div class="step-content" id="step3">
                                     <button type="button" class="back-btn" onclick="prevStep(3)">
                                         <i class="bi bi-arrow-left"></i> Back
@@ -447,7 +467,11 @@
                                     </div>
                                 </div>
 
-                                <!-- STEP 4: Verification -->
+                                <!-- 
+                                    SIGNUP STEP 4: Verification 
+                                    - Photo ID Upload (Optional)
+                                    - Submit via AJAX (FormData)
+                                -->
                                 <div class="step-content" id="step4">
                                     <button type="button" class="back-btn" onclick="prevStep(4)">
                                         <i class="bi bi-arrow-left"></i> Back

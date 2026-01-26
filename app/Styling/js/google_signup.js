@@ -17,6 +17,11 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Role Selection Logic
+// Role Selection Logic
+/**
+ * Initializes click handlers for Role Cards.
+ * Manages selection state and updates 'selectedRole'.
+ */
 function initializeRoleSelection() {
     document.querySelectorAll('.role-card').forEach(card => {
         card.addEventListener('click', function () {
@@ -29,6 +34,11 @@ function initializeRoleSelection() {
 }
 
 // Skill Tags Logic
+// Skill Tags Logic
+/**
+ * Initializes click handlers for Skill Tags (Teach/Learn).
+ * Manages selection arrays: 'teachSkills' and 'learnSkills'.
+ */
 function initializeSkillTags() {
     document.querySelectorAll('.skill-tag').forEach(tag => {
         tag.addEventListener('click', function () {
@@ -50,6 +60,10 @@ function initializeSkillTags() {
 }
 
 // Update step visibility and progress bar
+// Update step visibility and progress bar
+/**
+ * Updates the UI to reflect the current step in the process.
+ */
 function updateSteps() {
     document.querySelectorAll('.step-content').forEach(el => el.classList.remove('active'));
     document.getElementById(`step${currentStep}`).classList.add('active');
@@ -58,6 +72,12 @@ function updateSteps() {
 }
 
 // Calculate age from birth date
+// Calculate age from birth date
+/**
+ * Helper: Calculates age based on birth date string.
+ * @param {string} birthDateString 
+ * @returns {number} Age
+ */
 function calculateAge(birthDateString) {
     const birthDate = new Date(birthDateString);
     const today = new Date();
@@ -70,6 +90,14 @@ function calculateAge(birthDateString) {
 }
 
 // Validate current step
+// Validate current step
+/**
+ * Validates inputs for the specified step.
+ * Checks for required fields and applies logic rules (e.g., Age limits).
+ * 
+ * @param {number} step 
+ * @returns {boolean} True if valid
+ */
 function validateStep(step) {
     if (step === 1) {
         if (!selectedRole) {
@@ -124,6 +152,12 @@ function validateStep(step) {
 }
 
 // Navigate to next step
+// Navigate to next step
+/**
+ * Proceed to the next step if validation passes.
+ * Updates dynamic constraints for Step 2 based on chosen Role.
+ * @param {number} step 
+ */
 function nextStep(step) {
     if (!validateStep(step)) return;
     currentStep = step + 1;
@@ -168,6 +202,11 @@ function prevStep(step) {
 }
 
 // Submit the form
+// Submit the form
+/**
+ * Submits the Google Signup completion form via AJAX.
+ * Sends all collected data (Role, Details, Skills) to the backend.
+ */
 async function submitGoogleSignup() {
     // Validate step 3 before submitting
     if (!validateStep(3)) return;
