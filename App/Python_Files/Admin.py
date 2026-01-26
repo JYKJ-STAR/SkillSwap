@@ -131,7 +131,7 @@ def admin_login_submit():
     
     conn = get_db_connection()
     admin = conn.execute(
-        "SELECT admin_id, name, password_hash, privileged FROM admin WHERE email = ?",
+        "SELECT admin_id, name, email, password_hash, privileged FROM admin WHERE email = ?",
         (email,)
     ).fetchone()
     conn.close()
@@ -148,6 +148,7 @@ def admin_login_submit():
     # Set admin session (different keys from regular users)
     session['admin_id'] = admin['admin_id']
     session['admin_name'] = admin['name']
+    session['admin_email'] = admin['email']
     session['is_admin'] = True
     session['privileged'] = admin['privileged']
     session['user_name'] = admin['name']  # For template compatibility
@@ -202,14 +203,27 @@ def admin_dashboard():
     # GRCs for event creation form
     grcs = conn.execute("SELECT grc_id, name FROM grc").fetchall()
     
+    # Statistics for Dashboard Cards
+    total_users = len(all_users)
+    total_points = sum(user['total_points'] for user in all_users)
+    
+    current_open_tickets = conn.execute(
+        "SELECT COUNT(*) FROM support_ticket WHERE status = 'open'"
+    ).fetchone()[0]
+    
+    ongoing_events = conn.execute(
+        "SELECT COUNT(*) FROM event WHERE status = 'published'"
+    ).fetchone()[0]
+    
     conn.close()
     
     return render_template('admin/admin_dashboard.html', 
                            user_name=session.get('user_name'),
-                           pending_users=pending_users,
-                           all_users=all_users,
-                           events=events,
-                           grcs=grcs)
+                           admin_email=session.get('admin_email', 'Admin@123.com'),
+                           total_users=total_users,
+                           total_points=total_points,
+                           current_open_tickets=current_open_tickets,
+                           ongoing_events=ongoing_events)
 
 # =====================================================
 # USER VERIFICATION / APPROVAL
