@@ -129,8 +129,11 @@
                 <div class="events-row">
                     {% if recommended_events %}
                     {% for event in recommended_events %}
-                    <div class="event-card-compact" data-category="{{ event.category }}"
-                        data-location="{{ event.location|lower }}">
+                    <div class="event-card-compact {% if event.is_new %}event-card-new{% endif %}"
+                        data-category="{{ event.category }}" data-location="{{ event.location|lower }}">
+                        {% if event.is_new %}
+                        <span class="event-new-badge">NEW</span>
+                        {% endif %}
                         <span class="event-category-badge category-{{ event.category }}">{{ event.category_display
                             }}</span>
                         <h3 class="event-card-title">{{ event.title }}</h3>
@@ -161,8 +164,11 @@
                 <div class="events-row">
                     {% if bond_events %}
                     {% for event in bond_events %}
-                    <div class="event-card-compact" data-category="{{ event.category }}"
-                        data-location="{{ event.location|lower }}">
+                    <div class="event-card-compact {% if event.is_new %}event-card-new{% endif %}"
+                        data-category="{{ event.category }}" data-location="{{ event.location|lower }}">
+                        {% if event.is_new %}
+                        <span class="event-new-badge">NEW</span>
+                        {% endif %}
                         <span class="event-category-badge category-{{ event.category }}">{{ event.category_display
                             }}</span>
                         <h3 class="event-card-title">{{ event.title }}</h3>
@@ -194,8 +200,11 @@
                 <h2 class="section-title">{{ category_name }}</h2>
                 <div class="events-row">
                     {% for event in events_by_category[category_key][:5] %}
-                    <div class="event-card-compact" data-category="{{ event.category }}"
-                        data-location="{{ event.location|lower }}">
+                    <div class="event-card-compact {% if event.is_new %}event-card-new{% endif %}"
+                        data-category="{{ event.category }}" data-location="{{ event.location|lower }}">
+                        {% if event.is_new %}
+                        <span class="event-new-badge">NEW</span>
+                        {% endif %}
                         <span class="event-category-badge category-{{ event.category }}">{{ category_name }}</span>
                         <h3 class="event-card-title">{{ event.title }}</h3>
                         <p class="event-card-description">{{ event.description[:80] }}...</p>

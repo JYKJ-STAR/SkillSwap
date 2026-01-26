@@ -126,12 +126,19 @@ def categorize_events(events, user_interests=None):
             if skill_category and skill_category in user_interests:
                 recommended.append(event)
     
-    # If no recommendations based on interests, show popular events
+    # If no recommendations based on interests, show popular events (fallback)
     if not recommended:
         recommended = events[:5]
     
     # Sort new events by published_at DESC (most recent first)
-    new_events.sort(key=lambda x: x.get('published_at', ''), reverse=True)
+    new_events.sort(key=lambda x: x.get('published_at', '') or '', reverse=True)
+    
+    # DEDUPLICATION:
+    # If an event is in 'new', remove it from 'recommended' and 'bond' to avoid duplicates on dashboard
+    new_ids = {e['id'] for e in new_events}
+    
+    recommended = [e for e in recommended if e['id'] not in new_ids]
+    bond_events = [e for e in bond_events if e['id'] not in new_ids]
     
     return {
         'new': new_events[:8],  # Limit to 8 newest events
@@ -190,13 +197,35 @@ ROLE_DISPLAY = {
 def get_event_by_id(event_id):
     """Fetch full event details by ID."""
     db = get_db_connection()
-    cursor = db.execute('''
-        SELECT e.*, g.name as grc_name
-        FROM event e
-        LEFT JOIN grc g ON e.grc_id = g.grc_id
-        WHERE e.event_id = ? 
-        AND e.status IN ('approved', 'published', 'voided', 'cancelled')
-    ''', (event_id,))
+    
+    # Check if published_at column exists
+    cursor = db.execute("PRAGMA table_info(event)")
+    columns = [row['name'] for row in cursor.fetchall()]
+    has_published_at = 'published_at' in columns
+    
+    if has_published_at:
+        cursor = db.execute('''
+            SELECT e.*, g.name as grc_name,
+                   CASE 
+                       WHEN e.published_at IS NOT NULL 
+                       AND julianday('now') - julianday(e.published_at) <= 7 
+                       THEN 1 
+                       ELSE 0 
+                   END as is_new
+            FROM event e
+            LEFT JOIN grc g ON e.grc_id = g.grc_id
+            WHERE e.event_id = ? 
+            AND e.status IN ('approved', 'published', 'voided', 'cancelled')
+        ''', (event_id,))
+    else:
+        cursor = db.execute('''
+            SELECT e.*, g.name as grc_name, 0 as is_new
+            FROM event e
+            LEFT JOIN grc g ON e.grc_id = g.grc_id
+            WHERE e.event_id = ? 
+            AND e.status IN ('approved', 'published', 'voided', 'cancelled')
+        ''', (event_id,))
+        
     event = cursor.fetchone()
     
     if not event:
@@ -223,7 +252,9 @@ def get_event_by_id(event_id):
         'base_points_participant': event['base_points_participant'] or 0,
         'max_capacity': event['max_capacity'],
         'status': event['status'],
-        'void_reason': event['void_reason']
+        'void_reason': event['void_reason'],
+        'is_new': bool(event['is_new']) if has_published_at else False,
+        'published_at': event['published_at'] if has_published_at else None
     }
 
 
@@ -240,7 +271,9 @@ def get_role_requirements(event_id):
     for row in cursor.fetchall():
         requirements[row['role_type']] = row['required_count']
     
-    # Return defaults if no requirements set: Mentor=5, Participant=15
+    # Return defaults if no requirements set (only if DB record missing)
+    # The logic above already fetches correct values from DB.
+    # We just ensure keys exist for safety.
     if 'teacher' not in requirements:
         requirements['teacher'] = 5
     if 'participant' not in requirements:

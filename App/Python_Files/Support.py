@@ -1,75 +1,66 @@
 from flask import Blueprint, render_template, session, redirect, url_for, flash, request, jsonify
+from app.db import get_db_connection # This ensures we use the SAME database as Admin
 import datetime
 
 support_bp = Blueprint('support', __name__)
 
-# --- 1. SIMULATED DATABASE (Place this at the top level) ---
-# This list acts as your database. Since it's global, both the Youth page
-# and Admin page can access it as long as the server is running.
-all_tickets = [
-    {
-        "id": "T-100",
-        "user": "John Doe",
-        "type": "Harassment",
-        "date": "2025-08-26",
-        "priority": "High",
-        "event": "Artistic Workshop",
-        "status": "In Progress",
-        "description": "User was spamming chat."
-    }
-]
+# --- ROUTES ---
 
-# --- 2. EXISTING ROUTE: SUPPORT CENTER ---
 @support_bp.route('/support')
 def support():
-    """Route to Support Center."""
-    if 'user_id' not in session:
-        flash("Please log in to access support.", "warning")
-        return redirect(url_for('home.login_page'))
-        
-    role = session.get('user_role')
-    
-    if role == 'admin':
-        # If admin goes here, we can redirect them to the ticket manager
-        # or back to the dashboard.
-        return redirect(url_for('admin.admin_dashboard'))
-    elif role == 'senior':
-        return render_template('senior/senior_support.html')
-    elif role == 'youth':
-        return render_template('youth/youth_support.html')
-    else:
-        return render_template('youth/youth_support.html')
+    # Ensure user is logged in (optional, based on your logic)
+    # return render_template('youth/youth_support.html')
+    # Based on your structure it seems you might just be rendering the template:
+    return render_template('youth/youth_support.html')
 
-# --- 3. NEW ROUTE: SUBMIT TICKET (Called by JavaScript) ---
 @support_bp.route('/submit-ticket', methods=['POST'])
 def submit_ticket():
     data = request.json
-    
-    # Create the new ticket
-    new_ticket = {
-        "id": f"T-{len(all_tickets) + 101}", 
-        "user": session.get('user_name', 'Current User'), # Try to get real name from session
-        "type": data.get('issueType'),
-        "date": datetime.date.today().strftime("%Y-%m-%d"),
-        "priority": "Medium",
-        "event": data.get('eventName'),
-        "status": "In Progress",
-        "description": data.get('description')
-    }
-    
-    # Save it to the global list
-    all_tickets.append(new_ticket)
-    
-    return jsonify({"message": "Ticket submitted successfully!", "ticket": new_ticket})
+    print(f"--- RECEIVED DATA: {data} ---") # Debug print
 
-# --- 4. NEW ROUTE: ADMIN VIEW TICKETS ---
-# Even though this is for admins, we keep it here so it can access 'all_tickets' easily.
-@support_bp.route('/admin/tickets')
-def admin_tickets():
-    # Check if user is actually admin
-    if session.get('user_role') != 'admin':
-        flash("Access denied.", "danger")
-        return redirect(url_for('home.login_page'))
+    user_id = session.get('user_id')
+    # Fallback for testing if no user is logged in
+    if not user_id:
+        print("Warning: No user_id in session. Using placeholder ID 1.")
+        user_id = 1 
 
-    # Send the 'all_tickets' list to the HTML
-    return render_template('admin/support_tickets.html', tickets=all_tickets)
+    # 1. Map frontend data to variables
+    issue_type = data.get('issueType')
+    event_name = data.get('eventName', 'N/A')
+    raw_desc = data.get('description')
+    
+    # Combine Event Name into description so Admin sees it clearly
+    full_description = f"Event: {event_name}\n\nDetails: {raw_desc}"
+
+    # 2. Connect to the Database
+    conn = get_db_connection()
+
+    try:
+        # --- SELF-REPAIR: Create Table if it doesn't exist ---
+        # This prevents "Table not found" errors
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS support_ticket (
+                ticket_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                subject TEXT NOT NULL,
+                description TEXT NOT NULL,
+                status TEXT DEFAULT 'open',
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES user (user_id)
+            );
+        """)
+
+        # 3. INSERT the ticket into the database
+        conn.execute(
+            "INSERT INTO support_ticket (user_id, subject, description, status) VALUES (?, ?, ?, 'open')",
+            (user_id, issue_type, full_description)
+        )
+        conn.commit()
+        print("--> SUCCESS: Saved to SQLite Database 'support_ticket' table.")
+        return jsonify({"message": "Ticket submitted successfully!"}), 200
+
+    except Exception as e:
+        print(f"--> ERROR SAVING TO DB: {e}")
+        return jsonify({"message": str(e)}), 500
+    finally:
+        conn.close()

@@ -1,0 +1,22 @@
+[
+    {
+        "id": "TT-101",
+        "user": "Admin",
+        "type": "Inappropriate Behavior",
+        "date": "26-01-2026",
+        "priority": "High",
+        "event": "Seminar: AI Basics",
+        "status": "In Progress",
+        "description": "Involved: EAFEFAF \n\n FEAFEAFEA"
+    },
+    {
+        "id": "TT-102",
+        "user": "Admin",
+        "type": "Inappropriate Behavior",
+        "date": "26-01-2026",
+        "priority": "High",
+        "event": "Workshop: Web Development",
+        "status": "In Progress",
+        "description": "Involved: efaffeaf \n\n efafefaef"
+    }
+]
