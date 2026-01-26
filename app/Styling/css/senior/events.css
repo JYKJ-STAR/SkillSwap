@@ -514,6 +514,12 @@
     opacity: 0.6;
 }
 
+/* Ensure content is above the border pseudo-element */
+.senior-event-card-new>* {
+    position: relative;
+    z-index: 2;
+}
+
 .senior-event-card-new:hover {
     transform: translateY(-8px);
     box-shadow: 0 8px 25px rgba(255, 107, 107, 0.25);

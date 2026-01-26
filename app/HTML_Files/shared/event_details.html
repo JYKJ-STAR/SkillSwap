@@ -25,6 +25,9 @@
     <div class="event-details-card">
         <!-- Category Badge -->
         <span class="category-badge category-{{ event.category }}">{{ event.category_display }}</span>
+        {% if event.is_new %}
+        <span class="event-details-new-badge">NEW</span>
+        {% endif %}
 
         <!-- Event Header -->
         <div class="event-header">

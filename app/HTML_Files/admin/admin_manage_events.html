@@ -254,6 +254,8 @@
                                 data-location="{{ event.location|e }}" data-category="{{ event.category }}"
                                 data-status="{{ event.status }}" data-led-by="{{ event.led_by }}"
                                 data-max-capacity="{{ event.max_capacity or '' }}"
+                                data-mentor-capacity="{{ event.mentor_capacity or 5 }}"
+                                data-participant-capacity="{{ event.participant_capacity or 15 }}"
                                 data-description="{{ event.description|e }}" data-grc-id="{{ event.grc_id }}"
                                 title="Edit"><i class="bi bi-pencil-square"></i></button>
                             <form action="{{ url_for('admin.admin_delete_event', event_id=event.event_id) }}"
@@ -293,9 +295,21 @@
                         <label class="form-label">Event Title</label>
                         <input type="text" name="title" class="form-input" placeholder="Enter event title" required>
                     </div>
+                    <div class="form-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div>
+                            <label class="form-label">Mentor Slots</label>
+                            <input type="number" name="mentor_capacity" class="form-input" placeholder="Default: 5"
+                                min="0">
+                        </div>
+                        <div>
+                            <label class="form-label">Participant Slots</label>
+                            <input type="number" name="participant_capacity" class="form-input"
+                                placeholder="Default: 15" min="0">
+                        </div>
+                    </div>
                     <div class="form-group">
-                        <label class="form-label">Max Capacity</label>
-                        <input type="number" name="max_capacity" class="form-input" placeholder="Optional">
+                        <label class="form-label">Max Capacity (Total)</label>
+                        <input type="number" name="max_capacity" class="form-input" placeholder="Optional total limit">
                     </div>
                     <div class="form-group">
                         <label class="form-label">GRC</label>
@@ -398,10 +412,22 @@
                             <option value="senior">Senior</option>
                         </select>
                     </div>
+                    <div class="form-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div>
+                            <label class="form-label">Mentor Slots</label>
+                            <input type="number" name="mentor_capacity" id="edit_mentor_capacity" class="form-input"
+                                placeholder="Default: 5">
+                        </div>
+                        <div>
+                            <label class="form-label">Participant Slots</label>
+                            <input type="number" name="participant_capacity" id="edit_participant_capacity"
+                                class="form-input" placeholder="Default: 15">
+                        </div>
+                    </div>
                     <div class="form-group">
-                        <label class="form-label">Max Capacity</label>
+                        <label class="form-label">Max Capacity (Total)</label>
                         <input type="number" name="max_capacity" id="edit_max_capacity" class="form-input"
-                            placeholder="Optional">
+                            placeholder="Optional total limit">
                     </div>
                     <div class="form-group">
                         <label class="form-label">GRC</label>
