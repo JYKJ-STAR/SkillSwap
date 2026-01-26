@@ -370,6 +370,7 @@ def create_event():
 def admin_manage_events():
     """Display the event management page with filters."""
     filter_status = request.args.get('filter', 'pending')
+    search_query = request.args.get('search', '').strip()
     
     conn = get_db_connection()
     
@@ -391,18 +392,33 @@ def admin_manage_events():
         LEFT JOIN grc g ON e.grc_id = g.grc_id
     """
     
+    # Store parameters for the query
+    params = []
+    
+    # Base WHERE clause
+    where_clauses = []
+    
     # Apply filters based on new status workflow
     if filter_status == 'pending':
-        base_query += " WHERE e.status = 'pending'"
+        where_clauses.append("e.status = 'pending'")
     elif filter_status == 'approved':
         # Show both Approved (Unpublished) and Published events
-        base_query += " WHERE e.status IN ('approved', 'published')"
+        where_clauses.append("e.status IN ('approved', 'published')")
     elif filter_status == 'past':
         # Exclude archived past events (those with [ARCHIVED] in void_reason)
-        base_query += " WHERE e.status IN ('ended', 'cancelled') AND (e.void_reason IS NULL OR e.void_reason NOT LIKE '%[ARCHIVED]%')"
+        where_clauses.append("e.status IN ('ended', 'cancelled') AND (e.void_reason IS NULL OR e.void_reason NOT LIKE '%[ARCHIVED]%')")
     elif filter_status == 'voided':
         # Exclude archived voided events (those with [ARCHIVED] in void_reason)
-        base_query += " WHERE e.status = 'voided' AND (e.void_reason IS NULL OR e.void_reason NOT LIKE '%[ARCHIVED]%')"
+        where_clauses.append("e.status = 'voided' AND (e.void_reason IS NULL OR e.void_reason NOT LIKE '%[ARCHIVED]%')")
+        
+    # Apply Search Logic (if search_query exists)
+    if search_query:
+        where_clauses.append("(e.title LIKE ? OR e.location LIKE ?)")
+        params.extend([f'%{search_query}%', f'%{search_query}%'])
+    
+    # Construct the full WHERE clause
+    if where_clauses:
+        base_query += " WHERE " + " AND ".join(where_clauses)
     
     # Sorting logic
     if filter_status == 'approved':
@@ -415,7 +431,7 @@ def admin_manage_events():
         # Others: Sort by Start Date DESC
         base_query += " ORDER BY e.start_datetime DESC"
     
-    events = conn.execute(base_query).fetchall()
+    events = conn.execute(base_query, params).fetchall()
     
     # GRCs for event creation/edit forms
     grcs = conn.execute("SELECT grc_id, name FROM grc").fetchall()
@@ -438,7 +454,8 @@ def admin_manage_events():
                            events=events,
                            grcs=grcs,
                            category_display=category_display,
-                           current_filter=filter_status)
+                           current_filter=filter_status,
+                           search_query=search_query)
 
 
 @admin_bp.route('/update-event/<int:event_id>', methods=['POST'])
@@ -537,12 +554,12 @@ def admin_void_event(event_id):
     # Create notifications only if checkbox is checked
     notified_count = 0
     if notify_users and participants:
-        notification_message = f"The event '{event_title}' you registered for has been cancelled by the organisers. We apologise for any inconvenience caused."
+        notification_message = f"The event '{event_title}' you registered for has been cancelled by the organisers."
         for participant in participants:
             conn.execute("""
-                INSERT INTO notification (user_id, message, created_at) 
-                VALUES (?, ?, datetime('now'))
-            """, (participant['user_id'], notification_message))
+                INSERT INTO notification (user_id, message, event_id, created_at) 
+                VALUES (?, ?, ?, datetime('now'))
+            """, (participant['user_id'], notification_message, event_id))
             notified_count += 1
     
     conn.commit()
@@ -737,3 +754,79 @@ def admin_manage_rewards():
                            user_name=session.get('admin_name'),
                            admin_email=session.get('admin_email', 'Admin@123.com'),
                            rewards=rewards)
+
+
+# =====================================================
+# VIEW EVENT PARTICIPANTS
+# =====================================================
+@admin_bp.route('/event/<int:event_id>/participants')
+@admin_required
+def admin_view_participants(event_id):
+    """View all participants signed up for an event."""
+    conn = get_db_connection()
+    
+    # Get event details
+    event = conn.execute("""
+        SELECT event_id, title, start_datetime, location, status
+        FROM event WHERE event_id = ?
+    """, (event_id,)).fetchone()
+    
+    if not event:
+        flash("Event not found.", "error")
+        conn.close()
+        return redirect(url_for('admin.admin_manage_events'))
+    
+    # Get all participants grouped by role
+    participants = conn.execute("""
+        SELECT 
+            eb.role_type,
+            eb.status as booking_status,
+            eb.booked_at,
+            u.user_id,
+            u.name,
+            u.email,
+            u.role as user_role,
+            u.phone
+        FROM event_booking eb
+        JOIN user u ON eb.user_id = u.user_id
+        WHERE eb.event_id = ? AND eb.status = 'booked'
+        ORDER BY 
+            CASE eb.role_type 
+                WHEN 'teacher' THEN 1 
+                ELSE 2 
+            END,
+            eb.booked_at ASC
+    """, (event_id,)).fetchall()
+    
+    # Group by role
+    grouped = {
+        'teacher': [],
+        'participant': []
+    }
+    
+    for p in participants:
+        role = p['role_type']
+        if role in grouped:
+            grouped[role].append({
+                'user_id': p['user_id'],
+                'name': p['name'],
+                'email': p['email'],
+                'user_role': p['user_role'],
+                'phone': p['phone'],
+                'booked_at': p['booked_at']
+            })
+    
+    conn.close()
+    
+    # Role display mapping
+    role_display = {
+        'teacher': 'Mentors',
+        'participant': 'Participants'
+    }
+    
+    return render_template('admin/admin_event_participants.html',
+                           event=event,
+                           grouped_participants=grouped,
+                           role_display=role_display,
+                           total_count=len(participants))
+

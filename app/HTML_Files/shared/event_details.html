@@ -1,0 +1,151 @@
+{% extends "shared/base.html" %}
+{% import "shared/macros.html" as macros %}
+
+{% block title %}{{ event.title }} - SkillSwap{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/shared/event_details.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Back Button -->
+    <a href="{{ url_for('events.events') }}" class="back-button">
+        ← Back to Events
+    </a>
+
+    <!-- Event Full Banner -->
+    {% if slots.is_event_full and not user_signed_up_role %}
+    <div class="event-full-banner">
+        🚫 This event is currently full. Check back later for cancellations.
+    </div>
+    {% endif %}
+
+    <!-- Event Details Card -->
+    <div class="event-details-card">
+        <!-- Category Badge -->
+        <span class="category-badge category-{{ event.category }}">{{ event.category_display }}</span>
+
+        <!-- Event Header -->
+        <div class="event-header">
+            <h1 class="event-title">{{ event.title }}</h1>
+            <p class="event-description">{{ event.description }}</p>
+        </div>
+
+        <!-- Event Info Grid -->
+        <div class="event-info-grid">
+            <div class="info-column">
+                <div class="info-item">
+                    <span class="info-label">Time</span>
+                    <span class="info-value">{{ event.time }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Location</span>
+                    <span class="info-value">{{ event.location }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Date</span>
+                    <span class="info-value">{{ event.date }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Led by</span>
+                    <span class="info-value">{{ event.led_by|capitalize }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Capacity</span>
+                    <span class="info-value">{{ slots.total_filled }} / {{ slots.total_capacity }} Signed Up</span>
+                </div>
+            </div>
+
+            <!-- Role Slots Display -->
+            <div class="roles-column">
+                <div class="role-section">
+                    <h3 class="role-header">MENTORS ({{ slots.teacher.filled }}/{{ slots.teacher.required }})</h3>
+                    <div class="role-slots">
+                        {% for user in slots.teacher.users %}
+                        <div class="slot-filled">{{ user.name }} - {{ user.user_role|capitalize }}</div>
+                        {% endfor %}
+                        {% for i in range(slots.teacher.available) %}
+                        <div class="slot-empty">Empty</div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="role-section">
+                    <h3 class="role-header">PARTICIPANTS ({{ slots.participant.filled }}/{{ slots.participant.required
+                        }})</h3>
+                    <div class="role-slots">
+                        {% for user in slots.participant.users %}
+                        <div class="slot-filled">{{ user.name }} - {{ user.user_role|capitalize }}</div>
+                        {% endfor %}
+                        {% for i in range(slots.participant.available) %}
+                        <div class="slot-empty">Empty</div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sign Up Section -->
+        <div class="signup-section">
+            <h3 class="signup-title">Sign Up As</h3>
+
+            {% if user_signed_up_role %}
+            <!-- Already signed up - show current role and withdraw option -->
+            <div class="signed-up-notice">
+                <p>✅ You are signed up as <strong>{{ role_display[user_signed_up_role] }}</strong></p>
+                <form action="{{ url_for('events.event_withdraw', event_id=event.id) }}" method="POST"
+                    class="withdraw-form">
+                    <button type="submit" class="btn-withdraw">Withdraw from Event</button>
+                </form>
+            </div>
+            {% elif slots.is_event_full %}
+            <!-- Event is full -->
+            <div class="signed-up-notice">
+                <p>🚫 This event is currently <strong>Full</strong>. All slots have been taken.</p>
+            </div>
+            {% else %}
+            <!-- Sign up buttons -->
+            <div class="signup-buttons">
+                <!-- Mentor Button -->
+                <form action="{{ url_for('events.event_signup', event_id=event.id) }}" method="POST"
+                    class="signup-form">
+                    <input type="hidden" name="role_type" value="teacher">
+                    {% if not can_mentor %}
+                    <button type="button" class="btn-signup btn-full" disabled>
+                        MENTOR<br><span class="slots-text">Restricted to {{ event.led_by|capitalize }}s</span>
+                    </button>
+                    {% elif slots.teacher.is_full %}
+                    <button type="button" class="btn-signup btn-full" disabled>
+                        MENTOR<br><span class="slots-text">SLOTS FILLED</span>
+                    </button>
+                    {% else %}
+                    <button type="submit" class="btn-signup btn-mentor">
+                        MENTOR<br><span class="slots-text">({{ slots.teacher.available }} Slots Available)</span>
+                        <span class="points-badge">+{{ event.base_points_teacher }} pts</span>
+                    </button>
+                    {% endif %}
+                </form>
+
+                <!-- Participant Button -->
+                <form action="{{ url_for('events.event_signup', event_id=event.id) }}" method="POST"
+                    class="signup-form">
+                    <input type="hidden" name="role_type" value="participant">
+                    {% if slots.participant.is_full %}
+                    <button type="button" class="btn-signup btn-full" disabled>
+                        PARTICIPANT<br><span class="slots-text">SLOTS FILLED</span>
+                    </button>
+                    {% else %}
+                    <button type="submit" class="btn-signup btn-participant">
+                        PARTICIPANT<br><span class="slots-text">({{ slots.participant.available }} Slots
+                            Available)</span>
+                        <span class="points-badge">+{{ event.base_points_participant }} pts</span>
+                    </button>
+                    {% endif %}
+                </form>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -45,10 +45,22 @@ def reset_events(cursor):
     """Reset events table with seed data - all set to Published status"""
     import os
     
+    # Delete all event-related data to ensure clean slate
+    cursor.execute("DELETE FROM event_booking")
+    cursor.execute("DELETE FROM event_role_requirement")
+    cursor.execute("DELETE FROM review")
+    cursor.execute("DELETE FROM notification") # Notifications are often event-related or personal, best to clear for a 'reset'
+    cursor.execute("DELETE FROM points_transaction WHERE event_id IS NOT NULL")
+    
     # Delete all events and reset auto-increment counter
     cursor.execute("DELETE FROM event")
-    cursor.execute("DELETE FROM sqlite_sequence WHERE name='event'")
-    print("✓ Deleted all existing events and reset IDs")
+    
+    # Reset sequences
+    tables_to_reset = ['event', 'event_booking', 'event_role_requirement', 'review', 'notification']
+    for table in tables_to_reset:
+        cursor.execute(f"DELETE FROM sqlite_sequence WHERE name='{table}'")
+        
+    print("✓ Deleted all existing events, bookings, notifications, and related data")
     
     # Read and execute seed.sql for events only
     seed_path = os.path.join(os.path.dirname(__file__), 'seed.sql')

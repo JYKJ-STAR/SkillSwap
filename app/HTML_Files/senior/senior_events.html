@@ -111,7 +111,8 @@
                             <span>{{ event.location }}</span>
                         </div>
                         <span class="event-led-by-senior">Led by: {{ event.led_by|capitalize }}</span>
-                        <a href="#" class="senior-view-details-btn">View Details</a>
+                        <a href="{{ url_for('events.event_details', event_id=event.id) }}"
+                            class="senior-view-details-btn">View Details</a>
                     </div>
                     {% endfor %}
                     {% else %}
@@ -140,7 +141,8 @@
                             <span>{{ event.location }}</span>
                         </div>
                         <span class="event-led-by-senior">Led by: {{ event.led_by|capitalize }}</span>
-                        <a href="#" class="senior-view-details-btn">View Details</a>
+                        <a href="{{ url_for('events.event_details', event_id=event.id) }}"
+                            class="senior-view-details-btn">View Details</a>
                     </div>
                     {% endfor %}
                     {% else %}
@@ -170,7 +172,8 @@
                             <span>{{ event.location }}</span>
                         </div>
                         <span class="event-led-by-senior">Led by: {{ event.led_by|capitalize }}</span>
-                        <a href="#" class="senior-view-details-btn">View Details</a>
+                        <a href="{{ url_for('events.event_details', event_id=event.id) }}"
+                            class="senior-view-details-btn">View Details</a>
                     </div>
                     {% endfor %}
                 </div>

@@ -1,0 +1,147 @@
+/* =====================================================
+   ADMIN EVENT PARTICIPANTS PAGE STYLES
+   ===================================================== */
+
+/* Main Content Wrapper */
+.main {
+    margin-left: 250px;
+    padding: 40px;
+    min-height: 100vh;
+    background: #1f2937;
+}
+
+.participants-container {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 30px;
+    background: #374151;
+    border-radius: 16px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+}
+
+.header-section {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #4b5563;
+}
+
+.event-info h1 {
+    font-size: 1.5em;
+    color: white;
+    margin-bottom: 5px;
+}
+
+.event-meta {
+    color: #9ca3af;
+    font-size: 0.9em;
+}
+
+.total-badge {
+    background: rgba(59, 130, 246, 0.2);
+    color: #3b82f6;
+    padding: 10px 20px;
+    border-radius: 30px;
+    font-weight: 600;
+}
+
+.role-section {
+    margin-bottom: 25px;
+}
+
+.role-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px;
+    background: #1f2937;
+    border-radius: 10px 10px 0 0;
+}
+
+.role-title {
+    font-size: 1em;
+    font-weight: 600;
+    color: white;
+}
+
+.role-count {
+    font-size: 0.85em;
+    color: #9ca3af;
+}
+
+.role-list {
+    background: #1f2937;
+    border-radius: 0 0 10px 10px;
+    padding: 10px;
+}
+
+.participant-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 15px;
+    border-bottom: 1px solid #374151;
+}
+
+.participant-row:last-child {
+    border-bottom: none;
+}
+
+.participant-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.participant-name {
+    color: white;
+    font-weight: 500;
+}
+
+.participant-email {
+    color: #6b7280;
+    font-size: 0.85em;
+}
+
+.user-role-badge {
+    font-size: 0.75em;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.user-role-badge.youth {
+    background: rgba(59, 130, 246, 0.2);
+    color: #3b82f6;
+}
+
+.user-role-badge.senior {
+    background: rgba(168, 85, 247, 0.2);
+    color: #a855f7;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 30px;
+    color: #6b7280;
+}
+
+.btn-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #4b5563;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: background 0.2s;
+    margin-top: 20px;
+}
+
+.btn-back:hover {
+    background: #6b7280;
+}
