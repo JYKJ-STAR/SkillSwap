@@ -19,11 +19,18 @@
 
 <body>
     <!-- Sidebar -->
-    <div class="sidebar">
+    <div class="sidebar" style="display: flex; flex-direction: column;">
         <div class="logo">
             <i class="bi bi-shield-check"></i> SkillSwap Admin
         </div>
-        <nav>
+
+        <div class="sidebar-profile-info"
+            style="padding: 0 15px 20px; border-bottom: 1px solid #374151; margin-bottom: 20px;">
+            <div style="color: #fff; font-weight: 600;">{{ user_name }}</div>
+            <div style="color: #9ca3af; font-size: 0.85em;">{{ admin_email }}</div>
+        </div>
+
+        <nav style="flex: 1;">
             <a href="{{ url_for('admin.admin_dashboard') }}" class="nav-item">
                 <i class="bi bi-speedometer2"></i> Dashboard
             </a>
@@ -40,6 +47,12 @@
                 <i class="bi bi-headset"></i> Support Request
             </a>
         </nav>
+
+        <div class="sidebar-footer">
+            <a href="{{ url_for('admin.admin_logout') }}" class="nav-item nav-logout">
+                <i class="bi bi-box-arrow-right"></i> Logout
+            </a>
+        </div>
     </div>
 
     <!-- Main Content -->

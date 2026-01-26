@@ -89,33 +89,7 @@
             margin-top: 4px;
         }
 
-        .sidebar-profile {
-            text-align: center;
-            margin-bottom: 40px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid #374151;
-        }
 
-        .profile-icon {
-            width: 80px;
-            height: 80px;
-            background: #374151;
-            border-radius: 50%;
-            margin: 0 auto 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2.5rem;
-            color: #9ca3af;
-            border: 2px solid #4b5563;
-        }
-
-        .profile-email {
-            color: #e5e7eb;
-            font-weight: 600;
-            font-size: 1em;
-            word-break: break-all;
-        }
 
         .sidebar-footer {
             margin-top: auto;
@@ -136,29 +110,31 @@
 <body>
     <!-- Sidebar -->
     <div class="sidebar" style="display: flex; flex-direction: column;">
-        <!-- Profile Section matches image -->
-        <div class="sidebar-profile">
-            <div class="profile-icon">
-                <i class="bi bi-person"></i>
-            </div>
-            <div class="profile-email">{{ admin_email }}</div>
+        <div class="logo">
+            <i class="bi bi-shield-check"></i> SkillSwap Admin
+        </div>
+
+        <div class="sidebar-profile-info"
+            style="padding: 0 15px 20px; border-bottom: 1px solid #374151; margin-bottom: 20px;">
+            <div style="color: #fff; font-weight: 600;">{{ user_name }}</div>
+            <div style="color: #9ca3af; font-size: 0.85em;">{{ admin_email }}</div>
         </div>
 
         <nav style="flex: 1;">
             <a href="{{ url_for('admin.admin_dashboard') }}" class="nav-item active">
-                Dashboard Management
+                <i class="bi bi-speedometer2"></i> Dashboard
             </a>
             <a href="{{ url_for('admin.admin_manage_users') }}" class="nav-item">
-                User Management
+                <i class="bi bi-people"></i> User Management
             </a>
             <a href="{{ url_for('admin.admin_manage_events') }}" class="nav-item">
-                Manage Events
+                <i class="bi bi-calendar-event"></i> Events
             </a>
             <a href="{{ url_for('admin.admin_manage_rewards') }}" class="nav-item">
-                Manage Rewards
+                <i class="bi bi-gift"></i> Rewards
             </a>
             <a href="{{ url_for('admin.admin_support_tickets') }}" class="nav-item">
-                Support Tickets
+                <i class="bi bi-headset"></i> Support Request
             </a>
         </nav>
 

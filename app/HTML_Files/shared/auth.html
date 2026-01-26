@@ -161,7 +161,7 @@
                                         <input type="checkbox" name="remember">
                                         Remember Me
                                     </label>
-                                    <a href="#" class="forgot-link">Forgot Password?</a>
+                                    <a href="#" class="forgot-link" onclick="showForgotPassword()">Forgot Password?</a>
                                 </div>
 
                                 <button type="submit" class="btn-primary-custom">
@@ -186,6 +186,53 @@
                                 </svg>
                                 Continue with Google
                             </a>
+                        </div>
+
+                        <!-- Forgot Password Form -->
+                        <div id="forgotPasswordSection" class="auth-form">
+                            <h3 class="mb-4 text-center">Reset Password</h3>
+                            <p class="text-center text-muted mb-4 small">Enter your email to reset your password.</p>
+
+                            <form id="forgotPasswordForm" onsubmit="event.preventDefault();">
+                                <!-- Step 1: Verify Email -->
+                                <div id="fpsStep1">
+                                    <div class="form-group">
+                                        <label class="form-label-custom">
+                                            <i class="bi bi-envelope-fill"></i>
+                                            Email Address
+                                        </label>
+                                        <input type="email" id="fpEmail" class="form-input"
+                                            placeholder="Enter your registered email" required>
+                                    </div>
+                                    <button type="button" class="btn-primary-custom" onclick="verifyResetEmail()">
+                                        Verify Email
+                                    </button>
+                                </div>
+
+                                <!-- Step 2: New Password -->
+                                <div id="fpsStep2" style="display: none;">
+                                    <div class="form-group">
+                                        <label class="form-label-custom">
+                                            <i class="bi bi-key-fill"></i>
+                                            New Password
+                                        </label>
+                                        <input type="password" id="fpNewPassword" class="form-input"
+                                            placeholder="Enter new password">
+                                        <div class="password-hints">
+                                            <span class="password-hint">8+ characters</span>
+                                            <span class="password-hint">1 uppercase</span>
+                                            <span class="password-hint">1 Special Character</span>
+                                        </div>
+                                    </div>
+                                    <button type="button" class="btn-primary-custom" onclick="submitResetPassword()">
+                                        Reset Password
+                                    </button>
+                                </div>
+
+                                <div class="text-center mt-3">
+                                    <a href="#" class="forgot-link" onclick="switchTab('login')">Back to Login</a>
+                                </div>
+                            </form>
                         </div>
 
                         <!-- Sign Up Form -->
@@ -452,7 +499,9 @@
             checkEmail: "{{ url_for('home.check_email') }}",
             checkPhone: "{{ url_for('home.check_phone') }}",
             register: "{{ url_for('home.register') }}",
-            loginPage: "{{ url_for('home.login_page') }}"
+            loginPage: "{{ url_for('home.login_page') }}",
+            verifyResetEmail: "{{ url_for('home.verify_reset_email') }}",
+            resetPasswordSubmit: "{{ url_for('home.reset_password_submit') }}"
         };
     </script>
     <script src="{{ url_for('static', filename='js/toast.js') }}"></script>

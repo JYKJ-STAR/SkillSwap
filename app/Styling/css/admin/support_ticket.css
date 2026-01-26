@@ -57,6 +57,16 @@ body {
     text-align: center;
 }
 
+.nav-item.nav-logout {
+    color: #f87171;
+    margin-top: auto;
+}
+
+.nav-item.nav-logout:hover {
+    background: rgba(248, 113, 113, 0.1);
+    color: #ef4444;
+}
+
 /* Admin Profile Section */
 .admin-profile {
     margin-bottom: 30px;

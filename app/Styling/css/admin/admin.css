@@ -67,6 +67,13 @@
 }
 
 
+
+body {
+    background-color: #1f2937;
+    color: white;
+    margin: 0;
+}
+
 /* =====================================================
    SIDEBAR
    ===================================================== */
@@ -79,6 +86,8 @@
     background: #111827;
     padding: 20px;
     z-index: 100;
+    display: flex;
+    flex-direction: column;
 }
 
 .logo {
@@ -112,12 +121,25 @@
     text-align: center;
 }
 
+.nav-item.nav-logout {
+    color: #f87171;
+    margin-top: auto;
+}
+
+.nav-item.nav-logout:hover {
+    background: rgba(248, 113, 113, 0.1);
+    color: #ef4444;
+}
+
 /* =====================================================
    MAIN CONTENT
    ===================================================== */
 .main {
     margin-left: 250px;
     padding: 30px;
+    background-color: #1f2937;
+    /* Explicitly set background */
+    min-height: 100vh;
 }
 
 .header {
@@ -130,6 +152,7 @@
 .header h1 {
     font-size: 1.8em;
     font-weight: 600;
+    color: white;
 }
 
 .btn-logout {

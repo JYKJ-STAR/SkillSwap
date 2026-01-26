@@ -128,6 +128,51 @@ def login_submit():
     flash(f"Welcome back, {user['name']}!", "success")
     return redirect(url_for('dashboard.dashboard'))
 
+@home_bp.route('/verify_reset_email', methods=['POST'])
+def verify_reset_email():
+    """Check if email exists for password reset."""
+    data = request.get_json()
+    email = data.get('email')
+    
+    conn = get_db_connection()
+    user = conn.execute("SELECT 1 FROM user WHERE email = ?", (email,)).fetchone()
+    conn.close()
+    
+    if user:
+        return jsonify({'exists': True})
+    else:
+        return jsonify({'exists': False, 'error': 'Email not found.'}), 404
+
+@home_bp.route('/reset_password_submit', methods=['POST'])
+def reset_password_submit():
+    """Reset password for the given email."""
+    data = request.get_json()
+    email = data.get('email')
+    new_password = data.get('password')
+    
+    if not email or not new_password:
+        return jsonify({'error': 'Email and new password are required.'}), 400
+        
+    # In a real app, we would verify a token here.
+    # For this demo, we trust the email because the previous step verified it 
+    # and the interface is "immediate" (no email link).
+    
+    password_hash = generate_password_hash(new_password)
+    
+    conn = get_db_connection()
+    try:
+        cur = conn.cursor()
+        cur.execute("UPDATE user SET password_hash = ? WHERE email = ?", (password_hash, email))
+        if cur.rowcount == 0:
+             conn.close()
+             return jsonify({'error': 'User not found.'}), 404
+        conn.commit()
+        conn.close()
+        return jsonify({'message': 'Password reset successful'})
+    except Exception as e:
+        conn.close()
+        return jsonify({'error': str(e)}), 500
+
 @home_bp.route('/logout')
 def logout():
     """Clear session and log out."""

@@ -392,3 +392,88 @@ async function submitForm(hasVerification) {
         showToast('An error occurred during registration. Please try again.', 'error');
     }
 }
+
+/* --- Forgot Password Logic --- */
+
+function showForgotPassword() {
+    // Hide Login, Show Forgot Password
+    document.getElementById('loginSection').classList.remove('active');
+    document.getElementById('forgotPasswordSection').classList.add('active'); // No animation needed if CSS handles it via display: block
+    document.getElementById('forgotPasswordSection').style.display = 'block'; // Ensure visibility
+
+    // Reset form state
+    document.getElementById('fpsStep1').style.display = 'block';
+    document.getElementById('fpsStep2').style.display = 'none';
+    document.getElementById('fpEmail').value = '';
+    document.getElementById('fpNewPassword').value = '';
+}
+
+// Override switchTab to also hide forgot password section
+const originalSwitchTab = switchTab;
+switchTab = function (tab) {
+    document.getElementById('forgotPasswordSection').style.display = 'none';
+    document.getElementById('forgotPasswordSection').classList.remove('active');
+    originalSwitchTab(tab);
+}
+
+async function verifyResetEmail() {
+    const email = document.getElementById('fpEmail').value;
+    if (!email) {
+        showToast('Please enter your email address.', 'warning');
+        return;
+    }
+
+    try {
+        const response = await fetch(API_URLS.verifyResetEmail, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: email })
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.exists) {
+            showToast('Email verified. Please enter a new password.', 'success');
+            document.getElementById('fpsStep1').style.display = 'none';
+            document.getElementById('fpsStep2').style.display = 'block';
+        } else {
+            showToast(data.error || 'Email not found.', 'error');
+        }
+    } catch (e) {
+        console.error("Verification failed", e);
+        showToast('An error occurred. Please try again.', 'error');
+    }
+}
+
+async function submitResetPassword() {
+    const email = document.getElementById('fpEmail').value;
+    const password = document.getElementById('fpNewPassword').value;
+
+    // Validate password complexity
+    const strongRegex = /^(?=.*[A-Z])(?=.*[!@#$&*]).{8,}$/;
+    if (!strongRegex.test(password)) {
+        showToast('Password must have at least 8 characters, 1 uppercase letter, and 1 special character.', 'error');
+        return;
+    }
+
+    try {
+        const response = await fetch(API_URLS.resetPasswordSubmit, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: email, password: password })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            showToast('Password reset successful! Please log in.', 'success');
+            // Go back to login
+            switchTab('login');
+        } else {
+            showToast(data.error || 'Failed to reset password.', 'error');
+        }
+    } catch (e) {
+        console.error("Reset failed", e);
+        showToast('An error occurred. Please try again.', 'error');
+    }
+}
