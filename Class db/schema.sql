@@ -119,6 +119,7 @@ CREATE TABLE IF NOT EXISTS event (
   base_points_buddy INTEGER DEFAULT 0,
   base_points_participant INTEGER DEFAULT 0,
   created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  published_at TEXT,
   FOREIGN KEY (created_by_user_id) REFERENCES user(user_id) ON DELETE RESTRICT,
   FOREIGN KEY (grc_id) REFERENCES grc(grc_id) ON DELETE SET NULL
 );

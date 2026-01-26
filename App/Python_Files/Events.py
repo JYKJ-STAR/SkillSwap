@@ -18,7 +18,14 @@ def get_all_events():
     db = get_db_connection()
     cursor = db.execute('''
         SELECT event_id, title, description, category, led_by, 
-               start_datetime, location, status, base_points_participant
+               start_datetime, location, status, base_points_participant,
+               published_at,
+               CASE 
+                   WHEN published_at IS NOT NULL 
+                   AND julianday('now') - julianday(published_at) <= 7 
+                   THEN 1 
+                   ELSE 0 
+               END as is_new
         FROM event 
         WHERE status IN ('approved', 'published')
         ORDER BY start_datetime ASC
@@ -43,7 +50,9 @@ def get_all_events():
             'date': date_part,
             'time': time_part,
             'location': e['location'],
-            'points': e['base_points_participant']
+            'points': e['base_points_participant'],
+            'is_new': bool(e['is_new']),
+            'published_at': e['published_at']
         })
     
     return event_list
@@ -65,6 +74,7 @@ def categorize_events(events, user_interests=None):
     """Organize events into recommendation sections."""
     recommended = []
     bond_events = []
+    new_events = []
     by_category = {}
     
     for event in events:
@@ -74,6 +84,10 @@ def categorize_events(events, user_interests=None):
         if category not in by_category:
             by_category[category] = []
         by_category[category].append(event)
+        
+        # Add to new events if marked as new
+        if event.get('is_new', False):
+            new_events.append(event)
         
         # Add to bond events (social games are for bonding)
         if category == 'social_games':
@@ -96,7 +110,11 @@ def categorize_events(events, user_interests=None):
     if not recommended:
         recommended = events[:5]
     
+    # Sort new events by published_at DESC (most recent first)
+    new_events.sort(key=lambda x: x.get('published_at', ''), reverse=True)
+    
     return {
+        'new': new_events[:8],  # Limit to 8 newest events
         'recommended': recommended[:8],  # Limit to 8
         'bond': bond_events[:8],  # Limit to 8
         'by_category': by_category
@@ -125,12 +143,14 @@ def events():
         return redirect(url_for('admin.admin_dashboard'))
     elif role == 'senior':
         return render_template('senior/senior_events.html',
+                             new_events=categorized['new'],
                              recommended_events=categorized['recommended'],
                              bond_events=categorized['bond'],
                              events_by_category=categorized['by_category'],
                              category_display=CATEGORY_DISPLAY)
     else:  # youth or default
         return render_template('youth/youth_events.html',
+                             new_events=categorized['new'],
                              recommended_events=categorized['recommended'],
                              bond_events=categorized['bond'],
                              events_by_category=categorized['by_category'],

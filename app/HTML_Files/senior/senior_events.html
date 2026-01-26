@@ -93,6 +93,33 @@
                 </div>
             </div>
 
+            <!-- New Activities Section -->
+            {% if new_events %}
+            <section class="events-section-senior" data-section="new">
+                <h2 class="section-title-senior">✨ New Activities</h2>
+                <div class="events-grid-senior">
+                    {% for event in new_events %}
+                    <div class="senior-event-card senior-event-card-new" data-category="{{ event.category }}"
+                        data-location="{{ event.location|lower }}">
+                        <span class="event-new-badge-senior">NEW</span>
+                        <span class="event-category-badge-senior category-{{ event.category }}">{{
+                            event.category_display }}</span>
+                        <h3 class="senior-event-title">{{ event.title }}</h3>
+                        <p class="senior-event-description">{{ event.description[:80] }}...</p>
+                        <div class="senior-event-meta">
+                            <span>{{ event.time }}</span>
+                            <span class="meta-separator">|</span>
+                            <span>{{ event.location }}</span>
+                        </div>
+                        <span class="event-led-by-senior">Led by: {{ event.led_by|capitalize }}</span>
+                        <a href="{{ url_for('events.event_details', event_id=event.id) }}"
+                            class="senior-view-details-btn">View Details</a>
+                    </div>
+                    {% endfor %}
+                </div>
+            </section>
+            {% endif %}
+
             <!-- Recommended Events for YOU Section -->
             <section class="events-section-senior" data-section="recommended">
                 <h2 class="section-title-senior">Recommended Events for YOU</h2>

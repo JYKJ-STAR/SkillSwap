@@ -53,6 +53,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const normalizedSearch = search.toLowerCase();
 
         // Sections
+        const newSection = document.querySelector('[data-section="new"]');
         const recSection = document.querySelector('[data-section="recommended"]');
         const bondSection = document.querySelector('[data-section="bond"]');
         const categorySections = document.querySelectorAll('.category-section');
@@ -65,15 +66,48 @@ document.addEventListener('DOMContentLoaded', function () {
         const isFiltering = (location !== 'all') || (categories.length > 0) || (search !== '');
 
         if (!isFiltering) {
-            // DEFAULT VIEW (No filters): Show Recs + Bond, Hide Category Sections
+            // DEFAULT VIEW (No filters): Show New + Recs + Bond, Hide Category Sections
+            if (newSection) newSection.style.display = 'block';
             if (recSection) recSection.style.display = 'block';
             if (bondSection) bondSection.style.display = 'block';
             categorySections.forEach(sec => sec.style.display = 'none');
         } else {
             // FILTERED VIEW:
-            // If "All Activities" is checked -> Hide Recs, Show ALL Category Sections
-            // Else -> Hide Recs, Show Matching Category Sections
+            // Apply filters to New Events section
+            if (newSection) {
+                let visibleNewCount = 0;
+                const newCards = newSection.querySelectorAll('.event-card-compact, .event-card-new');
 
+                newCards.forEach(card => {
+                    const cardCat = card.dataset.category;
+                    const cardLoc = card.dataset.location ? card.dataset.location.toLowerCase() : '';
+                    const cardTitle = card.querySelector('.event-card-title').textContent.toLowerCase();
+                    const cardDesc = card.querySelector('.event-card-description').textContent.toLowerCase();
+
+                    // Category Match
+                    const catMatch = isAllActivities || (categories.length === 0) || categories.includes(cardCat);
+
+                    // Location Match
+                    const locMatch = (location === 'all') || cardLoc.includes(location.toLowerCase());
+
+                    // Search Match
+                    const searchMatch = !normalizedSearch ||
+                        cardTitle.includes(normalizedSearch) ||
+                        cardDesc.includes(normalizedSearch);
+
+                    if (catMatch && locMatch && searchMatch) {
+                        card.style.display = 'block';
+                        visibleNewCount++;
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+
+                // Show new section only if it has visible cards
+                newSection.style.display = visibleNewCount > 0 ? 'block' : 'none';
+            }
+
+            // Hide Recs and Bond in filtered view
             if (recSection) recSection.style.display = 'none';
             if (bondSection) bondSection.style.display = 'none';
 

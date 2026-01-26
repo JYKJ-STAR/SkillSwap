@@ -538,7 +538,7 @@ def admin_approve_event(event_id):
 def admin_publish_event(event_id):
     """Publish an approved event (approved -> published)."""
     conn = get_db_connection()
-    conn.execute("UPDATE event SET status = 'published' WHERE event_id = ?", (event_id,))
+    conn.execute("UPDATE event SET status = 'published', published_at = datetime('now') WHERE event_id = ?", (event_id,))
     conn.commit()
     conn.close()
     
