@@ -217,13 +217,13 @@ CREATE TABLE IF NOT EXISTS faq_article (
 );
 
 CREATE TABLE IF NOT EXISTS support_ticket (
-  ticket_id INTEGER PRIMARY KEY AUTOINCREMENT,
-  user_id INTEGER NOT NULL,
-  subject TEXT NOT NULL,
-  description TEXT NOT NULL,
-  status TEXT NOT NULL DEFAULT 'open' CHECK (status IN ('open','in_progress','resolved','closed')),
-  created_at TEXT NOT NULL DEFAULT (datetime('now')),
-  FOREIGN KEY (user_id) REFERENCES user(user_id) ON DELETE CASCADE
+    ticket_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    subject TEXT NOT NULL,       -- This will store the "Issue Type"
+    description TEXT NOT NULL,   -- This stores "Description" + "Event Name"
+    status TEXT DEFAULT 'open',  -- 'open', 'resolved', 'voided'
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES user (user_id)
 );
 
 CREATE TABLE IF NOT EXISTS live_chat_session (

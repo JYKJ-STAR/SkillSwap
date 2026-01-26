@@ -20,12 +20,17 @@
 
 <body>
     <!-- Sidebar -->
-    <div class="sidebar">
+    <div class="sidebar" style="display: flex; flex-direction: column;">
         <div class="logo">
             <i class="bi bi-shield-check"></i> SkillSwap Admin
         </div>
-        <nav>
-            <a href="{{ url_for('admin.admin_dashboard') }}" class="nav-item active">
+        <div class="sidebar-profile-info"
+            style="padding: 0 15px 20px; border-bottom: 1px solid #374151; margin-bottom: 20px;">
+            <div style="color: #fff; font-weight: 600;">{{ user_name }}</div>
+            <div style="color: #9ca3af; font-size: 0.85em;">{{ admin_email }}</div>
+        </div>
+        <nav style="flex: 1;">
+            <a href="{{ url_for('admin.admin_dashboard') }}" class="nav-item">
                 <i class="bi bi-speedometer2"></i> Dashboard
             </a>
             <a href="{{ url_for('admin.admin_manage_users') }}" class="nav-item">
@@ -37,8 +42,8 @@
             <a href="{{ url_for('admin.admin_manage_rewards') }}" class="nav-item">
                 <i class="bi bi-gift"></i> Rewards
             </a>
-            <a href="{{ url_for('admin.admin_support_tickets') }}" class="nav-item">
-                <i class="bi bi-headset"></i> Support Requests
+            <a href="{{ url_for('admin.admin_support_tickets') }}" class="nav-item active">
+                <i class="bi bi-headset"></i> Support Request
             </a>
         </nav>
 
@@ -129,45 +134,83 @@
         </div>
 
         <!-- Tickets Table -->
-        <div class="tickets-table-container">
-            <table class="tickets-table">
+        <div class="table-responsive">
+            <table class="table">
                 <thead>
                     <tr>
-                        <th>Ticket-ID</th>
+                        <th>TICKET-ID</th>
                         <th>USER</th>
                         <th>TYPE</th>
                         <th>DATE</th>
-                        <th>Priority</th>
-                        <th>Event</th>
+                        <th>PRIORITY</th>
+                        <th>EVENT</th>
                         <th>STATUS</th>
-                        <th>Actions</th>
+                        <th>ACTIONS</th>
                     </tr>
                 </thead>
-                <tbody id="tickets-tbody">
-                    <!-- Tickets will be loaded dynamically -->
+                <tbody>
+                    {% for ticket in tickets %}
+                    <tr>
+                        <td>#{{ ticket.ticket_id }}</td>
+
+                        <td>
+                            {{ ticket.user_name }}<br>
+                            <small class="text-muted">{{ ticket.user_email }}</small>
+                        </td>
+
+                        <td>{{ ticket.subject }}</td>
+
+                        <td>
+                            <button type="button" class="btn btn-sm btn-info" onclick="viewTicketDetails(this)"
+                                data-description="{{ ticket.description }}">
+                                View Details
+                            </button>
+                        </td>
+
+                        <td>{{ ticket.created_at }}</td>
+
+                        <td>
+                            {% if ticket.status == 'open' %}
+                            <span class="badge bg-warning text-dark">Open</span>
+                            {% elif ticket.status == 'resolved' %}
+                            <span class="badge bg-success">Resolved</span>
+                            {% else %}
+                            <span class="badge bg-secondary">{{ ticket.status }}</span>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            <a href="#" class="btn btn-sm btn-primary">Manage</a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" class="text-center">No active tickets found.</td>
+                    </tr>
+                    {% endfor %}
                 </tbody>
             </table>
         </div>
-    </div>
 
-    <!-- Manage Ticket Modal -->
-    <div class="modal-overlay" id="manage-modal">
-        <div class="modal">
-            <div class="modal-header">
-                <h3 class="modal-title">Manage Ticket</h3>
-                <button class="modal-close" onclick="closeModal()">&times;</button>
-            </div>
-            <div class="modal-body" id="modal-body">
-                <!-- Content loaded dynamically -->
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="closeModal()">Close</button>
-                <button class="btn btn-success" id="resolve-btn" onclick="resolveTicket()">Mark as Resolved</button>
+        <!-- Manage Ticket Modal -->
+        <div class="modal-overlay" id="manage-modal">
+            <div class="modal">
+                <div class="modal-header">
+                    <h3 class="modal-title">Manage Ticket</h3>
+                    <button class="modal-close" onclick="closeModal()">&times;</button>
+                </div>
+                <div class="modal-body" id="modal-body">
+                    <!-- Content loaded dynamically -->
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" onclick="closeModal()">Close</button>
+                    <button class="btn btn-success" id="resolve-btn" onclick="resolveTicket()">Mark as Resolved</button>
+                </div>
             </div>
         </div>
-    </div>
 
-    <script src="{{ url_for('static', filename='js/admin/support_request.js') }}"></script>
+
+        <script src="{{ url_for('static', filename='js/admin/support_request.js') }}"></script>
 </body>
 
 </html>

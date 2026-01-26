@@ -130,7 +130,6 @@
             </div>
         </div>
 
-        <!-- Safety Center Page -->
         <div id="safety-center-page" class="page">
             <h2 class="content-title">Safety Reporting Center</h2>
             <p class="page-subtitle">We take safety seriously</p>
@@ -191,18 +190,76 @@
                     </div>
                 </div>
 
-                <button class="submit-btn" id="submit-report-btn">Submit Report</button>
+                <button class="submit-btn" id="submit-report-btn" onclick="submitReport()">Submit Report</button>
 
-                <div class="form-success" id="form-success" style="display: none;">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <div class="form-success" id="form-success" style="display: none; margin-top: 15px; color: green;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
                         <polyline points="22 4 12 14.01 9 11.01" />
                     </svg>
-                    <p>Report submitted successfully! You can view it in My Tickets.</p>
+                    <p style="display:inline; margin-left: 10px;">Report submitted successfully! You can view it in My
+                        Tickets.</p>
                 </div>
             </div>
         </div>
+
+        <script>
+            async function submitReport() {
+                // 1. Get the button and disable it to prevent double-clicks
+                const btn = document.getElementById('submit-report-btn');
+                const originalText = btn.innerText;
+                btn.disabled = true;
+                btn.innerText = "Sending...";
+
+                // 2. Collect data from your specific HTML IDs
+                // Note: We combine 'involved person' into the description for simplicity, 
+                // or you can add a field for it in your Python backend.
+                const involvedPerson = document.getElementById('involved-person').value;
+                const descriptionText = document.getElementById('incident-description').value;
+
+                const payload = {
+                    issueType: document.getElementById('issue-type').value,
+                    eventName: document.getElementById('event-name').value,
+                    // We combine the involved person name into the description so the admin sees it
+                    description: `Involved: ${involvedPerson} \n\n ${descriptionText}`
+                };
+
+                try {
+                    // 3. Send data to the Python Route '/submit-ticket'
+                    const response = await fetch('/submit-ticket', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    const result = await response.json();
+
+                    if (response.ok) {
+                        // 4. Show success message
+                        document.getElementById('form-success').style.display = 'block';
+
+                        // Clear the form
+                        document.getElementById('involved-person').value = '';
+                        document.getElementById('incident-description').value = '';
+
+                        // Hide success message after 3 seconds
+                        setTimeout(() => {
+                            document.getElementById('form-success').style.display = 'none';
+                        }, 5000);
+                    } else {
+                        alert("Error: " + result.message);
+                    }
+                } catch (error) {
+                    console.error("Error:", error);
+                    alert("An error occurred while sending the report.");
+                } finally {
+                    // Re-enable button
+                    btn.disabled = false;
+                    btn.innerText = originalText;
+                }
+            }
+        </script>
 
         <!-- My Tickets Page -->
         <div id="my-tickets-page" class="page">

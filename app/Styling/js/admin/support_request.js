@@ -71,6 +71,13 @@ let adminTickets = [
 let currentFilter = 'all';
 let currentTicketIndex = null;
 
+function viewTicketDetails(button) {
+    const description = button.getAttribute('data-description');
+    if (description) {
+        alert(description);
+    }
+}
+
 function renderTickets() {
     const tbody = document.getElementById('tickets-tbody');
     tbody.innerHTML = '';
