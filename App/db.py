@@ -18,3 +18,23 @@ def close_db(e=None):
 
     if db is not None:
         db.close()
+
+def migrate_database():
+    """Run database migrations to add missing columns."""
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        # Check if published_at column exists
+        cursor.execute("PRAGMA table_info(event)")
+        columns = [row[1] for row in cursor.fetchall()]
+        
+        if 'published_at' not in columns:
+            print("🔄 Adding 'published_at' column to event table...")
+            cursor.execute("ALTER TABLE event ADD COLUMN published_at TEXT")
+            conn.commit()
+            print("✅ Database migration complete!")
+        
+        conn.close()
+    except Exception as e:
+        print(f"⚠️ Migration warning: {e}")

@@ -16,20 +16,40 @@ CATEGORY_DISPLAY = {
 def get_all_events():
     """Fetch all open events from database."""
     db = get_db_connection()
-    cursor = db.execute('''
-        SELECT event_id, title, description, category, led_by, 
-               start_datetime, location, status, base_points_participant,
-               published_at,
-               CASE 
-                   WHEN published_at IS NOT NULL 
-                   AND julianday('now') - julianday(published_at) <= 7 
-                   THEN 1 
-                   ELSE 0 
-               END as is_new
-        FROM event 
-        WHERE status IN ('approved', 'published')
-        ORDER BY start_datetime ASC
-    ''')
+    
+    # Check if published_at column exists
+    cursor = db.execute("PRAGMA table_info(event)")
+    columns = [row['name'] for row in cursor.fetchall()]
+    has_published_at = 'published_at' in columns
+    
+    if has_published_at:
+        # Use the new query with published_at
+        cursor = db.execute('''
+            SELECT event_id, title, description, category, led_by, 
+                   start_datetime, location, status, base_points_participant,
+                   published_at,
+                   CASE 
+                       WHEN published_at IS NOT NULL 
+                       AND julianday('now') - julianday(published_at) <= 7 
+                       THEN 1 
+                       ELSE 0 
+                   END as is_new
+            FROM event 
+            WHERE status IN ('approved', 'published')
+            ORDER BY start_datetime ASC
+        ''')
+    else:
+        # Fallback query without published_at (backward compatibility)
+        cursor = db.execute('''
+            SELECT event_id, title, description, category, led_by, 
+                   start_datetime, location, status, base_points_participant,
+                   NULL as published_at,
+                   0 as is_new
+            FROM event 
+            WHERE status IN ('approved', 'published')
+            ORDER BY start_datetime ASC
+        ''')
+    
     events = cursor.fetchall()
     
     # Convert to list of dicts
@@ -51,8 +71,8 @@ def get_all_events():
             'time': time_part,
             'location': e['location'],
             'points': e['base_points_participant'],
-            'is_new': bool(e['is_new']),
-            'published_at': e['published_at']
+            'is_new': bool(e['is_new']) if has_published_at else False,
+            'published_at': e['published_at'] if has_published_at else None
         })
     
     return event_list

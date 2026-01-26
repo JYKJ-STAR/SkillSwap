@@ -28,6 +28,10 @@ def create_app():
         server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
         client_kwargs={'scope': 'openid email profile'}
     )
+    
+    # Run database migrations
+    from .db import migrate_database
+    migrate_database()
 
     # Register blueprints (Youth/Senior only - NO admin)
     from .Python_Files.Home import home_bp
@@ -57,6 +61,10 @@ def create_admin_app():
     app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "admin-secret-key")
     app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)
     app.config['TEMPLATES_AUTO_RELOAD'] = True
+    
+    # Run database migrations
+    from .db import migrate_database
+    migrate_database()
 
     # Register ONLY admin blueprint
     from .Python_Files.Admin import admin_bp
