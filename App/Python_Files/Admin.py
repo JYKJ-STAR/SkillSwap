@@ -347,6 +347,10 @@ def create_event():
     led_by = request.form.get('led_by', 'employee')
     max_capacity = request.form.get('max_capacity') or None
     
+    # New Role Capacities
+    mentor_capacity = request.form.get('mentor_capacity', 5)
+    participant_capacity = request.form.get('participant_capacity', 15)
+    
     admin_id = session.get('admin_id', 1)
     
     # Date/Time Validation: Event cannot be scheduled in the past
@@ -364,11 +368,28 @@ def create_event():
             return redirect(request.referrer or url_for('admin.admin_manage_events'))
     
     conn = get_db_connection()
-    conn.execute(
+    cursor = conn.cursor()
+    
+    # Insert Event
+    cursor.execute(
         """INSERT INTO event (created_by_user_id, grc_id, title, description, start_datetime, location, category, led_by, max_capacity, status)
            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')""",
         (admin_id, grc_id, title, description, start_datetime, location, category, led_by, max_capacity)
     )
+    event_id = cursor.lastrowid
+    
+    # Insert Role Requirements (Dynamic Capacities)
+    # Mentor Role
+    cursor.execute(
+        "INSERT INTO event_role_requirement (event_id, role_type, required_count) VALUES (?, 'teacher', ?)",
+        (event_id, mentor_capacity)
+    )
+    # Participant Role
+    cursor.execute(
+        "INSERT INTO event_role_requirement (event_id, role_type, required_count) VALUES (?, 'participant', ?)",
+        (event_id, participant_capacity)
+    )
+    
     conn.commit()
     conn.close()
     flash("Event created successfully.", "success")
@@ -407,7 +428,9 @@ def admin_manage_events():
             e.grc_id,
             g.name as grc_name,
             (SELECT COUNT(*) FROM event_booking eb WHERE eb.event_id = e.event_id AND eb.status = 'booked') as participant_count,
-            (SELECT COALESCE(SUM(required_count), 0) FROM event_role_requirement err WHERE err.event_id = e.event_id) as manpower_required
+            (SELECT COALESCE(SUM(required_count), 0) FROM event_role_requirement err WHERE err.event_id = e.event_id) as manpower_required,
+            (SELECT required_count FROM event_role_requirement err WHERE err.event_id = e.event_id AND err.role_type = 'teacher') as mentor_capacity,
+            (SELECT required_count FROM event_role_requirement err WHERE err.event_id = e.event_id AND err.role_type = 'participant') as participant_capacity
         FROM event e
         LEFT JOIN grc g ON e.grc_id = g.grc_id
     """
@@ -492,6 +515,10 @@ def admin_update_event(event_id):
     status = request.form.get('status', 'open')
     max_capacity = request.form.get('max_capacity') or None
     
+    # New Role Capacities
+    mentor_capacity = request.form.get('mentor_capacity', 5)
+    participant_capacity = request.form.get('participant_capacity', 15)
+    
     conn = get_db_connection()
     conn.execute(
         """UPDATE event 
@@ -500,6 +527,16 @@ def admin_update_event(event_id):
            WHERE event_id = ?""",
         (title, description, start_datetime, location, grc_id, category, led_by, status, max_capacity, event_id)
     )
+    
+    # Update Role Requirements
+    # Using INSERT OR REPLACE or distinct UPDATEs depending on schema constraints, 
+    # but a simple UPDATE is safest if rows exist. Since we insert on create, rows should exist.
+    # However, to be safe against older events, we can use INSERT OR REPLACE logic or check existence.
+    # For SQLite simplified:
+    conn.execute("DELETE FROM event_role_requirement WHERE event_id = ? AND role_type IN ('teacher', 'participant')", (event_id,))
+    conn.execute("INSERT INTO event_role_requirement (event_id, role_type, required_count) VALUES (?, 'teacher', ?)", (event_id, mentor_capacity))
+    conn.execute("INSERT INTO event_role_requirement (event_id, role_type, required_count) VALUES (?, 'participant', ?)", (event_id, participant_capacity))
+    
     conn.commit()
     conn.close()
     

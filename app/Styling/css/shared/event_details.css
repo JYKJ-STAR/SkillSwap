@@ -324,3 +324,31 @@
         flex-direction: column;
     }
 }
+
+/* NEW Badge for Details Page */
+.event-details-new-badge {
+    display: inline-block;
+    vertical-align: middle;
+    margin-left: 12px;
+    padding: 0.25rem 0.75rem;
+    background: linear-gradient(135deg, #ff6b6b, #ee5a6f);
+    color: white;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 12px rgba(255, 107, 107, 0.4);
+    animation: pulseGlow 2s ease-in-out infinite;
+}
+
+@keyframes pulseGlow {
+
+    0%,
+    100% {
+        box-shadow: 0 4px 12px rgba(255, 107, 107, 0.4);
+    }
+
+    50% {
+        box-shadow: 0 4px 20px rgba(255, 107, 107, 0.6);
+    }
+}

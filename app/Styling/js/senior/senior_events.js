@@ -65,32 +65,8 @@ document.addEventListener('DOMContentLoaded', function () {
             if (bondSection) bondSection.style.display = 'block';
             categorySections.forEach(sec => sec.style.display = 'none');
         } else {
-            // FILTERED VIEW: Apply filters to New Events section
-            if (newSection) {
-                let visibleNewCount = 0;
-                const newCards = newSection.querySelectorAll('.senior-event-card, .senior-event-card-new');
-
-                newCards.forEach(card => {
-                    const cardCat = card.dataset.category;
-                    const cardLoc = card.dataset.location ? card.dataset.location.toLowerCase() : '';
-
-                    // Category Match
-                    const catMatch = isAllActivities || (categories.length === 0) || categories.includes(cardCat);
-
-                    // Location Match
-                    const locMatch = (location === 'all') || cardLoc.includes(location.toLowerCase());
-
-                    if (catMatch && locMatch) {
-                        card.style.display = 'block';
-                        visibleNewCount++;
-                    } else {
-                        card.style.display = 'none';
-                    }
-                });
-
-                // Show new section only if it has visible cards
-                newSection.style.display = visibleNewCount > 0 ? 'block' : 'none';
-            }
+            // FILTERED VIEW: Hide New Activities section - events will show in categories with NEW badge
+            if (newSection) newSection.style.display = 'none';
 
             // Hide Recs + Bond, Show Matching Categories
             if (recSection) recSection.style.display = 'none';

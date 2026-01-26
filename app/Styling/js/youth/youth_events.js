@@ -73,39 +73,8 @@ document.addEventListener('DOMContentLoaded', function () {
             categorySections.forEach(sec => sec.style.display = 'none');
         } else {
             // FILTERED VIEW:
-            // Apply filters to New Events section
-            if (newSection) {
-                let visibleNewCount = 0;
-                const newCards = newSection.querySelectorAll('.event-card-compact, .event-card-new');
-
-                newCards.forEach(card => {
-                    const cardCat = card.dataset.category;
-                    const cardLoc = card.dataset.location ? card.dataset.location.toLowerCase() : '';
-                    const cardTitle = card.querySelector('.event-card-title').textContent.toLowerCase();
-                    const cardDesc = card.querySelector('.event-card-description').textContent.toLowerCase();
-
-                    // Category Match
-                    const catMatch = isAllActivities || (categories.length === 0) || categories.includes(cardCat);
-
-                    // Location Match
-                    const locMatch = (location === 'all') || cardLoc.includes(location.toLowerCase());
-
-                    // Search Match
-                    const searchMatch = !normalizedSearch ||
-                        cardTitle.includes(normalizedSearch) ||
-                        cardDesc.includes(normalizedSearch);
-
-                    if (catMatch && locMatch && searchMatch) {
-                        card.style.display = 'block';
-                        visibleNewCount++;
-                    } else {
-                        card.style.display = 'none';
-                    }
-                });
-
-                // Show new section only if it has visible cards
-                newSection.style.display = visibleNewCount > 0 ? 'block' : 'none';
-            }
+            // Hide New Activities section - new events will appear in their categories with NEW badge
+            if (newSection) newSection.style.display = 'none';
 
             // Hide Recs and Bond in filtered view
             if (recSection) recSection.style.display = 'none';
