@@ -12,7 +12,7 @@ function closeCreateModal() {
 }
 
 // Edit Modal Functions
-function openEditModal(eventId, title, datetime, location, category, status, ledBy, maxCapacity) {
+function openEditModal(eventId, title, datetime, location, category, status, ledBy, maxCapacity, description, grcId) {
     const modal = document.getElementById('editModal');
     const form = document.getElementById('editForm');
 
@@ -26,6 +26,8 @@ function openEditModal(eventId, title, datetime, location, category, status, led
     document.getElementById('edit_status').value = status || 'open';
     document.getElementById('edit_led_by').value = ledBy || 'employee';
     document.getElementById('edit_max_capacity').value = maxCapacity || '';
+    document.getElementById('edit_description').value = description || '';
+    document.getElementById('edit_grc').value = grcId || '';
 
     // Handle datetime (convert from string format to datetime-local format)
     if (datetime && datetime !== 'None') {
@@ -75,8 +77,10 @@ document.addEventListener('DOMContentLoaded', function () {
             const status = this.dataset.status;
             const ledBy = this.dataset.ledBy;
             const maxCapacity = this.dataset.maxCapacity;
+            const description = this.dataset.description;
+            const grcId = this.dataset.grcId;
 
-            openEditModal(eventId, title, datetime, location, category, status, ledBy, maxCapacity);
+            openEditModal(eventId, title, datetime, location, category, status, ledBy, maxCapacity, description, grcId);
         });
     });
 });

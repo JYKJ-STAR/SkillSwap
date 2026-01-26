@@ -384,6 +384,8 @@ def admin_manage_events():
             e.category,
             e.led_by,
             e.max_capacity,
+            e.description,
+            e.grc_id,
             g.name as grc_name,
             (SELECT COUNT(*) FROM event_booking eb WHERE eb.event_id = e.event_id AND eb.status = 'booked') as participant_count,
             (SELECT COALESCE(SUM(required_count), 0) FROM event_role_requirement err WHERE err.event_id = e.event_id) as manpower_required

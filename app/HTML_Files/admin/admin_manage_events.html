@@ -152,7 +152,8 @@
                             {% endif %}
 
                             <button class="action-icon void" title="Void"
-                                onclick="openVoidModal('{{ url_for('admin.admin_void_event', event_id=event.event_id) }}')">
+                                data-void-url="{{ url_for('admin.admin_void_event', event_id=event.event_id) }}"
+                                onclick="openVoidModal(this.dataset.voidUrl)">
                                 <i class="bi bi-x-circle"></i>
                             </button>
                             <form action="{{ url_for('admin.admin_end_event', event_id=event.event_id) }}" method="POST"
@@ -206,8 +207,9 @@
                                 data-title="{{ event.title|e }}" data-datetime="{{ event.start_datetime }}"
                                 data-location="{{ event.location|e }}" data-category="{{ event.category }}"
                                 data-status="{{ event.status }}" data-led-by="{{ event.led_by }}"
-                                data-max-capacity="{{ event.max_capacity or '' }}" title="Edit"><i
-                                    class="bi bi-pencil-square"></i></button>
+                                data-max-capacity="{{ event.max_capacity or '' }}"
+                                data-description="{{ event.description|e }}" data-grc-id="{{ event.grc_id }}"
+                                title="Edit"><i class="bi bi-pencil-square"></i></button>
                             <form action="{{ url_for('admin.admin_delete_event', event_id=event.event_id) }}"
                                 method="POST" style="display:inline;"
                                 onsubmit="return confirm('Are you sure you want to delete this event?');">
@@ -386,17 +388,23 @@
             </div>
             <form id="voidForm" action="" method="POST">
                 <div class="form-group" style="margin-bottom: 15px;">
-                    <label class="form-label" style="display: flex; align-items: center; gap: 8px; font-size: 0.9em; margin-bottom: 8px; color: #1a1a1a;">
-                        <input type="checkbox" name="notify_users" value="yes" checked style="width: 16px; height: 16px;">
+                    <label class="form-label"
+                        style="display: flex; align-items: center; gap: 8px; font-size: 0.9em; margin-bottom: 8px; color: #1a1a1a;">
+                        <input type="checkbox" name="notify_users" value="yes" checked
+                            style="width: 16px; height: 16px;">
                         Notify all mentors and mentees?
                     </label>
-                    <label class="form-label" style="font-size: 0.75em; color: #1a1a1a; margin-bottom: 5px;">Reasoning</label>
-                    <textarea name="void_reason" class="form-input" rows="3"
-                        placeholder="" style="background: #6b6b6b; border: 1px solid #5a5a5a; color: #fff; font-size: 0.85em;"></textarea>
+                    <label class="form-label"
+                        style="font-size: 0.75em; color: #1a1a1a; margin-bottom: 5px;">Reasoning</label>
+                    <textarea name="void_reason" class="form-input" rows="3" placeholder=""
+                        style="background: #6b6b6b; border: 1px solid #5a5a5a; color: #fff; font-size: 0.85em;"></textarea>
                 </div>
                 <div class="modal-actions" style="gap: 15px;">
-                    <button type="button" class="btn-cancel" onclick="closeVoidModal()" style="background: #b8b8b8; color: #1a1a1a; flex: 1; padding: 10px;">Return</button>
-                    <button type="submit" class="btn-submit" style="background-color: #4a4a4a; color: #fff; flex: 1; padding: 10px;">Yes Remove Event</button>
+                    <button type="button" class="btn-cancel" onclick="closeVoidModal()"
+                        style="background: #b8b8b8; color: #1a1a1a; flex: 1; padding: 10px;">Return</button>
+                    <button type="submit" class="btn-submit"
+                        style="background-color: #4a4a4a; color: #fff; flex: 1; padding: 10px;">Yes Remove
+                        Event</button>
                 </div>
             </form>
         </div>
