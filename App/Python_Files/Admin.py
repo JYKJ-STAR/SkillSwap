@@ -223,7 +223,11 @@ def admin_dashboard():
                            total_users=total_users,
                            total_points=total_points,
                            current_open_tickets=current_open_tickets,
-                           ongoing_events=ongoing_events)
+                           ongoing_events=ongoing_events,
+                           events=events,
+                           pending_users=pending_users,
+                           all_users=all_users,
+                           grcs=grcs)
 
 # =====================================================
 # USER VERIFICATION / APPROVAL

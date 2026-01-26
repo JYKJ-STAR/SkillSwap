@@ -1,10 +1,6 @@
 /* =====================================================
    SKILLSWAP ADMIN STYLES
    ===================================================== */
-
-/* =====================================================
-   ADMIN LAYOUT (Works within shared/base.html)
-   ===================================================== */
 .admin-layout {
     display: flex;
     min-height: calc(100vh - 200px);
@@ -541,15 +537,113 @@ body {
     display: none;
 }
 
-.drop-zone-thumb[data-label]::after {
-    content: attr(data-label);
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    padding: 5px 0;
-    color: white;
-    background: rgba(0, 0, 0, 0.75);
-    font-size: 0.8em;
-    text-align: center;
+/* =====================================================
+   DASHBOARD SPECIFIC STYLES
+   ===================================================== */
+/* =====================================================
+   DASHBOARD SPECIFIC STYLES
+   ===================================================== */
+.card-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    max-width: 600px;
+}
+
+.stat-card-wide {
+    display: flex;
+    align-items: center;
+    padding: 25px 30px;
+    background: #374151;
+    border-radius: 12px;
+    border: 1px solid #4b5563;
+    gap: 25px;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.stat-card-wide:hover {
+    transform: translateX(5px);
+    border-color: #f87171;
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2);
+    background: #404b5c;
+}
+
+.stat-icon {
+    font-size: 2rem;
+    color: #1a1a1a;
+    /* Assuming we want some contrast or keep default. Let's stick to specific colors for now as they look good. */
+    width: 50px;
+    display: flex;
+    justify-content: center;
+}
+
+.icon-users {
+    color: #f87171;
+}
+
+.icon-points {
+    color: #fbbf24;
+}
+
+.icon-tickets {
+    color: #60a5fa;
+}
+
+.icon-events {
+    color: #34d399;
+}
+
+.stat-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-content h3 {
+    margin: 0;
+    font-size: 1.1em;
+    font-weight: 700;
+    color: #e5e7eb;
+}
+
+.stat-content .value {
+    font-size: 0.9em;
+    color: #9ca3af;
+    margin-top: 5px;
+}
+
+/* Sidebar Profile Updates */
+.sidebar-profile {
+    padding: 0 15px;
+    margin-bottom: 5px;
+    text-align: left;
+}
+
+.profile-name {
+    font-weight: 700;
+    font-size: 1.1em;
+    color: #ffffff;
+    margin-bottom: 2px;
+}
+
+.profile-email {
+    font-size: 0.85em;
+    color: #9ca3af;
+}
+
+.sidebar-divider {
+    height: 1px;
+    background: #374151;
+    margin: 15px 15px 20px 15px;
+}
+
+.sidebar-footer {
+    padding: 0 15px 20px 15px;
+    /* Adjust padding to align with other items */
+}
+
+/* Specific adjustment for logout button in footer to align with nav items */
+.sidebar-footer .nav-item {
+    margin-bottom: 0;
 }
