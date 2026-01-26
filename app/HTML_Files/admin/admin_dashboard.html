@@ -14,41 +14,166 @@
 
     <!-- Admin CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/admin/admin.css') }}">
+
+    <style>
+        /* Specific Dashboard Styles for Vertical Layout */
+        .card-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            max-width: 700px;
+            /* Keep it focused */
+        }
+
+        .stat-card-wide {
+            display: flex;
+            align-items: center;
+            padding: 25px 30px;
+            background: #374151;
+            border-radius: 12px;
+            gap: 25px;
+            border: 1px solid #4b5563;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-card-wide:hover {
+            transform: translateX(5px);
+            border-color: #f87171;
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2);
+            background: #404b5c;
+        }
+
+        .stat-icon {
+            font-size: 2.2rem;
+            color: #d1d5db;
+            /* Light gray for icon */
+            width: 50px;
+            display: flex;
+            justify-content: center;
+        }
+
+        /* Specific colors for icons */
+        .icon-users {
+            color: #f87171;
+        }
+
+        .icon-points {
+            color: #fbbf24;
+        }
+
+        .icon-tickets {
+            color: #60a5fa;
+        }
+
+        .icon-events {
+            color: #34d399;
+        }
+
+        .stat-content {
+            flex: 1;
+        }
+
+        .stat-content h3 {
+            margin: 0;
+            font-size: 1.1em;
+            color: #e5e7eb;
+            font-weight: 600;
+        }
+
+        .stat-content .value {
+            font-size: 1.2em;
+            /* Smaller value next to title? Or below? Image has it below */
+            font-weight: 400;
+            color: #9ca3af;
+            margin-top: 4px;
+        }
+
+        .sidebar-profile {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #374151;
+        }
+
+        .profile-icon {
+            width: 80px;
+            height: 80px;
+            background: #374151;
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            color: #9ca3af;
+            border: 2px solid #4b5563;
+        }
+
+        .profile-email {
+            color: #e5e7eb;
+            font-weight: 600;
+            font-size: 1em;
+            word-break: break-all;
+        }
+
+        .sidebar-footer {
+            margin-top: auto;
+            padding-top: 20px;
+            border-top: 1px solid #374151;
+        }
+
+        .nav-logout {
+            color: #f87171 !important;
+        }
+
+        .nav-logout:hover {
+            background: rgba(248, 113, 113, 0.1) !important;
+        }
+    </style>
 </head>
 
 <body>
     <!-- Sidebar -->
-    <div class="sidebar">
-        <div class="logo">
-            <i class="bi bi-shield-check"></i> SkillSwap Admin
+    <div class="sidebar" style="display: flex; flex-direction: column;">
+        <!-- Profile Section matches image -->
+        <div class="sidebar-profile">
+            <div class="profile-icon">
+                <i class="bi bi-person"></i>
+            </div>
+            <div class="profile-email">{{ admin_email }}</div>
         </div>
-        <nav>
+
+        <nav style="flex: 1;">
             <a href="{{ url_for('admin.admin_dashboard') }}" class="nav-item active">
-                <i class="bi bi-speedometer2"></i> Dashboard
+                Dashboard Management
             </a>
             <a href="{{ url_for('admin.admin_manage_users') }}" class="nav-item">
-                <i class="bi bi-people"></i> User Management
+                User Management
             </a>
             <a href="{{ url_for('admin.admin_manage_events') }}" class="nav-item">
-                <i class="bi bi-calendar-event"></i> Events
+                Manage Events
             </a>
             <a href="{{ url_for('admin.admin_manage_rewards') }}" class="nav-item">
-                <i class="bi bi-gift"></i> Rewards
+                Manage Rewards
             </a>
             <a href="{{ url_for('admin.admin_support_tickets') }}" class="nav-item">
-                <i class="bi bi-headset"></i> Support Requests
+                Support Tickets
             </a>
         </nav>
+
+        <div class="sidebar-footer">
+            <a href="{{ url_for('admin.admin_logout') }}" class="nav-item nav-logout">
+                <i class="bi bi-box-arrow-right"></i> Logout
+            </a>
+        </div>
     </div>
 
     <!-- Main Content -->
     <div class="main">
         <!-- Header -->
         <div class="header">
-            <h1>Welcome, {{ user_name }}</h1>
-            <a href="{{ url_for('admin.admin_logout') }}" class="btn-logout">
-                <i class="bi bi-box-arrow-right"></i> Log Out
-            </a>
+            <h1>Dashboard Management</h1>
         </div>
 
         <!-- Flash Messages -->
@@ -62,164 +187,51 @@
         {% endif %}
         {% endwith %}
 
-        <!-- Stats Grid -->
-        <div class="stats">
-            <div class="stat-card">
-                <h3>Total Users</h3>
-                <div class="value">{{ all_users|length if all_users else '0' }}</div>
-            </div>
-            <div class="stat-card">
-                <h3>Pending Approvals</h3>
-                <div class="value warning">{{ pending_users|length if pending_users else '0' }}</div>
-            </div>
-            <div class="stat-card">
-                <h3>Active Events</h3>
-                <div class="value success">{{ events|selectattr('status', 'equalto', 'open')|list|length if events else
-                    '0' }}</div>
-            </div>
-            <div class="stat-card">
-                <h3>Reports Today</h3>
-                <div class="value danger">0</div>
-            </div>
-        </div>
-
-        <!-- Pending User Verifications -->
-        <div class="section">
-            <h2>Pending User Verifications</h2>
-            {% if pending_users and pending_users|length > 0 %}
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Role</th>
-                        <th>Email</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for user in pending_users %}
-                    <tr>
-                        <td>{{ user.name }}</td>
-                        <td>{{ user.role|capitalize }}</td>
-                        <td>{{ user.email }}</td>
-                        <td><span class="badge badge-pending">Pending</span></td>
-                        <td>
-                            <form action="{{ url_for('admin.approve_user', user_id=user.user_id) }}" method="POST"
-                                style="display:inline;">
-                                <button type="submit" class="btn-action">Approve</button>
-                            </form>
-                            <form action="{{ url_for('admin.reject_user', user_id=user.user_id) }}" method="POST"
-                                style="display:inline;">
-                                <button type="submit" class="btn-action reject">Reject</button>
-                            </form>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-            {% else %}
-            <p style="color: #9ca3af;">No pending verifications.</p>
-            {% endif %}
-        </div>
-
-        <!-- User Points Management -->
-        <div class="section">
-            <h2>User Points Management</h2>
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Role</th>
-                        <th>Total Points</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for user in all_users %}
-                    <tr>
-                        <td>{{ user.name }}</td>
-                        <td>{{ user.role|capitalize }}</td>
-                        <td>{{ user.total_points }}</td>
-                        <td>
-                            <form action="{{ url_for('admin.add_points', user_id=user.user_id) }}" method="POST"
-                                style="display:inline-flex; gap:8px; align-items:center;">
-                                <input type="number" name="points" placeholder="Pts" class="form-input"
-                                    style="width:70px; padding:6px;">
-                                <input type="hidden" name="remarks" value="Admin adjustment">
-                                <button type="submit" class="btn-action">Add</button>
-                            </form>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Events Overview -->
-        <div class="section">
-            <h2>Events Overview</h2>
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Title</th>
-                        <th>Date/Time</th>
-                        <th>Location</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for event in events[:8] %}
-                    <tr>
-                        <td>{{ event.title }}</td>
-                        <td>{{ event.start_datetime }}</td>
-                        <td>{{ event.location }}</td>
-                        <td>
-                            {% if event.status == 'open' %}
-                            <span class="badge badge-verified">Open</span>
-                            {% else %}
-                            <span class="badge badge-pending">{{ event.status|capitalize }}</span>
-                            {% endif %}
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Create Event Form -->
-        <div class="section">
-            <h2>Create New Event</h2>
-            <form action="{{ url_for('admin.create_event') }}" method="POST">
-                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
-                    <div class="form-group">
-                        <label class="form-label">Event Title</label>
-                        <input type="text" name="title" class="form-input" placeholder="Enter event title" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Location</label>
-                        <input type="text" name="location" class="form-input" placeholder="Event location" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Start Date/Time</label>
-                        <input type="datetime-local" name="start_datetime" class="form-input" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">GRC</label>
-                        <select name="grc_id" class="form-input">
-                            <option value="">Select GRC</option>
-                            {% for grc in grcs %}
-                            <option value="{{ grc.grc_id }}">{{ grc.name }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
+        <!-- Vertical Cards Stack -->
+        <div class="card-stack">
+            <!-- Total Users -->
+            <div class="stat-card-wide">
+                <div class="stat-icon icon-users">
+                    <i class="bi bi-person-fill"></i>
                 </div>
-                <div class="form-group">
-                    <label class="form-label">Description</label>
-                    <textarea name="description" class="form-input" rows="3" placeholder="Event description"></textarea>
+                <div class="stat-content">
+                    <h3>Total Users</h3>
+                    <div class="value">{{ total_users }}</div>
                 </div>
-                <button type="submit" class="btn-action" style="padding:12px 24px;">Create Event</button>
-            </form>
+            </div>
+
+            <!-- Total Points -->
+            <div class="stat-card-wide">
+                <div class="stat-icon icon-points">
+                    <i class="bi bi-star-fill"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>Total Points Awarded</h3>
+                    <div class="value">{{ total_points }}</div>
+                </div>
+            </div>
+
+            <!-- Total Tickets -->
+            <div class="stat-card-wide">
+                <div class="stat-icon icon-tickets">
+                    <i class="bi bi-ticket-fill"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>Current Open Tickets</h3>
+                    <div class="value">{{ current_open_tickets }}</div>
+                </div>
+            </div>
+
+            <!-- Ongoing Events -->
+            <div class="stat-card-wide">
+                <div class="stat-icon icon-events">
+                    <i class="bi bi-calendar-check-fill"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>Ongoing Events</h3>
+                    <div class="value">{{ ongoing_events }}</div>
+                </div>
+            </div>
         </div>
     </div>
 
