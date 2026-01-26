@@ -82,17 +82,38 @@
                 <a href="{{ url_for('admin.admin_manage_events', filter='voided') }}"
                     class="filter-tab {% if current_filter == 'voided' %}active{% endif %}">Voided</a>
             </div>
-            {% if current_filter == 'pending' %}
-            <button class="btn-new-event" onclick="openCreateModal()">New Event +</button>
-            {% elif current_filter in ['voided', 'past'] and events %}
-            <form action="{{ url_for('admin.admin_clear_tab', tab_name=current_filter) }}" method="POST"
-                style="display:inline;"
-                onsubmit="return confirm('Are you sure you want to clear all {{ current_filter }} events from view? Data will be preserved.');">
-                <button type="submit" class="btn-new-event" style="background: #6b7280;">
-                    <i class="bi bi-trash"></i> Clear All
-                </button>
-            </form>
-            {% endif %}
+
+            <!-- Search Bar (Right Aligned) -->
+            <div style="display: flex; gap: 10px; align-items: center;">
+                {% if current_filter == 'approved' %}
+                <form action="{{ url_for('admin.admin_manage_events') }}" method="GET" class="search-form"
+                    style="position: relative;">
+                    <input type="hidden" name="filter" value="{{ current_filter }}">
+                    <input type="text" name="search" placeholder="Search events..." value="{{ search_query }}"
+                        style="padding: 10px 15px 10px 35px; border-radius: 8px; border: 1px solid #4b5563; background: #374151; color: white; width: 250px;">
+                    <i class="bi bi-search"
+                        style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #9ca3af;"></i>
+                    {% if search_query %}
+                    <a href="{{ url_for('admin.admin_manage_events', filter=current_filter) }}"
+                        style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: #9ca3af; text-decoration: none;">
+                        <i class="bi bi-x-circle-fill"></i>
+                    </a>
+                    {% endif %}
+                </form>
+                {% endif %}
+
+                {% if current_filter == 'pending' %}
+                <button class="btn-new-event" onclick="openCreateModal()">New Event +</button>
+                {% elif current_filter in ['voided', 'past'] and events %}
+                <form action="{{ url_for('admin.admin_clear_tab', tab_name=current_filter) }}" method="POST"
+                    style="display:inline;"
+                    onsubmit="return confirm('Are you sure you want to clear all {{ current_filter }} events from view? Data will be preserved.');">
+                    <button type="submit" class="btn-new-event" style="background: #6b7280;">
+                        <i class="bi bi-trash"></i> Clear All
+                    </button>
+                </form>
+                {% endif %}
+            </div>
         </div>
 
         <!-- Events Table -->
@@ -153,7 +174,19 @@
                             {% endif %}
                         </td>
                         <td>{{ event.location or 'N/A' }}</td>
-                        <td>{{ event.participant_count or 0 }} users</td>
+                        <td>
+                            {% if event.status == 'published' %}
+                            <a href="{{ url_for('admin.admin_view_participants', event_id=event.event_id) }}"
+                                style="color: #60a5fa; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; transition: color 0.2s;"
+                                onmouseover="this.style.color='#93c5fd'" onmouseout="this.style.color='#60a5fa'">
+                                <i class="bi bi-people-fill"></i>
+                                {{ event.participant_count or 0 }} users
+                                <i class="bi bi-box-arrow-up-right" style="font-size: 0.75em;"></i>
+                            </a>
+                            {% else %}
+                            {{ event.participant_count or 0 }} users
+                            {% endif %}
+                        </td>
                         <td>{{ category_display.get(event.category, event.category) if event.category else 'N/A' }}</td>
                         <td class="actions-cell">
                             {% if event.status == 'approved' %}

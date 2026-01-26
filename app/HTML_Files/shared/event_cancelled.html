@@ -1,0 +1,46 @@
+{% extends "shared/base.html" %}
+
+{% block title %}Event Cancelled - SkillSwap{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/shared/event_cancelled.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="cancelled-page">
+    <div class="cancelled-container">
+        <!-- Cancellation Icon -->
+        <div class="cancelled-icon">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+        </div>
+
+        <!-- Title -->
+        <h1 class="cancelled-title">Event Cancelled</h1>
+        <p class="event-name">"{{ event_title }}"</p>
+
+        <!-- Reason Box -->
+        <div class="reason-box">
+            <div class="reason-label">
+                <i class="bi bi-info-circle"></i> Cancellation Reason
+            </div>
+            <div class="reason-text">{{ void_reason }}</div>
+        </div>
+
+        <!-- Apology Message -->
+        <p class="apology-text">
+            We apologize for any inconvenience this may have caused.
+            Please check out our other available events!
+        </p>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <a href="{{ url_for('events.events') }}" class="btn btn-primary">
+                <i class="bi bi-calendar-event"></i> Browse Events
+            </a>
+            <a href="{{ url_for('dashboard.dashboard') }}" class="btn btn-secondary">
+                <i class="bi bi-house-door"></i> Back to Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

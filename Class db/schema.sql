@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS user (
   profile_photo TEXT,
   verification_photo TEXT,
   
-  role TEXT NOT NULL CHECK (role IN ('youth','senior','admin')),
+  role TEXT NOT NULL CHECK (role IN ('youth','senior','admin','employee')),
   display_name TEXT GENERATED ALWAYS AS (name || ' (' || role || ')') VIRTUAL,
   verification_status TEXT NOT NULL DEFAULT 'unverified' CHECK (verification_status IN ('unverified','pending','verified')),
   language_pref TEXT DEFAULT 'English',
