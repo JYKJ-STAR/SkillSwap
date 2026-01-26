@@ -1,8 +1,158 @@
-{% extends "shared/base.html" %}
-{% block title %}SkillSwap - Admin Support Requests{% endblock %}
-{% block content %}
-<div class="container py-5">
-    <h1 class="mb-4">Admin – Support Requests</h1>
-    <p class="lead">Placeholder page for managing support requests.</p>
-</div>
-{% endblock %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Support Ticket Admin Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin/support_ticket.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="logo">
+            <i class="bi bi-shield-check"></i> SkillSwap Admin
+        </div>
+        <nav>
+            <a href="{{ url_for('admin.admin_dashboard') }}" class="nav-item active">
+                <i class="bi bi-speedometer2"></i> Dashboard
+            </a>
+            <a href="{{ url_for('admin.admin_manage_users') }}" class="nav-item">
+                <i class="bi bi-people"></i> User Management
+            </a>
+            <a href="{{ url_for('admin.admin_manage_events') }}" class="nav-item">
+                <i class="bi bi-calendar-event"></i> Events
+            </a>
+            <a href="{{ url_for('admin.admin_manage_rewards') }}" class="nav-item">
+                <i class="bi bi-gift"></i> Rewards
+            </a>
+            <a href="{{ url_for('admin.admin_support_tickets') }}" class="nav-item">
+                <i class="bi bi-headset"></i> Support Requests
+            </a>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <h1 class="page-title">Support Ticket</h1>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
+                        <polyline points="14 2 14 8 20 8" />
+                    </svg>
+                </div>
+                <div class="stat-info">
+                    <div class="stat-label">Total Tickets</div>
+                    <div class="stat-value" id="total-tickets">160</div>
+                    <div class="stat-change positive">12% from last week</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10" />
+                        <polyline points="12 6 12 12 16 14" />
+                    </svg>
+                </div>
+                <div class="stat-info">
+                    <div class="stat-label">Pending Review</div>
+                    <div class="stat-value green" id="pending-tickets">15</div>
+                    <div class="stat-change warning">Requires Immediate Attention</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                        <polyline points="22 4 12 14.01 9 11.01" />
+                    </svg>
+                </div>
+                <div class="stat-info">
+                    <div class="stat-label">Resolved Today</div>
+                    <div class="stat-value" id="resolved-today">20</div>
+                    <div class="stat-change neutral">Good Job!</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path
+                            d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                        <line x1="12" y1="9" x2="12" y2="13" />
+                        <line x1="12" y1="17" x2="12.01" y2="17" />
+                    </svg>
+                </div>
+                <div class="stat-info">
+                    <div class="stat-label">Safety Alerts</div>
+                    <div class="stat-value red" id="safety-alerts">3</div>
+                    <div class="stat-change warning">Critical Reports</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter Section -->
+        <div class="filter-section">
+            <div class="filter-tabs">
+                <button class="filter-tab active" data-filter="all">All</button>
+                <button class="filter-tab pending" data-filter="pending">Pending</button>
+                <button class="filter-tab resolved" data-filter="resolved">Resolved</button>
+            </div>
+            <button class="refresh-btn" id="refresh-btn">Refresh</button>
+        </div>
+
+        <!-- Tickets Table -->
+        <div class="tickets-table-container">
+            <table class="tickets-table">
+                <thead>
+                    <tr>
+                        <th>Ticket-ID</th>
+                        <th>USER</th>
+                        <th>TYPE</th>
+                        <th>DATE</th>
+                        <th>Priority</th>
+                        <th>Event</th>
+                        <th>STATUS</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="tickets-tbody">
+                    <!-- Tickets will be loaded dynamically -->
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <!-- Manage Ticket Modal -->
+    <div class="modal-overlay" id="manage-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Manage Ticket</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="modal-body">
+                <!-- Content loaded dynamically -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal()">Close</button>
+                <button class="btn btn-success" id="resolve-btn" onclick="resolveTicket()">Mark as Resolved</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/admin/support_request.js') }}"></script>
+</body>
+
+</html>
