@@ -613,29 +613,51 @@ body {
     margin-top: 5px;
 }
 
-/* Sidebar Profile Updates */
-.sidebar-profile {
-    padding: 0 15px;
-    margin-bottom: 5px;
-    text-align: left;
+/* Sidebar Profile Updates - Unified */
+.sidebar-profile-unified {
+    padding: 0 15px 20px;
+    border-bottom: 1px solid #374151;
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
 }
 
-.profile-name {
-    font-weight: 700;
-    font-size: 1.1em;
-    color: #ffffff;
-    margin-bottom: 2px;
+.sidebar-avatar {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: #374151;
+    border: 2px solid #4b5563;
 }
 
-.profile-email {
-    font-size: 0.85em;
+.sidebar-user-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-user-name {
+    color: #fff;
+    font-weight: 600;
+    font-size: 1em;
+    line-height: 1.2;
+}
+
+.sidebar-user-email {
     color: #9ca3af;
+    font-size: 0.85em;
+    line-height: 1.2;
+    margin-top: 2px;
 }
 
+/* Legacy divider support - hide if using unified border */
 .sidebar-divider {
     height: 1px;
     background: #374151;
     margin: 15px 15px 20px 15px;
+    display: none; /* Hidden because we use border-bottom in unified profile */
 }
 
 .sidebar-footer {

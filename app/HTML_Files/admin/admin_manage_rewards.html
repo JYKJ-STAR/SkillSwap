@@ -23,10 +23,19 @@
             <i class="bi bi-shield-check"></i> SkillSwap Admin
         </div>
 
-        <div class="sidebar-profile-info"
-            style="padding: 0 15px 20px; border-bottom: 1px solid #374151; margin-bottom: 20px;">
-            <div style="color: #fff; font-weight: 600;">{{ user_name }}</div>
-            <div style="color: #9ca3af; font-size: 0.85em;">{{ admin_email }}</div>
+        <div class="sidebar-profile-unified">
+            {% if admin_photo %}
+            <img src="{{ url_for('static', filename='img/admin/' + admin_photo) }}" class="sidebar-avatar" alt="Admin">
+            {% else %}
+            <div class="sidebar-avatar"
+                style="display: flex; align-items: center; justify-content: center; font-size: 1.5em; color: #9ca3af;">
+                <i class="bi bi-person-fill"></i>
+            </div>
+            {% endif %}
+            <div class="sidebar-user-details">
+                <div class="sidebar-user-name">{{ user_name }}</div>
+                <div class="sidebar-user-email">{{ admin_email }}</div>
+            </div>
         </div>
 
         <nav style="flex: 1;">
@@ -63,7 +72,55 @@
             </div>
         </div>
 
+        <!-- PENDING PROOFS SECTION -->
+        <div class="section" style="margin-bottom: 40px;">
+            <h2 style="color:white; margin-bottom:15px; font-size: 1.5em;">Pending Verifications</h2>
+
+            {% if pending_proofs %}
+            <div class="table-container" style="background:#1f2937; border-radius:8px; overflow:hidden;">
+                <table style="width:100%; text-align:left; color:#d1d5db; border-collapse:collapse;">
+                    <thead style="background:#374151; color:white;">
+                        <tr>
+                            <th style="padding:12px 20px;">User</th>
+                            <th style="padding:12px 20px;">Event</th>
+                            <th style="padding:12px 20px;">Proof</th>
+                            <th style="padding:12px 20px;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for proof in pending_proofs %}
+                        <tr style="border-bottom:1px solid #374151;">
+                            <td style="padding:12px 20px;">{{ proof.user_name }}</td>
+                            <td style="padding:12px 20px;">{{ proof.event_title }}</td>
+                            <td style="padding:12px 20px;">
+                                <a href="{{ url_for('static', filename='img/users/Upload_proof/' + proof.proof_media_url) }}"
+                                    target="_blank">
+                                    <img src="{{ url_for('static', filename='img/users/Upload_proof/' + proof.proof_media_url) }}"
+                                        style="height:50px; border-radius:4px; border:1px solid #4b5563;" alt="Proof">
+                                </a>
+                            </td>
+                            <td style="padding:12px 20px;">
+                                <form
+                                    action="{{ url_for('admin.admin_verify_proof', event_id=proof.event_id, user_id=proof.user_id) }}"
+                                    method="POST">
+                                    <button type="submit"
+                                        style="background:#10b981; color:white; border:none; padding:8px 16px; border-radius:4px; cursor:pointer;">
+                                        Approve (+{{ proof.base_points_participant or 100 }})
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p style="color:#9ca3af; background:#1f2937; padding:20px; border-radius:8px;">No pending verifications.</p>
+            {% endif %}
+        </div>
+
         <div class="section">
+            <h2 style="color:white; margin-bottom:15px; font-size: 1.5em;">Reward Catalog</h2>
             <p>Placeholder page for managing rewards.</p>
             {% if rewards %}
             <ul style="color:white;">

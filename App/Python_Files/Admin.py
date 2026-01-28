@@ -132,7 +132,7 @@ def admin_login_submit():
     
     conn = get_db_connection()
     admin = conn.execute(
-        "SELECT admin_id, name, email, password_hash, privileged FROM admin WHERE email = ?",
+        "SELECT admin_id, name, email, password_hash, privileged, photo FROM admin WHERE email = ?",
         (email,)
     ).fetchone()
     conn.close()
@@ -150,6 +150,7 @@ def admin_login_submit():
     session['admin_id'] = admin['admin_id']
     session['admin_name'] = admin['name']
     session['admin_email'] = admin['email']
+    session['admin_photo'] = admin['photo']
     session['is_admin'] = True
     session['privileged'] = admin['privileged']
     session['user_name'] = admin['name']  # For template compatibility
@@ -163,6 +164,20 @@ def admin_login_submit():
         return redirect(next_url)
 
     return redirect(url_for('admin.admin_dashboard'))
+
+@admin_bp.context_processor
+def inject_admin_data():
+    """Inject admin data into all admin templates."""
+    if session.get('is_admin'):
+        return {
+            'admin_name': session.get('admin_name'),
+            # Ensure user_name is available for legacy templates 
+            'user_name': session.get('user_name', session.get('admin_name')),
+            'admin_email': session.get('admin_email'),
+            'admin_photo': session.get('admin_photo'),
+            'privileged': session.get('privileged')
+        }
+    return {}
 
 @admin_bp.route('/logout')
 def admin_logout():
@@ -219,8 +234,7 @@ def admin_dashboard():
     conn.close()
     
     return render_template('admin/admin_dashboard.html', 
-                           user_name=session.get('user_name'),
-                           admin_email=session.get('admin_email', 'Admin@123.com'),
+                           # user_name and admin_email are now injected via context_processor
                            total_users=total_users,
                            total_points=total_points,
                            current_open_tickets=current_open_tickets,
@@ -503,8 +517,6 @@ def admin_manage_events():
     conn.close()
     
     return render_template('admin/admin_manage_events.html',
-                           user_name=session.get('admin_name'),
-                           admin_email=session.get('admin_email', 'Admin@123.com'),
                            events=events,
                            grcs=grcs,
                            category_display=category_display,
@@ -729,8 +741,6 @@ def admin_manage_users():
     conn.close()
     
     return render_template('admin/admin_manage_users.html',
-                           user_name=session.get('admin_name'),
-                           admin_email=session.get('admin_email', 'Admin@123.com'),
                            all_users=all_users)
 
 
@@ -860,8 +870,6 @@ def admin_support_tickets():
     conn.close()
     
     return render_template('admin/admin_support_tickets.html',
-                           user_name=session.get('admin_name'),
-                           admin_email=session.get('admin_email', 'Admin@123.com'),
                            tickets=tickets,
                            current_filter=filter_status,
                            total_tickets=total_tickets,
@@ -890,7 +898,7 @@ def save_ticket_reply(ticket_id):
 @admin_bp.route('/manage-rewards')
 @admin_required
 def admin_manage_rewards():
-    """Display the rewards management page."""
+    """Display the rewards management page and pending proofs."""
     conn = get_db_connection()
     
     # Get all rewards
@@ -898,13 +906,50 @@ def admin_manage_rewards():
         """SELECT reward_id, name, description, points_required, is_active, total_quantity
            FROM reward ORDER BY points_required ASC"""
     ).fetchall()
+
+    # Get Pending Proofs (proof uploaded but status not completed)
+    pending_proofs = conn.execute("""
+        SELECT 
+            eb.user_id, eb.event_id, eb.proof_media_url, eb.role_type,
+            u.name as user_name,
+            e.title as event_title,
+            e.base_points_participant
+        FROM event_booking eb
+        JOIN user u ON eb.user_id = u.user_id
+        JOIN event e ON eb.event_id = e.event_id
+        WHERE eb.proof_media_url IS NOT NULL 
+          AND eb.status != 'completed'
+    """).fetchall()
     
     conn.close()
     
     return render_template('admin/admin_manage_rewards.html',
-                           user_name=session.get('admin_name'),
-                           admin_email=session.get('admin_email', 'Admin@123.com'),
-                           rewards=rewards)
+                           rewards=rewards,
+                           pending_proofs=pending_proofs)
+
+@admin_bp.route('/verify-proof/<int:event_id>/<int:user_id>', methods=['POST'])
+@admin_required
+def admin_verify_proof(event_id, user_id):
+    """Verify proof and award points."""
+    conn = get_db_connection()
+    
+    # 1. Get points to award
+    # For now assuming base_points_participant. In future could be dynamic based on role.
+    event = conn.execute("SELECT base_points_participant FROM event WHERE event_id = ?", (event_id,)).fetchone()
+    points = event['base_points_participant'] if event and event['base_points_participant'] else 100 # Default
+    
+    # 2. Update status to completed
+    conn.execute("UPDATE event_booking SET status = 'completed' WHERE event_id = ? AND user_id = ?", 
+                 (event_id, user_id))
+                 
+    # 3. Award points to user
+    conn.execute("UPDATE user SET total_points = total_points + ? WHERE user_id = ?", (points, user_id))
+    
+    conn.commit()
+    conn.close()
+    
+    flash(f"Proof verified! Awarded {points} points.", "success")
+    return redirect(url_for('admin.admin_manage_rewards'))
 
 
 # =====================================================

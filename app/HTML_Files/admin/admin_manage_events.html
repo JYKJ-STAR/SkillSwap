@@ -24,10 +24,19 @@
             <i class="bi bi-shield-check"></i> SkillSwap Admin
         </div>
 
-        <div class="sidebar-profile-info"
-            style="padding: 0 15px 20px; border-bottom: 1px solid #374151; margin-bottom: 20px;">
-            <div style="color: #fff; font-weight: 600;">{{ user_name }}</div>
-            <div style="color: #9ca3af; font-size: 0.85em;">{{ admin_email }}</div>
+        <div class="sidebar-profile-unified">
+            {% if admin_photo %}
+            <img src="{{ url_for('static', filename='img/admin/' + admin_photo) }}" class="sidebar-avatar" alt="Admin">
+            {% else %}
+            <div class="sidebar-avatar"
+                style="display: flex; align-items: center; justify-content: center; font-size: 1.5em; color: #9ca3af;">
+                <i class="bi bi-person-fill"></i>
+            </div>
+            {% endif %}
+            <div class="sidebar-user-details">
+                <div class="sidebar-user-name">{{ user_name }}</div>
+                <div class="sidebar-user-email">{{ admin_email }}</div>
+            </div>
         </div>
 
         <nav style="flex: 1;">
