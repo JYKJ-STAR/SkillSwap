@@ -898,16 +898,17 @@ def save_ticket_reply(ticket_id):
 @admin_bp.route('/manage-rewards')
 @admin_required
 def admin_manage_rewards():
-    """Display the rewards management page and pending proofs."""
+    """Display the rewards management page with verification and rewards sections."""
     conn = get_db_connection()
     
-    # Get all rewards
-    rewards = conn.execute(
-        """SELECT reward_id, name, description, points_required, is_active, total_quantity
-           FROM reward ORDER BY points_required ASC"""
-    ).fetchall()
+    # Get all active rewards for Manage Rewards tab
+    rewards = conn.execute("""
+        SELECT reward_id, name, description, points_required, is_active, total_quantity
+        FROM reward 
+        ORDER BY points_required ASC
+    """).fetchall()
 
-    # Get Pending Proofs (proof uploaded but status not completed)
+    # Get Pending Proofs (for User Verification section)
     pending_proofs = conn.execute("""
         SELECT 
             eb.user_id, eb.event_id, eb.proof_media_url, eb.role_type,
@@ -921,11 +922,29 @@ def admin_manage_rewards():
           AND eb.status != 'completed'
     """).fetchall()
     
+    # Get Redeemed Rewards (for Redeemed Rewards tab)
+    redeemed_rewards = conn.execute("""
+        SELECT 
+            rr.redemption_id,
+            rr.created_at,
+            rr.status,
+            u.name as user_name,
+            u.email as user_email,
+            r.name as reward_name,
+            r.points_required
+        FROM reward_redemption rr
+        JOIN user u ON rr.user_id = u.user_id
+        JOIN reward r ON rr.reward_id = r.reward_id
+        WHERE rr.status IN ('approved', 'redeemed')
+        ORDER BY rr.created_at DESC
+    """).fetchall()
+    
     conn.close()
     
     return render_template('admin/admin_manage_rewards.html',
                            rewards=rewards,
-                           pending_proofs=pending_proofs)
+                           pending_proofs=pending_proofs,
+                           redeemed_rewards=redeemed_rewards)
 
 @admin_bp.route('/verify-proof/<int:event_id>/<int:user_id>', methods=['POST'])
 @admin_required
@@ -950,6 +969,114 @@ def admin_verify_proof(event_id, user_id):
     
     flash(f"Proof verified! Awarded {points} points.", "success")
     return redirect(url_for('admin.admin_manage_rewards'))
+
+@admin_bp.route('/reject-proof/<int:event_id>/<int:user_id>', methods=['POST'])
+@admin_required
+def admin_reject_proof(event_id, user_id):
+    """Reject proof submission - clears photo and resets to booked status."""
+    conn = get_db_connection()
+    
+    # Get proof photo to delete
+    booking = conn.execute(
+        "SELECT proof_media_url FROM event_booking WHERE event_id = ? AND user_id = ?",
+        (event_id, user_id)
+    ).fetchone()
+    
+    if booking and booking['proof_media_url']:
+        # Delete photo from filesystem
+        photo_path = os.path.join(current_app.static_folder, 'img', 'users', 'Upload_proof', booking['proof_media_url'])
+        if os.path.exists(photo_path):
+            os.remove(photo_path)
+    
+    # Clear proof_media_url and keep status as 'booked' so it goes back to action required
+    conn.execute(
+        "UPDATE event_booking SET proof_media_url = NULL WHERE event_id = ? AND user_id = ?",
+        (event_id, user_id)
+    )
+    
+    # Also delete the review if exists (so they have to resubmit both)
+    conn.execute(
+        "DELETE FROM review WHERE event_id = ? AND user_id = ?",
+        (event_id, user_id)
+    )
+    
+    conn.commit()
+    conn.close()
+    
+    flash("Proof rejected. User must resubmit.", "info")
+    return redirect(url_for('admin.admin_manage_rewards'))
+
+
+@admin_bp.route('/admin/add-reward', methods=['POST'])
+@admin_required
+def admin_add_reward():
+    """Add a new reward to the catalog."""
+    name = request.form.get('name')
+    description = request.form.get('description')
+    points_required = request.form.get('points_required')
+    total_quantity = request.form.get('total_quantity') or None
+    
+    if not name or not points_required:
+        flash("Reward name and points are required.", "error")
+        return redirect(url_for('admin.admin_manage_rewards'))
+    
+    conn = get_db_connection()
+    conn.execute("""
+        INSERT INTO reward (name, description, points_required, total_quantity, is_active)
+        VALUES (?, ?, ?, ?, 1)
+    """, (name, description, int(points_required), total_quantity))
+    conn.commit()
+    conn.close()
+    
+    flash(f"Reward '{name}' added successfully!", "success")
+    return redirect(url_for('admin.admin_manage_rewards'))
+
+
+@admin_bp.route('/admin/delete-reward/<int:reward_id>', methods=['POST'])
+@admin_required
+def admin_delete_reward(reward_id):
+    """Delete a reward from the catalog."""
+    conn = get_db_connection()
+    
+    # Get reward name for flash message
+    reward = conn.execute("SELECT name FROM reward WHERE reward_id = ?", (reward_id,)).fetchone()
+    reward_name = reward['name'] if reward else 'Unknown'
+    
+    conn.execute("DELETE FROM reward WHERE reward_id = ?", (reward_id,))
+    conn.commit()
+    conn.close()
+    
+    flash(f"Reward '{reward_name}' deleted successfully.", "success")
+    return redirect(url_for('admin.admin_manage_rewards'))
+
+
+@admin_bp.route('/admin/edit-reward/<int:reward_id>', methods=['POST'])
+@admin_required
+def admin_edit_reward(reward_id):
+    """Edit an existing reward."""
+    name = request.form.get('name')
+    description = request.form.get('description')
+    points_required = request.form.get('points_required')
+    total_quantity = request.form.get('total_quantity') or None
+    is_active = request.form.get('is_active') == 'on'
+    
+    if not name or not points_required:
+        flash("Reward name and points are required.", "error")
+        return redirect(url_for('admin.admin_manage_rewards'))
+    
+    conn = get_db_connection()
+    conn.execute("""
+        UPDATE reward 
+        SET name = ?, description = ?, points_required = ?, total_quantity = ?, is_active = ?
+        WHERE reward_id = ?
+    """, (name, description, int(points_required), total_quantity, 1 if is_active else 0, reward_id))
+    
+    conn.commit()
+    conn.close()
+    
+    flash(f"Reward updated successfully!", "success")
+    return redirect(url_for('admin.admin_manage_rewards'))
+
 
 
 # =====================================================

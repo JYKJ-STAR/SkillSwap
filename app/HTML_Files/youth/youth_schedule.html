@@ -86,7 +86,8 @@
                 </div>
                 <!-- <span class="status-badge upcoming">Upcoming</span> -->
                 <div class="event-icon-actions">
-                    <button class="icon-btn delete" title="Withdraw" onclick="openModal('withdraw-modal')">🗑</button>
+                    <a href="{{ url_for('events.event_details', event_id=event.event_id) }}" class="icon-btn edit"
+                        title="View Event Details" style="text-decoration: none;">✏️</a>
                 </div>
             </div>
             {% endfor %}
@@ -108,10 +109,9 @@
                         <h3 class="event-title">{{ event.title }}</h3>
                         <p class="event-meta">{{ event.display_date }} | {{ event.role_type|capitalize }}</p>
                         <div class="event-actions" style="flex-wrap: wrap;">
-                            <button class="log-reflection-btn js-open-feedback" data-id="{{ event.event_id }}"
-                                data-title="{{ event.title }}">Log Reflection</button>
-                            <button class="log-reflection-btn js-open-upload" style="background:#4a4a4a;"
-                                data-id="{{ event.event_id }}" data-title="{{ event.title }}">Upload Proof</button>
+                            <a href="{{ url_for('schedule.log_reflection', event_id=event.event_id) }}"
+                                class="log-reflection-btn" style="text-decoration: none; display: inline-block;">Log
+                                Reflection</a>
                             <span class="points-badge">+{{ event.points or 100 }} Points</span>
                         </div>
                     </div>
@@ -168,39 +168,6 @@
 <!-- ========================================
      MODALS
      ======================================== -->
-
-<!-- FEEDBACK POPUP MODAL -->
-<div class="modal-overlay" id="feedback-modal">
-    <form class="modal" action="{{ url_for('schedule.submit_feedback') }}" method="POST">
-        <input type="hidden" name="event_id" id="feedback_event_id">
-        <!-- Back Link -->
-        <a href="#" class="back-link close-modal" data-target="feedback-modal">← Back</a>
-
-        <!-- Title -->
-        <h2 class="modal-title">How was your Session?</h2>
-        <h3 id="feedback-event-title" style="color: #4ade80; margin-bottom: 5px;"></h3>
-        <p class="modal-subtitle">Your feedback help us improve</p>
-
-        <!-- Star Rating -->
-        <div class="star-rating">
-            <span class="star" data-rating="1"></span>
-            <span class="star" data-rating="2"></span>
-            <span class="star" data-rating="3"></span>
-            <span class="star" data-rating="4"></span>
-            <span class="star" data-rating="5"></span>
-        </div>
-        <input type="hidden" name="rating" id="rating_input">
-
-        <!-- Feedback Textarea -->
-        <textarea name="comment" class="feedback-textarea" placeholder="Share your thoughts"></textarea>
-
-        <!-- Points Indicator -->
-        <p class="points-indicator">+100 Points</p>
-
-        <!-- Submit Button -->
-        <button type="submit" class="submit-btn">Submit and Claim Points</button>
-    </form>
-</div>
 
 <!-- UPLOAD PHOTO POPUP MODAL -->
 <div class="modal-overlay" id="upload-modal">

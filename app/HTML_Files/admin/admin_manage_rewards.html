@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SkillSwap Admin - Manage Rewards</title>
+    <title>Manage Rewards - SkillSwap Admin</title>
 
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -14,6 +14,7 @@
 
     <!-- Admin CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/admin/admin.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin/manage_events.css') }}">
 </head>
 
 <body>
@@ -22,7 +23,6 @@
         <div class="logo">
             <i class="bi bi-shield-check"></i> SkillSwap Admin
         </div>
-
         <div class="sidebar-profile-unified">
             {% if admin_photo %}
             <img src="{{ url_for('static', filename='img/admin/' + admin_photo) }}" class="sidebar-avatar" alt="Admin">
@@ -37,7 +37,6 @@
                 <div class="sidebar-user-email">{{ admin_email }}</div>
             </div>
         </div>
-
         <nav style="flex: 1;">
             <a href="{{ url_for('admin.admin_dashboard') }}" class="nav-item">
                 <i class="bi bi-speedometer2"></i> Dashboard
@@ -65,47 +64,59 @@
 
     <!-- Main Content -->
     <div class="main">
-        <div class="header">
-            <h1>Manage Rewards</h1>
-            <div class="user-profile">
-                <!-- Header content if any -->
+        <h1 class="page-title">Manage Rewards</h1>
+
+        <!-- Main Section Tabs -->
+        <div class="controls-row">
+            <div class="filter-tabs" id="sectionTabs">
+                <button class="filter-tab active" data-section="verification">User Verification</button>
+                <button class="filter-tab" data-section="rewards">Rewards</button>
             </div>
         </div>
 
-        <!-- PENDING PROOFS SECTION -->
-        <div class="section" style="margin-bottom: 40px;">
-            <h2 style="color:white; margin-bottom:15px; font-size: 1.5em;">Pending Verifications</h2>
+        <!-- USER VERIFICATION SECTION -->
+        <div class="section-content active" id="verification-section">
+            <h2 style="color:white; margin-bottom:20px; font-size: 1.3em;">Pending Event Verifications</h2>
 
             {% if pending_proofs %}
-            <div class="table-container" style="background:#1f2937; border-radius:8px; overflow:hidden;">
-                <table style="width:100%; text-align:left; color:#d1d5db; border-collapse:collapse;">
-                    <thead style="background:#374151; color:white;">
+            <div class="table-container">
+                <table class="events-table">
+                    <thead>
                         <tr>
-                            <th style="padding:12px 20px;">User</th>
-                            <th style="padding:12px 20px;">Event</th>
-                            <th style="padding:12px 20px;">Proof</th>
-                            <th style="padding:12px 20px;">Action</th>
+                            <th>User</th>
+                            <th>Event</th>
+                            <th>Proof</th>
+                            <th>Points</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for proof in pending_proofs %}
-                        <tr style="border-bottom:1px solid #374151;">
-                            <td style="padding:12px 20px;">{{ proof.user_name }}</td>
-                            <td style="padding:12px 20px;">{{ proof.event_title }}</td>
-                            <td style="padding:12px 20px;">
+                        <tr>
+                            <td><strong>{{ proof.user_name }}</strong></td>
+                            <td>{{ proof.event_title }}</td>
+                            <td>
                                 <a href="{{ url_for('static', filename='img/users/Upload_proof/' + proof.proof_media_url) }}"
                                     target="_blank">
                                     <img src="{{ url_for('static', filename='img/users/Upload_proof/' + proof.proof_media_url) }}"
                                         style="height:50px; border-radius:4px; border:1px solid #4b5563;" alt="Proof">
                                 </a>
                             </td>
-                            <td style="padding:12px 20px;">
+                            <td><span class="status-badge published">+{{ proof.base_points_participant or 100 }}</span>
+                            </td>
+                            <td class="actions-cell">
                                 <form
                                     action="{{ url_for('admin.admin_verify_proof', event_id=proof.event_id, user_id=proof.user_id) }}"
-                                    method="POST">
-                                    <button type="submit"
-                                        style="background:#10b981; color:white; border:none; padding:8px 16px; border-radius:4px; cursor:pointer;">
-                                        Approve (+{{ proof.base_points_participant or 100 }})
+                                    method="POST" style="display:inline;">
+                                    <button type="submit" class="action-icon approve" title="Approve">
+                                        <i class="bi bi-check-circle"></i>
+                                    </button>
+                                </form>
+                                <form
+                                    action="{{ url_for('admin.admin_reject_proof', event_id=proof.event_id, user_id=proof.user_id) }}"
+                                    method="POST" style="display:inline; margin-left:5px;">
+                                    <button type="submit" class="action-icon delete" title="Reject">
+                                        <i class="bi bi-x-circle"></i>
                                     </button>
                                 </form>
                             </td>
@@ -119,20 +130,340 @@
             {% endif %}
         </div>
 
-        <div class="section">
-            <h2 style="color:white; margin-bottom:15px; font-size: 1.5em;">Reward Catalog</h2>
-            <p>Placeholder page for managing rewards.</p>
-            {% if rewards %}
-            <ul style="color:white;">
-                {% for reward in rewards %}
-                <li>{{ reward.name }} - {{ reward.points_required }} pts</li>
-                {% endfor %}
-            </ul>
-            {% else %}
-            <p style="color:#9ca3af;">No rewards configured yet.</p>
-            {% endif %}
+        <!-- REWARDS SECTION -->
+        <div class="section-content" id="rewards-section">
+            <!-- Sub-tabs for Rewards -->
+            <div class="controls-row" style="margin-bottom: 20px;">
+                <div class="filter-tabs" id="rewardsTabs">
+                    <button class="filter-tab active" data-tab="manage">Manage Rewards</button>
+                    <button class="filter-tab" data-tab="redeemed">Redeemed Rewards</button>
+                </div>
+            </div>
+
+            <!-- Manage Rewards Tab -->
+            <div class="tab-content active" id="manage-tab">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2 style="color:white; font-size: 1.3em; margin: 0;">Rewards Catalog</h2>
+                    <button class="btn-submit" onclick="openAddRewardModal()" style="padding: 10px 20px;">
+                        <i class="bi bi-plus-circle"></i> Add Reward
+                    </button>
+                </div>
+
+                {% if rewards %}
+                <div class="table-container">
+                    <table class="events-table">
+                        <thead>
+                            <tr>
+                                <th>Reward Name</th>
+                                <th>Description</th>
+                                <th>Points Required</th>
+                                <th>Quantity</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for reward in rewards %}
+                            <tr>
+                                <td><strong>{{ reward.name }}</strong></td>
+                                <td>{{ reward.description or 'N/A' }}</td>
+                                <td><span class="status-badge published">{{ reward.points_required }} pts</span></td>
+                                <td>{{ reward.total_quantity or '∞' }}</td>
+                                <td>
+                                    {% if reward.is_active %}
+                                    <span class="status-badge published">Active</span>
+                                    {% else %}
+                                    <span class="status-badge voided">Inactive</span>
+                                    {% endif %}
+                                </td>
+                                <td class="actions-cell">
+                                    <button class="action-icon edit edit-reward-btn" title="Edit Reward"
+                                        data-reward-id="{{ reward.reward_id }}" data-name="{{ reward.name }}"
+                                        data-description="{{ reward.description or '' }}"
+                                        data-points="{{ reward.points_required }}"
+                                        data-quantity="{{ reward.total_quantity or '' }}"
+                                        data-active="{{ reward.is_active }}">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </button>
+                                    <button class="action-icon delete delete-reward-btn" title="Delete Reward"
+                                        data-reward-id="{{ reward.reward_id }}" data-reward-name="{{ reward.name }}">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p style="color:#9ca3af; background:#1f2937; padding:20px; border-radius:8px;">No rewards configured.
+                </p>
+                {% endif %}
+            </div>
+
+            <!-- Redeemed Rewards Tab -->
+            <div class="tab-content" id="redeemed-tab">
+                <h2 style="color:white; margin-bottom:20px; font-size: 1.3em;">Redeemed Rewards History</h2>
+
+                {% if redeemed_rewards %}
+                <div class="table-container">
+                    <table class="events-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>User</th>
+                                <th>Email</th>
+                                <th>Reward</th>
+                                <th>Points Used</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for redemption in redeemed_rewards %}
+                            <tr>
+                                <td>{{ redemption.created_at[:10] if redemption.created_at else 'N/A' }}</td>
+                                <td><strong>{{ redemption.user_name }}</strong></td>
+                                <td>{{ redemption.user_email }}</td>
+                                <td>{{ redemption.reward_name }}</td>
+                                <td><span class="status-badge published">{{ redemption.points_required }} pts</span>
+                                </td>
+                                <td>
+                                    {% if redemption.status == 'redeemed' %}
+                                    <span class="status-badge published">Claimed</span>
+                                    {% elif redemption.status == 'approved' %}
+                                    <span class="status-badge pending">Pending Claim</span>
+                                    {% else %}
+                                    <span class="status-badge voided">{{ redemption.status|capitalize }}</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p style="color:#9ca3af; background:#1f2937; padding:20px; border-radius:8px;">No redeemed rewards yet.
+                </p>
+                {% endif %}
+            </div>
         </div>
     </div>
+
+    <!-- Add Reward Modal -->
+    <div id="addRewardModal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h2>Add New Reward</h2>
+                <button class="modal-close" onclick="closeAddRewardModal()">&times;</button>
+            </div>
+            <form action="{{ url_for('admin.admin_add_reward') }}" method="POST" style="padding: 25px;">
+                <div class="form-group">
+                    <label class="form-label">Reward Name</label>
+                    <input type="text" name="name" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <textarea name="description" class="form-input" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Points Required</label>
+                    <input type="number" name="points_required" class="form-input" required min="1">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Total Quantity (leave empty for unlimited)</label>
+                    <input type="number" name="total_quantity" class="form-input" min="1">
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-cancel" onclick="closeAddRewardModal()">Cancel</button>
+                    <button type="submit" class="btn-submit">Add Reward</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Reward Modal -->
+    <div id="editRewardModal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h2>Edit Reward</h2>
+                <button class="modal-close" onclick="closeEditRewardModal()">&times;</button>
+            </div>
+            <form id="editRewardForm" action="" method="POST" style="padding: 25px;">
+                <div class="form-group">
+                    <label class="form-label">Reward Name</label>
+                    <input type="text" name="name" id="editRewardName" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <textarea name="description" id="editRewardDescription" class="form-input" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Points Required</label>
+                    <input type="number" name="points_required" id="editRewardPoints" class="form-input" required
+                        min="1">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Total Quantity</label>
+                    <input type="number" name="total_quantity" id="editRewardQuantity" class="form-input" min="1"
+                        placeholder="Unlimited">
+                </div>
+                <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
+                    <input type="checkbox" name="is_active" id="editRewardActive" style="width: auto;">
+                    <label for="editRewardActive" class="form-label" style="margin: 0; cursor: pointer;">Active
+                        Status</label>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-cancel" onclick="closeEditRewardModal()">Cancel</button>
+                    <button type="submit" class="btn-submit">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Delete Reward Modal -->
+    <div id="deleteRewardModal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 420px;">
+            <div class="modal-header" style="border-bottom: none;">
+                <h2 style="color: #f87171;"><i class="bi bi-exclamation-triangle"></i> Delete Reward</h2>
+                <button class="modal-close" onclick="closeDeleteRewardModal()">&times;</button>
+            </div>
+            <div style="padding: 0 25px 25px;">
+                <div
+                    style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 8px; padding: 20px; text-align: center; margin-bottom: 20px;">
+                    <p style="color: #f3f4f6; margin: 0 0 5px; font-size: 1.05em;">Delete reward <strong
+                            id="deleteRewardName" style="color: #f87171;"></strong>?</p>
+                    <p style="color: #9ca3af; margin: 0; font-size: 0.9em;">This action cannot be undone.</p>
+                </div>
+                <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                    <button type="button" class="btn-cancel" onclick="closeDeleteRewardModal()">Cancel</button>
+                    <form id="deleteRewardForm" action="" method="POST" style="margin: 0;">
+                        <button type="submit" class="btn-submit">Delete</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Section Tab Switching
+        const sectionTabs = document.querySelectorAll('#sectionTabs .filter-tab');
+        const sections = document.querySelectorAll('.section-content');
+
+        sectionTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const targetSection = tab.dataset.section;
+
+                sectionTabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+
+                sections.forEach(section => {
+                    section.classList.remove('active');
+                    if (section.id === `${targetSection}-section`) {
+                        section.classList.add('active');
+                    }
+                });
+            });
+        });
+
+        // Rewards Sub-tab Switching
+        const rewardsTabs = document.querySelectorAll('#rewardsTabs .filter-tab');
+        const rewardsTabContents = document.querySelectorAll('#rewards-section .tab-content');
+
+        rewardsTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const targetTab = tab.dataset.tab;
+
+                rewardsTabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+
+                rewardsTabContents.forEach(content => {
+                    content.classList.remove('active');
+                    if (content.id === `${targetTab}-tab`) {
+                        content.classList.add('active');
+                    }
+                });
+            });
+        });
+
+        // Add Reward Modal
+        function openAddRewardModal() {
+            document.getElementById('addRewardModal').classList.add('show');
+        }
+
+        function closeAddRewardModal() {
+            document.getElementById('addRewardModal').classList.remove('show');
+        }
+
+        // Edit Reward Modal
+        const editRewardButtons = document.querySelectorAll('.edit-reward-btn');
+        editRewardButtons.forEach(btn => {
+            btn.addEventListener('click', function () {
+                const rewardId = this.dataset.rewardId;
+                const name = this.dataset.name;
+                const description = this.dataset.description;
+                const points = this.dataset.points;
+                const quantity = this.dataset.quantity;
+                const active = this.dataset.active === '1' || this.dataset.active === 'True';
+
+                document.getElementById('editRewardName').value = name;
+                document.getElementById('editRewardDescription').value = description;
+                document.getElementById('editRewardPoints').value = points;
+                document.getElementById('editRewardQuantity').value = quantity;
+                document.getElementById('editRewardActive').checked = active;
+
+                document.getElementById('editRewardForm').action = `/admin/edit-reward/${rewardId}`;
+                document.getElementById('editRewardModal').classList.add('show');
+            });
+        });
+
+        function closeEditRewardModal() {
+            document.getElementById('editRewardModal').classList.remove('show');
+        }
+
+        // Delete Reward Modal
+        const deleteRewardButtons = document.querySelectorAll('.delete-reward-btn');
+        deleteRewardButtons.forEach(btn => {
+            btn.addEventListener('click', function () {
+                const rewardId = this.dataset.rewardId;
+                const rewardName = this.dataset.rewardName;
+
+                document.getElementById('deleteRewardName').textContent = rewardName;
+                document.getElementById('deleteRewardForm').action = `/admin/delete-reward/${rewardId}`;
+                document.getElementById('deleteRewardModal').classList.add('show');
+            });
+        });
+
+        function closeDeleteRewardModal() {
+            document.getElementById('deleteRewardModal').classList.remove('show');
+        }
+
+        // Close Modals on Overlay Click
+        document.querySelectorAll('.modal-overlay').forEach(overlay => {
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) {
+                    overlay.classList.remove('show');
+                }
+            });
+        });
+
+        // CSS for sections and tabs
+        const style = document.createElement('style');
+        style.textContent = `
+            .section-content {
+                display: none;
+            }
+            .section-content.active {
+                display: block;
+            }
+            .tab-content {
+                display: none;
+            }
+            .tab-content.active {
+                display: block;
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
 </body>
 
 </html>

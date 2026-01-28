@@ -72,30 +72,12 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // ========================================
-    // BUTTON LISTENERS (Feedback & Upload)
+    // BUTTON LISTENERS (Upload Only)
     // ========================================
     console.log('Attaching button listeners...');
-    const feedbackBtns = document.querySelectorAll('.js-open-feedback');
     const uploadBtns = document.querySelectorAll('.js-open-upload');
 
-    console.log('Found feedback buttons:', feedbackBtns.length);
     console.log('Found upload buttons:', uploadBtns.length);
-
-    feedbackBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            console.log('Feedback button clicked!');
-            const eventId = btn.dataset.id;
-            const title = btn.dataset.title;
-
-            console.log('Event ID:', eventId, 'Title:', title);
-
-            document.getElementById('feedback_event_id').value = eventId;
-            const titleEl = document.getElementById('feedback-event-title');
-            if (titleEl) titleEl.textContent = title;
-
-            openModal('feedback-modal');
-        });
-    });
 
     uploadBtns.forEach(btn => {
         btn.addEventListener('click', () => {

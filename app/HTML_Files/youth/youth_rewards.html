@@ -73,94 +73,20 @@
                         <div class="reward-image"></div>
                         <div class="reward-info">
                             <h3>{{ reward.name }}</h3>
-                            <p class="vendor">{{ reward.vendor }}</p>
-                            <p class="points">{{ reward.points }} Points</p>
+                            <p class="vendor">SkillSwap Reward</p>
+                            <p class="points">{{ reward.points_required }} Points</p>
                         </div>
                     </div>
-                    <button class="redeem-btn" data-name="{{ reward.name|e }}" data-vendor="{{ reward.vendor|e }}"
-                        data-points="{{ reward.points }}">
+                    <button class="redeem-btn" data-name="{{ reward.name|e }}" data-vendor="SkillSwap Reward"
+                        data-points="{{ reward.points_required }}">
                         Redeem Award
                     </button>
                 </div>
                 {% endfor %}
                 {% else %}
-                <!-- Demo rewards when no data is passed -->
-                <div class="reward-card">
-                    <div class="reward-header">
-                        <div class="reward-image"></div>
-                        <div class="reward-info">
-                            <h3>$5 NTUC FairPrice Voucher</h3>
-                            <p class="vendor">NTUC Fair Price</p>
-                            <p class="points">5000 Points</p>
-                        </div>
-                    </div>
-                    <button class="redeem-btn" data-name="$5 NTUC FairPrice Voucher" data-vendor="NTUC Fair Price"
-                        data-points="5000">Redeem Award</button>
-                </div>
-
-                <div class="reward-card">
-                    <div class="reward-header">
-                        <div class="reward-image"></div>
-                        <div class="reward-info">
-                            <h3>$5 KOI Voucher</h3>
-                            <p class="vendor">KOI</p>
-                            <p class="points">5000 Points</p>
-                        </div>
-                    </div>
-                    <button class="redeem-btn" data-name="$5 KOI Voucher" data-vendor="KOI" data-points="5000">Redeem
-                        Award</button>
-                </div>
-
-                <div class="reward-card">
-                    <div class="reward-header">
-                        <div class="reward-image"></div>
-                        <div class="reward-info">
-                            <h3>$5 Starbucks Voucher</h3>
-                            <p class="vendor">Starbucks</p>
-                            <p class="points">5000 Points</p>
-                        </div>
-                    </div>
-                    <button class="redeem-btn" data-name="$5 Starbucks Voucher" data-vendor="Starbucks"
-                        data-points="5000">Redeem Award</button>
-                </div>
-
-                <div class="reward-card">
-                    <div class="reward-header">
-                        <div class="reward-image"></div>
-                        <div class="reward-info">
-                            <h3>$10 NTUC FairPrice Voucher</h3>
-                            <p class="vendor">NTUC Fair Price</p>
-                            <p class="points">8000 Points</p>
-                        </div>
-                    </div>
-                    <button class="redeem-btn" data-name="$10 NTUC FairPrice Voucher" data-vendor="NTUC Fair Price"
-                        data-points="8000">Redeem Award</button>
-                </div>
-
-                <div class="reward-card">
-                    <div class="reward-header">
-                        <div class="reward-image"></div>
-                        <div class="reward-info">
-                            <h3>$10 Giant Voucher</h3>
-                            <p class="vendor">Giant</p>
-                            <p class="points">10000 Points</p>
-                        </div>
-                    </div>
-                    <button class="redeem-btn" data-name="$10 Giant Voucher" data-vendor="Giant"
-                        data-points="10000">Redeem Award</button>
-                </div>
-
-                <div class="reward-card">
-                    <div class="reward-header">
-                        <div class="reward-image"></div>
-                        <div class="reward-info">
-                            <h3>$10 Chagee Voucher</h3>
-                            <p class="vendor">Chagee</p>
-                            <p class="points">8000 Points</p>
-                        </div>
-                    </div>
-                    <button class="redeem-btn" data-name="$10 Chagee Voucher" data-vendor="Chagee"
-                        data-points="8000">Redeem Award</button>
+                <div class="no-rewards-message">
+                    <h3>No rewards available at the moment.</h3>
+                    <p>Check back later!</p>
                 </div>
                 {% endif %}
             </div>
@@ -171,7 +97,7 @@
             <div class="rewards-grid">
                 {% if user_rewards %}
                 {% for reward in user_rewards %}
-                <div class="reward-card">
+                <div class="reward-card" data-redemption-id="{{ reward.redemption_id }}">
                     <div class="reward-header">
                         <div class="reward-image"></div>
                         <div class="reward-info">
@@ -179,13 +105,13 @@
                             <p class="vendor">{{ reward.vendor }}</p>
                         </div>
                     </div>
-                    <button class="claim-btn" data-name="{{ reward.name|e }}"
-                        data-vendor="{{ reward.vendor|e }}">Claim</button>
+                    <button class="claim-btn" data-redemption-id="{{ reward.redemption_id }}"
+                        data-name="{{ reward.name|e }}" data-vendor="{{ reward.vendor|e }}">Claim</button>
                 </div>
                 {% endfor %}
                 {% else %}
                 <!-- Demo user rewards -->
-                <div class="reward-card">
+                <div class="reward-card" data-redemption-id="0">
                     <div class="reward-header">
                         <div class="reward-image"></div>
                         <div class="reward-info">
@@ -193,11 +119,11 @@
                             <p class="vendor">NTUC Fair Price</p>
                         </div>
                     </div>
-                    <button class="claim-btn" data-name="$5 NTUC FairPrice Voucher"
+                    <button class="claim-btn" data-redemption-id="0" data-name="$5 NTUC FairPrice Voucher"
                         data-vendor="NTUC Fair Price">Claim</button>
                 </div>
 
-                <div class="reward-card">
+                <div class="reward-card" data-redemption-id="0">
                     <div class="reward-header">
                         <div class="reward-image"></div>
                         <div class="reward-info">
@@ -205,7 +131,8 @@
                             <p class="vendor">KOI</p>
                         </div>
                     </div>
-                    <button class="claim-btn" data-name="$5 KOI Voucher" data-vendor="KOI">Claim</button>
+                    <button class="claim-btn" data-redemption-id="0" data-name="$5 KOI Voucher"
+                        data-vendor="KOI">Claim</button>
                 </div>
                 {% endif %}
             </div>

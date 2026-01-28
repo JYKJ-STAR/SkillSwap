@@ -62,7 +62,7 @@ def schedule():
     reviews_rows = conn.execute(reviews_query, (user_id,)).fetchall()
     reviewed_event_ids = {row['event_id'] for row in reviews_rows}
     
-    # Fetch User's Booked Events
+    # Fetch User's Booked Events (exclude cancelled/withdrawn)
     events_query = """
         SELECT 
             e.event_id, e.title, e.start_datetime, e.end_datetime, e.category, e.location,
@@ -70,7 +70,7 @@ def schedule():
             (e.base_points_participant) as points
         FROM event_booking eb
         JOIN event e ON eb.event_id = e.event_id
-        WHERE eb.user_id = ?
+        WHERE eb.user_id = ? AND eb.status != 'cancelled'
         ORDER BY e.start_datetime ASC
     """
     events_rows = conn.execute(events_query, (user_id,)).fetchall()
@@ -164,8 +164,69 @@ def upload_proof():
     flash("Proof uploaded successfully!", "success")
     return redirect(url_for('schedule.schedule'))
 
-@schedule_bp.route('/submit_feedback', methods=['POST'])
-def submit_feedback():
+@schedule_bp.route('/log_reflection/<int:event_id>')
+def log_reflection(event_id):
+    if 'user_id' not in session:
+        flash("Please log in first.", "warning")
+        return redirect(url_for('home.login_page'))
+    
+    user_id = session.get('user_id')
+    role = session.get('user_role')
+
+    # Fetch User Data
+    conn = get_db_connection()
+    user = conn.execute("SELECT * FROM user WHERE user_id = ?", (user_id,)).fetchone()
+    
+    # Fetch User Skills
+    skills_query = """
+        SELECT s.name 
+        FROM skill s
+        JOIN user_skill_offered uso ON s.skill_id = uso.skill_id
+        WHERE uso.user_id = ?
+    """
+    skills_rows = conn.execute(skills_query, (user_id,)).fetchall()
+    
+    # Fetch User Interests
+    interests_query = """
+        SELECT s.name 
+        FROM skill s
+        JOIN user_skill_interest usi ON s.skill_id = usi.skill_id
+        WHERE usi.user_id = ?
+    """
+    interests_rows = conn.execute(interests_query, (user_id,)).fetchall()
+    
+    # Fetch Event Details
+    event = conn.execute("""
+        SELECT e.event_id, e.title, eb.role_type, e.base_points_participant as points
+        FROM event e
+        JOIN event_booking eb ON e.event_id = eb.event_id
+        WHERE e.event_id = ? AND eb.user_id = ?
+    """, (event_id, user_id)).fetchone()
+    
+    conn.close()
+
+    if not user or not event:
+        flash("Event not found or unauthorized access.", "error")
+        return redirect(url_for('schedule.schedule'))
+
+    user_dict = dict(user)
+    user_data = {
+        'name': user_dict['name'],
+        'age': user_dict.get('age', 26),
+        'points': user_dict['total_points'],
+        'role': role,
+        'skills': [row['name'] for row in skills_rows],
+        'interests': [row['name'] for row in interests_rows]
+    }
+
+    return render_template('youth/youth_log_reflection.html', 
+                         user=user_data, 
+                         event_id=event['event_id'],
+                         event_title=event['title'],
+                         points=event['points'])
+
+@schedule_bp.route('/submit_reflection', methods=['POST'])
+def submit_reflection():
     if 'user_id' not in session:
         return redirect(url_for('home.login_page'))
         
@@ -173,12 +234,18 @@ def submit_feedback():
     event_id = request.form.get('event_id')
     rating = request.form.get('rating')
     comment = request.form.get('comment')
+    photo = request.files.get('photo')
     
     if not event_id or not rating:
         flash("Please provide a rating.", "error")
-        return redirect(url_for('schedule.schedule'))
+        return redirect(url_for('schedule.log_reflection', event_id=event_id))
+    
+    if not photo:
+        flash("Please upload a photo.", "error")
+        return redirect(url_for('schedule.log_reflection', event_id=event_id))
         
     conn = get_db_connection()
+    
     # Check if already reviewed
     existing = conn.execute("SELECT review_id FROM review WHERE user_id = ? AND event_id = ?", (user_id, event_id)).fetchone()
     
@@ -186,9 +253,25 @@ def submit_feedback():
         conn.execute("INSERT INTO review (user_id, event_id, rating, comment) VALUES (?, ?, ?, ?)",
                      (user_id, event_id, rating, comment))
         conn.commit()
-        flash("Feedback submitted!", "success")
     else:
         flash("You have already submitted feedback for this event.", "info")
-        
+        conn.close()
+        return redirect(url_for('schedule.schedule'))
+    
+    # Handle photo upload
+    filename = secure_filename(photo.filename)
+    timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+    final_filename = f"{user_id}_{event_id}_{timestamp}_{filename}"
+    
+    upload_folder = os.path.join(current_app.static_folder, 'img', 'users', 'Upload_proof')
+    os.makedirs(upload_folder, exist_ok=True)
+    
+    photo.save(os.path.join(upload_folder, final_filename))
+    
+    conn.execute("UPDATE event_booking SET proof_media_url = ? WHERE user_id = ? AND event_id = ?", 
+                 (final_filename, user_id, event_id))
+    conn.commit()
     conn.close()
+    
+    flash("Reflection submitted successfully!", "success")
     return redirect(url_for('schedule.schedule'))
