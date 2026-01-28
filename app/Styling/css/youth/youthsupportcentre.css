@@ -510,12 +510,18 @@
      .tickets-list-section {
          flex: 1;
          max-width: 650px;
+         /* Limits width of the list so it doesn't stretch too wide */
      }
 
      .tickets-list {
          display: flex;
          flex-direction: column;
          gap: 1rem;
+         max-height: 80vh;
+         /* Adds scrolling if list is long */
+         overflow-y: auto;
+         padding-right: 5px;
+         /* Space for scrollbar */
      }
 
      .ticket-card {
@@ -534,7 +540,9 @@
 
      .ticket-card.active {
          border-color: #fbbf24;
+         /* Orange/Gold border for active item */
          background-color: #fffbeb;
+         /* Light yellow background */
      }
 
      .ticket-title {
@@ -551,6 +559,7 @@
          margin-bottom: 0.75rem;
          display: -webkit-box;
          -webkit-line-clamp: 2;
+         /* Shows only 2 lines of text */
          -webkit-box-orient: vertical;
          overflow: hidden;
      }
@@ -580,142 +589,138 @@
          background-color: #f97316;
      }
 
+     /* Orange */
      .status-resolved {
          background-color: #22c55e;
      }
 
-     /* Ticket Detail Panel */
+     /* Green */
+
+     /* Right Panel (Details) */
      .ticket-detail-panel {
-         width: 320px;
+         flex: 1;
+         /* Takes remaining space */
          background-color: #fff;
          border: 1.5px solid #e5e5e5;
          border-radius: 12px;
-         padding: 1.5rem;
+         padding: 2rem;
          position: sticky;
          top: 2rem;
+         min-height: 400px;
      }
 
      .detail-id {
          font-size: 1.5rem;
          font-weight: 700;
-         margin-bottom: 1rem;
+         margin-bottom: 1.5rem;
          color: #1a1a1a;
-     }
-
-     .detail-box {
-         background-color: #f5f5f5;
-         border: 1px solid #e5e5e5;
-         border-radius: 8px;
-         padding: 1rem;
-         margin-bottom: 1rem;
-     }
-
-     .detail-box p {
-         font-size: 0.9rem;
-         color: #555;
-         line-height: 1.6;
      }
 
      .detail-section {
-         margin-bottom: 1rem;
+         margin-bottom: 1.5rem;
      }
 
      .detail-label {
-         font-size: 0.8rem;
-         font-weight: 600;
+         font-size: 0.75rem;
+         font-weight: 700;
          color: #888;
          text-transform: uppercase;
          letter-spacing: 0.5px;
-         margin-bottom: 0.25rem;
+         margin-bottom: 0.5rem;
      }
 
      .detail-value {
-         font-size: 0.95rem;
+         font-size: 1rem;
          color: #1a1a1a;
+         font-weight: 500;
+     }
+
+     .detail-box {
+         background-color: #f9fafb;
+         border: 1px solid #e5e5e5;
+         border-radius: 8px;
+         padding: 1.25rem;
      }
 
      .agent-reply-title {
          font-size: 1rem;
-         font-weight: 600;
+         font-weight: 700;
          text-align: right;
-         margin-bottom: 0.75rem;
+         margin-bottom: 0.5rem;
          color: #1a1a1a;
-     }
-
-     .select-ticket-msg {
-         text-align: center;
-         color: #888;
-         padding: 2rem;
-     }
-
-     .form-success {
-         display: flex;
-         align-items: center;
-         gap: 0.75rem;
-         padding: 1rem 1.25rem;
-         background-color: #dcfce7;
-         border: 1px solid #22c55e;
-         border-radius: 10px;
-         margin-top: 1rem;
-     }
-
-     .form-success svg {
-         width: 24px;
-         height: 24px;
-         color: #22c55e;
-         flex-shrink: 0;
-     }
-
-     .form-success p {
-         font-size: 0.95rem;
-         color: #166534;
-     }
-
-     .empty-tickets {
-         padding: 3rem;
-         text-align: center;
-         color: #666;
-         background-color: #fff;
-         border-radius: 12px;
-         border: 1px solid #e5e5e5;
      }
 
      .pending-notice {
          display: flex;
          align-items: center;
-         gap: 0.5rem;
+         gap: 1rem;
          padding: 1rem;
-         background-color: #fef3c7;
-         border: 1px solid #f59e0b;
+         background-color: #fffbeb;
+         border: 1px solid #fcd34d;
          border-radius: 8px;
-         margin-top: 1rem;
+         margin-top: 2rem;
      }
 
      .pending-notice svg {
-         width: 20px;
-         height: 20px;
+         width: 24px;
+         height: 24px;
          color: #d97706;
-         flex-shrink: 0;
      }
 
      .pending-notice p {
-         font-size: 0.9rem;
+         margin: 0;
          color: #92400e;
+         font-size: 0.9rem;
      }
 
-     @media (max-width: 1024px) {
-         .tickets-layout {
-             flex-direction: column;
-         }
+     .form-success {
+         display: flex;
+         align-items: center;
+         gap: 1rem;
+         padding: 1rem;
+         background-color: #dcfce7;
+         border: 1px solid #86efac;
+         border-radius: 8px;
+         margin-top: 2rem;
+     }
 
-         .tickets-list-section {
-             max-width: 100%;
-         }
+     .form-success svg {
+         width: 24px;
+         height: 24px;
+         color: #16a34a;
+     }
 
-         .ticket-detail-panel {
-             width: 100%;
-             position: static;
-         }
+     .form-success p {
+         margin: 0;
+         color: #14532d;
+         font-size: 0.9rem;
+     }
+
+     .ticket-card {
+         background: white;
+         /* Or dark if your theme is dark */
+         border: 1px solid #ddd;
+         border-radius: 8px;
+         padding: 20px;
+         margin-bottom: 20px;
+         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+     }
+
+     .description-box {
+         background: #f8f9fa;
+         padding: 15px;
+         border-radius: 6px;
+         margin-bottom: 15px;
+         color: #555;
+     }
+
+     .reply-box {
+         background: #f1f8ff;
+         /* Light blue tint */
+         border: 1px solid #d0e3f0;
+         padding: 15px;
+         border-radius: 6px;
+         color: #333;
      }
 
      /* Live Chats Page Styles */

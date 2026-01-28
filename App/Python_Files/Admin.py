@@ -6,6 +6,7 @@ from functools import wraps
 import os
 from datetime import datetime
 from flask import current_app
+from flask import jsonify
 
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
 
@@ -784,29 +785,105 @@ def reject_verification(user_id):
 # =====================================================
 # SUPPORT TICKETS PAGE
 # =====================================================
+
+@admin_bp.route('/toggle-ticket-status/<int:ticket_id>', methods=['POST'])
+@admin_required
+def toggle_ticket_status(ticket_id):
+    """Toggle ticket status between 'open' and 'resolved'."""
+    conn = get_db_connection()
+    
+    # 1. Get current status
+    ticket = conn.execute("SELECT status FROM support_ticket WHERE ticket_id = ?", (ticket_id,)).fetchone()
+    
+    if ticket:
+        new_status = 'resolved' if ticket['status'] == 'open' else 'open'
+        
+        # 2. Update status
+        conn.execute("UPDATE support_ticket SET status = ? WHERE ticket_id = ?", (new_status, ticket_id))
+        conn.commit()
+        flash(f"Ticket #{ticket_id} marked as {new_status}.", "success")
+    
+    conn.close()
+    return redirect(url_for('admin.admin_support_tickets'))
+    
 @admin_bp.route('/support-tickets')
 @admin_required
 def admin_support_tickets():
-    """Display the support tickets management page."""
+    """Display the support tickets with filtering."""
+    # 1. Get the filter from the URL (default to 'all')
+    filter_status = request.args.get('filter', 'all')
+    
     conn = get_db_connection()
     
-    # Get all support tickets
-    tickets = conn.execute(
-        """SELECT st.ticket_id, st.subject, st.description, st.status, st.created_at,
-                  u.name as user_name, u.email as user_email
-           FROM support_ticket st
-           JOIN user u ON st.user_id = u.user_id
-           ORDER BY st.created_at DESC"""
-    ).fetchall()
+    # 2. Build the base query
+    query = """SELECT st.ticket_id, st.subject, st.description, st.status, st.created_at,
+                      u.name as user_name, u.email as user_email
+               FROM support_ticket st
+               JOIN user u ON st.user_id = u.user_id"""
+    
+    # 3. Add WHERE clause based on the filter
+    params = ()
+    if filter_status == 'pending':
+        query += " WHERE st.status = 'open'"
+    elif filter_status == 'resolved':
+        query += " WHERE st.status = 'resolved'"
+    
+    # 4. Finish the query
+    query += " ORDER BY st.created_at DESC"
+    
+    tickets = conn.execute(query, params).fetchall()
+    
+    # 5. Calculate statistics with error handling
+    try:
+        total_tickets = conn.execute("SELECT COUNT(*) FROM support_ticket").fetchone()[0]
+    except Exception as e:
+        print(f"Error fetching total_tickets: {e}")
+        total_tickets = 0
+    
+    try:
+        pending_tickets = conn.execute(
+            "SELECT COUNT(*) FROM support_ticket WHERE status = 'open'"
+        ).fetchone()[0]
+    except Exception as e:
+        print(f"Error fetching pending_tickets: {e}")
+        pending_tickets = 0
+    
+    # Resolved tickets - since we don't have a resolved_at column, count all resolved
+    try:
+        resolved_today = conn.execute(
+            "SELECT COUNT(*) FROM support_ticket WHERE status = 'resolved'"
+        ).fetchone()[0]
+    except Exception as e:
+        print(f"Error fetching resolved_today: {e}")
+        resolved_today = 0
     
     conn.close()
     
     return render_template('admin/admin_support_tickets.html',
                            user_name=session.get('admin_name'),
                            admin_email=session.get('admin_email', 'Admin@123.com'),
-                           tickets=tickets)
+                           tickets=tickets,
+                           current_filter=filter_status,
+                           total_tickets=total_tickets,
+                           pending_tickets=pending_tickets,
+                           resolved_today=resolved_today)
 
-
+@admin_bp.route('/save-ticket-reply/<int:ticket_id>', methods=['POST'])
+@admin_required
+def save_ticket_reply(ticket_id):
+    reply_text = request.form.get('reply_text')
+    
+    conn = get_db_connection()
+    # Update the ticket with the reply and mark as resolved automatically
+    conn.execute(
+        "UPDATE support_ticket SET reply = ?, status = 'resolved' WHERE ticket_id = ?",
+        (reply_text, ticket_id)
+    )
+    conn.commit()
+    conn.close()
+    
+    flash("Reply sent and ticket marked as resolved.", "success")
+    return redirect(url_for('admin.admin_support_tickets'))
 # =====================================================
 # MANAGE REWARDS PAGE (Placeholder)
 # =====================================================

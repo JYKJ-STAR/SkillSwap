@@ -105,7 +105,8 @@
             <h3 class="help-section-title">Still need Help?</h3>
             <div class="contact-cards">
                 <div class="contact-card">
-                    <a href="https://mail.google.com/mail/?view=cm&fs=1&to=support@skillswap.sg" class="support-option">
+                    <a href="https://mail.google.com/mail/?view=cm&fs=1&to=support@skillswap.sg" class="support-option"
+                        target="_blank" rel="noopener noreferrer">
 
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                             stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
@@ -264,24 +265,97 @@
         <!-- My Tickets Page -->
         <div id="my-tickets-page" class="page">
             <div class="tickets-layout">
+
                 <div class="tickets-list-section">
                     <h2 class="content-title">My Tickets</h2>
                     <p class="page-subtitle">View all tickets submitted here</p>
                     <div class="divider"></div>
 
                     <div class="tickets-list" id="tickets-list">
-                        <!-- Tickets will be loaded dynamically -->
-                    </div>
+                        {% for ticket in tickets %}
+                        <div class="ticket-card {% if loop.first %}active{% endif %}"
+                            onclick="showTicketDetails('{{ ticket.ticket_id }}', this)">
 
-                    <div class="empty-tickets" id="empty-tickets" style="display: none;">
-                        <p>No tickets found. Submit a report in the Safety Center to create a ticket.</p>
+                            <div class="ticket-title">{{ ticket.subject }}</div>
+
+                            <p class="ticket-description">
+                                {{ ticket.description[:80] }}...
+                            </p>
+
+                            <div class="ticket-meta">
+                                <span class="ticket-id">ID: #{{ ticket.ticket_id }}</span>
+                                <span class="ticket-date">Submitted: {{ ticket.created_at }}</span>
+
+                                {% if ticket.status == 'resolved' %}
+                                <span class="ticket-status status-resolved">Resolved</span>
+                                {% else %}
+                                <span class="ticket-status status-progress">In Progress</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="empty-tickets">
+                            <p>No tickets found. Submit a report in the Safety Center to create a ticket.</p>
+                        </div>
+                        {% endfor %}
                     </div>
                 </div>
 
                 <div class="ticket-detail-panel" id="ticket-detail-panel">
-                    <div id="ticket-detail-content">
-                        <p class="select-ticket-msg">Select a ticket to view details</p>
+
+                    {% for ticket in tickets %}
+                    <div id="detail-{{ ticket.ticket_id }}" class="ticket-full-detail"
+                        style="display: {{ 'block' if loop.first else 'none' }};">
+
+                        <h3 class="detail-id">ID: #{{ ticket.ticket_id }}</h3>
+
+                        <div class="detail-section">
+                            <div class="detail-label">ISSUE TYPE</div>
+                            <div class="detail-value">{{ ticket.subject }}</div>
+                        </div>
+
+                        <div class="detail-section">
+                            <div class="detail-label">PERSON INVOLVED</div>
+                            <div class="detail-value">{{ ticket.user_name if ticket.user_name else 'You' }}</div>
+                        </div>
+
+                        <div class="detail-section">
+                            <div class="detail-label">DESCRIPTION</div>
+                            <div class="detail-box">
+                                <p style="white-space: pre-wrap;">{{ ticket.description }}</p>
+                            </div>
+                        </div>
+
+                        {% if ticket.reply %}
+                        <div class="agent-reply-title" style="margin-top: 2rem;">Agent Reply</div>
+                        <div class="detail-box" style="background-color: #f0f7ff; border-color: #cce5ff;">
+                            <p>{{ ticket.reply }}</p>
+                        </div>
+                        {% elif ticket.status == 'resolved' %}
+                        <div class="form-success">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7" />
+                            </svg>
+                            <p>This ticket has been marked as resolved.</p>
+                        </div>
+                        {% else %}
+                        <div class="pending-notice">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <p>Your report is being reviewed.<br>An agent will respond shortly.</p>
+                        </div>
+                        {% endif %}
                     </div>
+                    {% else %}
+                    <div id="ticket-detail-content">
+                        <p class="select-ticket-msg">No tickets selected.</p>
+                    </div>
+                    {% endfor %}
                 </div>
             </div>
         </div>

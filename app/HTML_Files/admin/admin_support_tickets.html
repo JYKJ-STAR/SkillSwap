@@ -70,8 +70,8 @@
                 </div>
                 <div class="stat-info">
                     <div class="stat-label">Total Tickets</div>
-                    <div class="stat-value" id="total-tickets">160</div>
-                    <div class="stat-change positive">12% from last week</div>
+                    <div class="stat-value" id="total-tickets">{{ total_tickets }}</div>
+                    <div class="stat-change neutral">All time submissions</div>
                 </div>
             </div>
 
@@ -85,8 +85,10 @@
                 </div>
                 <div class="stat-info">
                     <div class="stat-label">Pending Review</div>
-                    <div class="stat-value green" id="pending-tickets">15</div>
-                    <div class="stat-change warning">Requires Immediate Attention</div>
+                    <div class="stat-value green" id="pending-tickets">{{ pending_tickets }}</div>
+                    <div class="stat-change {% if pending_tickets > 0 %}warning{% else %}neutral{% endif %}">
+                        {% if pending_tickets > 0 %}Requires Immediate Attention{% else %}All caught up!{% endif %}
+                    </div>
                 </div>
             </div>
 
@@ -99,93 +101,114 @@
                     </svg>
                 </div>
                 <div class="stat-info">
-                    <div class="stat-label">Resolved Today</div>
-                    <div class="stat-value" id="resolved-today">20</div>
-                    <div class="stat-change neutral">Good Job!</div>
+                    <div class="stat-label">Resolved Tickets</div>
+                    <div class="stat-value" id="resolved-today">{{ resolved_today }}</div>
+                    <div class="stat-change {% if resolved_today > 0 %}positive{% else %}neutral{% endif %}">
+                        {% if resolved_today > 0 %}Good Job!{% else %}No resolutions yet{% endif %}
+                    </div>
                 </div>
             </div>
 
-            <div class="stat-card">
+            <div class="stat-card view-toggle-card" onclick="toggleView()">
                 <div class="stat-icon">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path
-                            d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
-                        <line x1="12" y1="9" x2="12" y2="13" />
-                        <line x1="12" y1="17" x2="12.01" y2="17" />
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
                     </svg>
                 </div>
                 <div class="stat-info">
-                    <div class="stat-label">Safety Alerts</div>
-                    <div class="stat-value red" id="safety-alerts">3</div>
-                    <div class="stat-change warning">Critical Reports</div>
+                    <div class="stat-label">View Toggle</div>
+                    <div class="stat-value toggle-text" id="current-view">Live Chat</div>
+                    <div class="stat-change toggle-hint">Click to switch view</div>
                 </div>
             </div>
         </div>
 
         <!-- Filter Section -->
-        <div class="filter-section">
-            <div class="filter-tabs">
-                <button class="filter-tab active" data-filter="all">All</button>
-                <button class="filter-tab pending" data-filter="pending">Pending</button>
-                <button class="filter-tab resolved" data-filter="resolved">Resolved</button>
+        <div
+            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: #1e2b3a; padding: 10px; border-radius: 8px;">
+
+            <div class="tab-group" style="display: flex; gap: 10px;">
+                <a href="{{ url_for('admin.admin_support_tickets', filter='all') }}"
+                    class="custom-tab {{ 'active' if current_filter == 'all' else '' }}" data-filter="all">
+                    All
+                </a>
+
+                <a href="{{ url_for('admin.admin_support_tickets', filter='pending') }}"
+                    class="custom-tab {{ 'active' if current_filter == 'pending' else '' }}" data-filter="pending">
+                    Pending
+                </a>
+
+                <a href="{{ url_for('admin.admin_support_tickets', filter='resolved') }}"
+                    class="custom-tab {{ 'active' if current_filter == 'resolved' else '' }}" data-filter="resolved">
+                    Resolved
+                </a>
             </div>
-            <button class="refresh-btn" id="refresh-btn">Refresh</button>
+
+            <a href="{{ url_for('admin.admin_support_tickets') }}" class="btn-refresh">
+                Refresh
+            </a>
         </div>
 
         <!-- Tickets Table -->
         <div class="table-responsive">
-            <table class="table">
+            <table class="table align-middle">
                 <thead>
                     <tr>
-                        <th>TICKET-ID</th>
-                        <th>USER</th>
-                        <th>TYPE</th>
-                        <th>DATE</th>
-                        <th>PRIORITY</th>
-                        <th>EVENT</th>
-                        <th>STATUS</th>
-                        <th>ACTIONS</th>
+                        <th scope="col">TICKET-ID</th>
+                        <th scope="col">USER</th>
+                        <th scope="col">TYPE</th>
+                        <th scope="col">DETAILS</th>
+                        <th scope="col">DATE</th>
+                        <th scope="col">STATUS</th>
+                        <th scope="col">ACTIONS</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for ticket in tickets %}
                     <tr>
-                        <td>#{{ ticket.ticket_id }}</td>
+                        <td><strong>#{{ ticket.ticket_id }}</strong></td>
 
                         <td>
-                            {{ ticket.user_name }}<br>
-                            <small class="text-muted">{{ ticket.user_email }}</small>
+                            <div class="d-flex flex-column">
+                                <span class="fw-bold">{{ ticket.user_name }}</span>
+                                <span class="text-muted small">{{ ticket.user_email }}</span>
+                            </div>
                         </td>
 
                         <td>{{ ticket.subject }}</td>
 
                         <td>
-                            <button type="button" class="btn btn-sm btn-info" onclick="viewTicketDetails(this)"
-                                data-description="{{ ticket.description }}">
-                                View Details
+                            <button class="btn btn-sm btn-outline-info"
+                                onclick="openTicketModal({{ ticket.ticket_id }}, `{{ ticket.description }}`)">
+                                Reply
                             </button>
                         </td>
 
                         <td>{{ ticket.created_at }}</td>
 
                         <td>
-                            {% if ticket.status == 'open' %}
-                            <span class="badge bg-warning text-dark">Open</span>
-                            {% elif ticket.status == 'resolved' %}
-                            <span class="badge bg-success">Resolved</span>
+                            {% if ticket.status == 'resolved' %}
+                            <span class="badge-status resolved">Resolved</span>
                             {% else %}
-                            <span class="badge bg-secondary">{{ ticket.status }}</span>
+                            <span class="badge-status pending">Pending</span>
                             {% endif %}
                         </td>
 
                         <td>
-                            <a href="#" class="btn btn-sm btn-primary">Manage</a>
+                            <form action="{{ url_for('admin.toggle_ticket_status', ticket_id=ticket.ticket_id) }}"
+                                method="POST">
+                                {% if ticket.status == 'resolved' %}
+                                <button type="submit" class="btn btn-sm btn-outline-warning">Re-open</button>
+                                {% else %}
+                                <button type="submit" class="btn btn-sm btn-success">Mark Resolved</button>
+                                {% endif %}
+                            </form>
                         </td>
                     </tr>
                     {% else %}
                     <tr>
-                        <td colspan="7" class="text-center">No active tickets found.</td>
+                        <td colspan="7" class="text-center py-4 text-muted">No tickets found.</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -199,6 +222,9 @@
                     <h3 class="modal-title">Manage Ticket</h3>
                     <button class="modal-close" onclick="closeModal()">&times;</button>
                 </div>
+                <button class="btn btn-sm btn-outline-info" onclick="openTicketModal(currentTicketId)">
+                    View Conversation
+                </button>
                 <div class="modal-body" id="modal-body">
                     <!-- Content loaded dynamically -->
                 </div>
@@ -208,9 +234,39 @@
                 </div>
             </div>
         </div>
+        <div id="ticketModal" class="custom-modal-overlay">
+            <div class="custom-modal-box">
+                <div class="modal-header">
+                    <h3>Respond to Ticket</h3>
+                    <span class="close-x" onclick="closeTicketModal()">&times;</span>
+                </div>
+
+                <form id="replyForm" method="POST" action="">
+                    <div class="modal-body">
+                        <div class="info-group">
+                            <label>Incident Details:</label>
+                            <div id="modalDescriptionContent" class="text-content"></div>
+                        </div>
+
+                        <div class="info-group mt-3">
+                            <label>Admin Reply:</label>
+                            <textarea name="reply_text" class="reply-textarea" rows="4"
+                                placeholder="Type your official response here..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn-modal-close" onclick="closeTicketModal()">Cancel</button>
+                        <button type="submit" class="btn-modal-send">Send Response & Resolve</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% set messages = get_flashed_messages() %}
 
 
-        <script src="{{ url_for('static', filename='js/admin/support_request.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/admin/support_request.js') }}"></script>
 </body>
 
 </html>

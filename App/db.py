@@ -33,8 +33,19 @@ def migrate_database():
             print("🔄 Adding 'published_at' column to event table...")
             cursor.execute("ALTER TABLE event ADD COLUMN published_at TEXT")
             conn.commit()
-            print("✅ Database migration complete!")
+            print("✅ Database migration complete for event table!")
+            
+        # Check if reply column exists in support_ticket table
+        cursor.execute("PRAGMA table_info(support_ticket)")
+        columns = [row[1] for row in cursor.fetchall()]
+        
+        if 'reply' not in columns:
+            print("🔄 Adding 'reply' column to support_ticket table...")
+            cursor.execute("ALTER TABLE support_ticket ADD COLUMN reply TEXT")
+            conn.commit()
+            print("✅ Database migration complete for support_ticket table!")
         
         conn.close()
     except Exception as e:
         print(f"⚠️ Migration warning: {e}")
+

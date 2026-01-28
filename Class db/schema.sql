@@ -226,6 +226,8 @@ CREATE TABLE IF NOT EXISTS support_ticket (
     FOREIGN KEY (user_id) REFERENCES user (user_id)
 );
 
+ALTER TABLE support_ticket ADD COLUMN reply TEXT;
+
 CREATE TABLE IF NOT EXISTS live_chat_session (
   session_id INTEGER PRIMARY KEY AUTOINCREMENT,
   user_id INTEGER NOT NULL,

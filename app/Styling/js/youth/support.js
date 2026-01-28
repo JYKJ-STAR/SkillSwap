@@ -54,207 +54,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Ticket Management System
-    let ticketIdCounter = 4;
-    const ticketsData = [
-        {
-            id: 'T-001',
-            title: 'Inappropriate Behavior',
-            description: 'During the Web Development Workshop, a participant was making inappropriate comments to other attendees. This made several people uncomfortable and disrupted the learning environment.',
-            involvedPerson: 'John Smith',
-            eventName: 'Workshop: Web Development',
-            date: '10 - 8 - 2025',
-            status: 'progress',
-            agentReply: null
-        },
-        {
-            id: 'T-002',
-            title: 'Harassment',
-            description: 'I received multiple unwanted messages from another user after the Networking Meetup. They kept asking for my personal contact details even after I declined.',
-            involvedPerson: 'Unknown User',
-            eventName: 'Meetup: Networking',
-            date: '8 - 8 - 2025',
-            status: 'progress',
-            agentReply: null
-        },
-        {
-            id: 'T-003',
-            title: 'Spam',
-            description: 'Someone was promoting their personal business during the AI Basics Seminar, sending promotional materials to all attendees without permission.',
-            involvedPerson: 'Marketing Account',
-            eventName: 'Seminar: AI Basics',
-            date: '5 - 8 - 2025',
-            status: 'resolved',
-            agentReply: 'Thank you for bringing this to our attention. We have identified the user and taken appropriate action. Their account has been warned and the promotional content has been removed. We apologize for any inconvenience caused.'
-        },
-        {
-            id: 'T-004',
-            title: 'Safety Concern',
-            description: 'The emergency exit at the venue was blocked by equipment during the Python Workshop. This could be a safety hazard in case of emergency.',
-            involvedPerson: 'N/A',
-            eventName: 'Workshop: Python Programming',
-            date: '1 - 8 - 2025',
-            status: 'resolved',
-            agentReply: 'Thank you for reporting this safety concern. We have contacted the venue management and they have cleared the emergency exit. We have also added this to our venue checklist to prevent future occurrences. Your vigilance helps keep our community safe!'
-        }
-    ];
 
-    function renderTickets() {
-        const ticketsList = document.getElementById('tickets-list');
-        const emptyTickets = document.getElementById('empty-tickets');
-
-        if (ticketsData.length === 0) {
-            ticketsList.style.display = 'none';
-            emptyTickets.style.display = 'block';
-            return;
-        }
-
-        ticketsList.style.display = 'flex';
-        emptyTickets.style.display = 'none';
-        ticketsList.innerHTML = '';
-
-        ticketsData.forEach((ticket, index) => {
-            const ticketCard = document.createElement('div');
-            ticketCard.className = 'ticket-card';
-            ticketCard.setAttribute('data-ticket-index', index);
-
-            const statusClass = ticket.status === 'resolved' ? 'status-resolved' : 'status-progress';
-            const statusText = ticket.status === 'resolved' ? 'Resolved' : 'In Progress';
-
-            ticketCard.innerHTML = `
-                    <h4 class="ticket-title">${ticket.title}</h4>
-                    <p class="ticket-description">${ticket.description}</p>
-                    <div class="ticket-meta">
-                        <span class="ticket-id">ID: ${ticket.id}</span>
-                        <span class="ticket-date">Submitted: ${ticket.date}</span>
-                        <span class="ticket-status ${statusClass}">${statusText}</span>
-                    </div>
-                `;
-
-            ticketCard.addEventListener('click', () => showTicketDetail(index));
-            ticketsList.appendChild(ticketCard);
-        });
-    }
-
-    function showTicketDetail(index) {
-        const ticket = ticketsData[index];
-        const detailContent = document.getElementById('ticket-detail-content');
-
-        // Update active state
-        document.querySelectorAll('.ticket-card').forEach(card => card.classList.remove('active'));
-        document.querySelector(`[data-ticket-index="${index}"]`)?.classList.add('active');
-
-        let detailHTML = `
-                <h3 class="detail-id">ID: ${ticket.id}</h3>
-                <div class="detail-section">
-                    <p class="detail-label">Issue Type</p>
-                    <p class="detail-value">${ticket.title}</p>
-                </div>
-                <div class="detail-section">
-                    <p class="detail-label">Person Involved</p>
-                    <p class="detail-value">${ticket.involvedPerson || 'Not specified'}</p>
-                </div>
-                <div class="detail-section">
-                    <p class="detail-label">Event</p>
-                    <p class="detail-value">${ticket.eventName || 'Not specified'}</p>
-                </div>
-                <div class="detail-section">
-                    <p class="detail-label">Description</p>
-                    <div class="detail-box">
-                        <p>${ticket.description}</p>
-                    </div>
-                </div>
-            `;
-
-        if (ticket.status === 'resolved' && ticket.agentReply) {
-            detailHTML += `
-                    <h4 class="agent-reply-title">Agent Reply</h4>
-                    <div class="detail-box">
-                        <p>${ticket.agentReply}</p>
-                    </div>
-                `;
-        } else {
-            detailHTML += `
-                    <div class="pending-notice">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="12" cy="12" r="10"/>
-                            <polyline points="12 6 12 12 16 14"/>
-                        </svg>
-                        <p>Your report is being reviewed. An agent will respond shortly.</p>
-                    </div>
-                `;
-        }
-
-        detailContent.innerHTML = detailHTML;
-    }
-
-    // Initialize tickets on page load
-    renderTickets();
-
-    // Safety Report Form Submission
-    const submitReportBtn = document.getElementById('submit-report-btn');
-    const formSuccess = document.getElementById('form-success');
-
-    submitReportBtn?.addEventListener('click', (e) => {
-        e.preventDefault();
-
-        const issueType = document.getElementById('issue-type').value;
-        const involvedPerson = document.getElementById('involved-person').value;
-        const eventName = document.getElementById('event-name').value;
-        const description = document.getElementById('incident-description').value;
-
-        // Validation
-        if (!description.trim()) {
-            alert('Please provide a description of the incident.');
-            return;
-        }
-
-        if (!eventName) {
-            alert('Please select an event.');
-            return;
-        }
-
-        // Generate new ticket ID
-        ticketIdCounter++;
-        const newTicketId = `T-${String(ticketIdCounter).padStart(3, '0')}`;
-
-        // Get current date
-        const now = new Date();
-        const dateStr = `${now.getDate()} - ${now.getMonth() + 1} - ${now.getFullYear()}`;
-
-        // Create new ticket
-        const newTicket = {
-            id: newTicketId,
-            title: issueType,
-            description: description,
-            involvedPerson: involvedPerson || 'Not specified',
-            eventName: eventName,
-            date: dateStr,
-            status: 'progress',
-            agentReply: null
-        };
-
-        // Add to beginning of tickets array
-        ticketsData.unshift(newTicket);
-
-        // Re-render tickets
-        renderTickets();
-
-        // Show success message
-        formSuccess.style.display = 'flex';
-        submitReportBtn.style.display = 'none';
-
-        // Reset form after 3 seconds
-        setTimeout(() => {
-            document.getElementById('involved-person').value = '';
-            document.getElementById('issue-type').value = 'Inappropriate Behavior';
-            document.getElementById('event-name').value = '';
-            document.getElementById('incident-description').value = '';
-            document.getElementById('upload-area').querySelector('.upload-text').textContent = 'Upload Screenshot (Optional)';
-            formSuccess.style.display = 'none';
-            submitReportBtn.style.display = 'block';
-        }, 3000);
-    });
+    // Note: Ticket rendering is now handled server-side via Jinja2 templates
+    // The submitReport() function in the HTML handles form submission to the database
 
     // Live Chat Functionality
     const chatInput = document.querySelector('.chat-input');
@@ -449,3 +251,19 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
 });
+
+function showTicketDetails(ticketId, element) {
+    // 1. Hide all detail cards
+    document.querySelectorAll('.ticket-full-detail').forEach(card => {
+        card.style.display = 'none';
+    });
+
+    // 2. Show the selected detail card
+    document.getElementById('detail-' + ticketId).style.display = 'block';
+
+    // 3. Update 'active' styling on list items
+    document.querySelectorAll('.ticket-card').forEach(card => {
+        card.classList.remove('active');
+    });
+    element.classList.add('active');
+}

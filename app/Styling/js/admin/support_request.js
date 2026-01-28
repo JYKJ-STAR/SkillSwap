@@ -231,3 +231,59 @@ document.getElementById('manage-modal').addEventListener('click', (e) => {
 
 // Initialize
 renderTickets();
+function openTicketModal(descriptionText) {
+    // 1. Put the text inside the modal
+    document.getElementById('modalDescriptionContent').innerText = descriptionText;
+
+    // 2. Show the modal (change display from none to flex)
+    document.getElementById('ticketModal').style.display = 'flex';
+}
+
+function closeTicketModal() {
+    document.getElementById('ticketModal').style.display = 'none';
+}
+
+// Close modal if user clicks outside the box
+window.onclick = function (event) {
+    const modal = document.getElementById('ticketModal');
+    if (event.target == modal) {
+        modal.style.display = "none";
+    }
+}
+function openTicketModal(ticketId, description) {
+    // 1. Set description
+    document.getElementById('modalDescriptionContent').innerText = description;
+
+    // 2. Set the form action dynamically to point to the correct ID
+    document.getElementById('replyForm').action = `/admin/save-ticket-reply/${ticketId}`;
+
+    // 3. Show Modal
+    document.getElementById('ticketModal').style.display = 'flex';
+}
+
+function closeTicketModal() {
+    document.getElementById('ticketModal').style.display = 'none';
+}
+
+// Toggle between Support Tickets and Live Chats
+function toggleView() {
+    const currentView = document.getElementById('current-view');
+    const toggleHint = document.querySelector('.toggle-hint');
+    const pageTitle = document.querySelector('.page-title');
+
+    // The button shows what you can switch TO, not what you're currently on
+    if (currentView.textContent === 'Live Chat') {
+        // Currently on Tickets, switching to Live Chats
+        currentView.textContent = 'Tickets';
+        toggleHint.textContent = 'Click to switch view';
+        pageTitle.textContent = 'Live Chats';
+
+        // Show a message that Live Chats feature is coming soon
+        alert('Live Chats feature is coming soon! This will allow you to manage real-time chat support with users.');
+    } else {
+        // Currently on Live Chats, switching back to Tickets
+        currentView.textContent = 'Live Chat';
+        toggleHint.textContent = 'Click to switch view';
+        pageTitle.textContent = 'Support Ticket';
+    }
+}

@@ -8,10 +8,35 @@ support_bp = Blueprint('support', __name__)
 
 @support_bp.route('/support')
 def support():
-    # Ensure user is logged in (optional, based on your logic)
-    # return render_template('youth/youth_support.html')
-    # Based on your structure it seems you might just be rendering the template:
-    return render_template('youth/youth_support.html')
+    # Fetch tickets from database to display on My Tickets page
+    conn = get_db_connection()
+    
+    user_id = session.get('user_id')
+    
+    # If user is logged in, fetch their tickets; otherwise fetch all for debugging
+    if user_id:
+        tickets = conn.execute("""
+            SELECT st.*, u.name as user_name 
+            FROM support_ticket st
+            LEFT JOIN user u ON st.user_id = u.user_id
+            WHERE st.user_id = ?
+            ORDER BY st.created_at DESC
+        """, (user_id,)).fetchall()
+    else:
+        # Debug mode: fetch all tickets
+        print("Warning: No user_id in session. Fetching all tickets for display.")
+        tickets = conn.execute("""
+            SELECT st.*, u.name as user_name 
+            FROM support_ticket st
+            LEFT JOIN user u ON st.user_id = u.user_id
+            ORDER BY st.created_at DESC
+        """).fetchall()
+    
+    conn.close()
+    
+    print(f"--- DEBUG: Loaded {len(tickets)} tickets for support page ---")
+    
+    return render_template('youth/youth_support.html', tickets=tickets)
 
 @support_bp.route('/submit-ticket', methods=['POST'])
 def submit_ticket():
@@ -64,3 +89,55 @@ def submit_ticket():
         return jsonify({"message": str(e)}), 500
     finally:
         conn.close()
+
+@support_bp.route('/my-tickets')
+def my_tickets():
+    conn = get_db_connection()
+    
+    # --- DEBUG MODE: FETCH ALL TICKETS (Ignores User ID) ---
+    print("--- DEBUG: Fetching ALL tickets for display ---")
+    
+    tickets = conn.execute("""
+        SELECT st.*, u.name as user_name 
+        FROM support_ticket st
+        LEFT JOIN user u ON st.user_id = u.user_id
+        ORDER BY st.created_at DESC
+    """).fetchall()
+    
+    conn.close()
+    
+    # Debug print to confirm data is found
+    print(f"--- DEBUG: Found {len(tickets)} tickets total. ---")
+
+    return render_template('youth/youth_my_tickets.html', tickets=tickets)
+
+@support_bp.route('/adopt-tickets')
+def adopt_tickets():
+    # Assign ALL tickets to the currently logged-in user
+    user_id = session.get('user_id')
+    if not user_id:
+        return "Please log in first!"
+        
+    conn = get_db_connection()
+    conn.execute("UPDATE support_ticket SET user_id = ?", (user_id,))
+    conn.commit()
+    conn.close()
+    
+    return f"Success! All tickets now belong to User ID {user_id}. Go back to My Tickets."
+
+@support_bp.route('/fix-my-tickets')
+def fix_my_tickets():
+    # 1. Get your current ID (e.g., maybe you are ID 1 or 2)
+    current_user_id = session.get('user_id')
+    
+    if not current_user_id:
+        return "You are not logged in! Please log in first."
+
+    conn = get_db_connection()
+    
+    # 2. Force all tickets in the DB to belong to YOU
+    conn.execute("UPDATE support_ticket SET user_id = ?", (current_user_id,))
+    conn.commit()
+    conn.close()
+    
+    return f"Fixed! All tickets have been moved to User ID {current_user_id}. Go back to 'My Tickets' to see them."
