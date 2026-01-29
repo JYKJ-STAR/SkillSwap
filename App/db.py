@@ -45,6 +45,42 @@ def migrate_database():
             conn.commit()
             print("✅ Database migration complete for support_ticket table!")
         
+        # Migrate challenge table to support 'pending' status
+        # Check if the challenge table needs migration by trying to insert a pending row
+        try:
+            cursor.execute("SELECT sql FROM sqlite_master WHERE type='table' AND name='challenge'")
+            table_sql = cursor.fetchone()
+            if table_sql and "'pending'" not in table_sql[0]:
+                print("🔄 Migrating 'challenge' table to support 'pending' status...")
+                # Create new table with updated constraint
+                cursor.execute("""
+                    CREATE TABLE IF NOT EXISTS challenge_new (
+                        challenge_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        title TEXT NOT NULL,
+                        description TEXT,
+                        start_date TEXT NOT NULL,
+                        end_date TEXT NOT NULL,
+                        status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'active', 'inactive', 'published', 'voided', 'ended')),
+                        void_reason TEXT,
+                        created_by INTEGER,
+                        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+                        published_at TEXT,
+                        voided_at TEXT,
+                        ended_at TEXT,
+                        FOREIGN KEY (created_by) REFERENCES admin(admin_id) ON DELETE SET NULL
+                    )
+                """)
+                # Copy data from old table
+                cursor.execute("INSERT INTO challenge_new SELECT * FROM challenge")
+                # Drop old table
+                cursor.execute("DROP TABLE challenge")
+                # Rename new table
+                cursor.execute("ALTER TABLE challenge_new RENAME TO challenge")
+                conn.commit()
+                print("✅ Challenge table migration complete!")
+        except Exception as migration_error:
+            print(f"⚠️ Challenge migration note: {migration_error}")
+        
         conn.close()
     except Exception as e:
         print(f"⚠️ Migration warning: {e}")

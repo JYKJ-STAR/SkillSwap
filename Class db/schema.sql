@@ -252,8 +252,10 @@ CREATE TABLE IF NOT EXISTS notification (
   user_id INTEGER NOT NULL,
   message TEXT NOT NULL,
   is_read INTEGER DEFAULT 0 CHECK (is_read IN (0,1)),
+  event_id INTEGER,
   created_at TEXT NOT NULL DEFAULT (datetime('now')),
-  FOREIGN KEY (user_id) REFERENCES user(user_id) ON DELETE CASCADE
+  FOREIGN KEY (user_id) REFERENCES user(user_id) ON DELETE CASCADE,
+  FOREIGN KEY (event_id) REFERENCES event(event_id) ON DELETE SET NULL
 );
 
 -- NEW: Safety Report (Reporting users)
@@ -270,4 +272,23 @@ CREATE TABLE IF NOT EXISTS safety_report (
   FOREIGN KEY (reported_by_user_id) REFERENCES user(user_id) ON DELETE CASCADE,
   FOREIGN KEY (event_id) REFERENCES event(event_id) ON DELETE SET NULL,
   FOREIGN KEY (handled_by_admin_id) REFERENCES user(user_id) ON DELETE SET NULL
+);
+
+-- =====================================================
+-- 6. CHALLENGES
+-- =====================================================
+CREATE TABLE IF NOT EXISTS challenge (
+  challenge_id INTEGER PRIMARY KEY AUTOINCREMENT,
+  title TEXT NOT NULL,
+  description TEXT,
+  start_date TEXT NOT NULL, -- YYYY-MM-DD
+  end_date TEXT NOT NULL,   -- YYYY-MM-DD
+  status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'active', 'inactive', 'published', 'voided', 'ended')),
+  void_reason TEXT,
+  created_by INTEGER,
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  published_at TEXT,
+  voided_at TEXT,
+  ended_at TEXT,
+  FOREIGN KEY (created_by) REFERENCES admin(admin_id) ON DELETE SET NULL
 );

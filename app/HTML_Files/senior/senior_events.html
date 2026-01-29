@@ -61,6 +61,11 @@
                         <span class="checkmark-senior"></span>
                         🛠️ Community Projects
                     </label>
+                    <label class="checkbox-container-senior">
+                        <input type="checkbox" value="challenges" onchange="filterByCategory('challenges')">
+                        <span class="checkmark-senior"></span>
+                        🏆 Challenges
+                    </label>
                 </div>
             </div>
 
@@ -114,6 +119,30 @@
                         <span class="event-led-by-senior">Led by: {{ event.led_by|capitalize }}</span>
                         <a href="{{ url_for('events.event_details', event_id=event.id) }}"
                             class="senior-view-details-btn">View Details</a>
+                    </div>
+                    {% endfor %}
+                </div>
+            </section>
+            {% endif %}
+
+            <!-- Monthly Challenges Section -->
+            {% if challenges %}
+            <section class="events-section-senior" data-section="challenges">
+                <h2 class="section-title-senior">🏆 Monthly Challenges</h2>
+                <div class="events-grid-senior">
+                    {% for challenge in challenges %}
+                    <div class="senior-event-card challenge-card {% if challenge.is_new %}senior-event-card-new{% endif %}"
+                        data-category="challenges" data-location="all" style="border-left: 5px solid #d69e2e;">
+                        {% if challenge.is_new %}
+                        <span class="event-new-badge-senior">NEW</span>
+                        {% endif %}
+                        <span class="event-category-badge-senior category-challenge">🏆 Challenge</span>
+                        <h3 class="senior-event-title">{{ challenge.title }}</h3>
+                        <p class="senior-event-description">{{ challenge.description }}</p>
+                        <div class="senior-event-meta">
+                            <span>📅 {{ challenge.start_date }} - {{ challenge.end_date }}</span>
+                        </div>
+                        <span class="event-led-by-senior">Monthly Goal</span>
                     </div>
                     {% endfor %}
                 </div>

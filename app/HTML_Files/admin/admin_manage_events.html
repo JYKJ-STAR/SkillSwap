@@ -112,7 +112,11 @@
                 {% endif %}
 
                 {% if current_filter == 'pending' %}
-                <button class="btn-new-event" onclick="openCreateModal()">New Event +</button>
+                <button class="btn-new-challenge" onclick="openCreateChallengeModal()">🏆 New
+                    Challenge +</button>
+                <button class="btn-new-event" onclick="openCreateModal()"
+                    style="width: 200px; display: flex; justify-content: center; align-items: center;">New Event
+                    +</button>
                 {% elif current_filter in ['voided', 'past'] and events %}
                 <form action="{{ url_for('admin.admin_clear_tab', tab_name=current_filter) }}" method="POST"
                     style="display:inline;"
@@ -142,26 +146,34 @@
                 <tbody>
                     {% if current_filter == 'approved' %}
                     {# Group by category with headers for Approved tab #}
-                    {% if events %}
-                    {% set current_category = namespace(value='') %}
-                    {% set current_status_group = namespace(value='') %}
-                    {% for event in events %}
-                    {# Determine status group #}
-                    {% set status_group = 'Published' if event.status == 'published' else 'Unpublished' %}
+                    {% if events or published_challenges %}
 
-                    {# Show status group header when it changes #}
-                    {% if status_group != current_status_group.value %}
-                    {% set current_status_group.value = status_group %}
-                    {% set current_category.value = '' %}
+                    {# Pre-calculate lists for the Approved tab #}
+                    {% set pending_challenges = [] %}
+                    {% set unpublished_challenges = [] %}
+                    {% set published_challenges_list = [] %}
+
+                    {% for c in published_challenges %}
+                    {% if c.status == 'pending' %}
+                    {% set _ = pending_challenges.append(c) %}
+                    {% elif c.status == 'active' %}
+                    {% set _ = unpublished_challenges.append(c) %}
+                    {% elif c.status == 'published' %}
+                    {% set _ = published_challenges_list.append(c) %}
+                    {% endif %}
+                    {% endfor %}
+
+                    {# 1. UNPUBLISHED EVENTS #}
+                    {% set unpublished_events = events | selectattr('status', 'equalto', 'approved') | list %}
+                    {% if unpublished_events %}
+                    {% set current_category = namespace(value='') %}
                     <tr class="category-header-row">
                         <td colspan="7"
                             style="background: #1f2937; padding: 15px 20px; font-weight: 700; font-size: 1.1em; color: #60a5fa; border-top: 2px solid #4b5563;">
-                            {{ '🌐 Published Events' if status_group == 'Published' else '📝 Unpublished Events' }}
+                            📝 Unpublished Events
                         </td>
                     </tr>
-                    {% endif %}
-
-                    {# Show category header when category changes #}
+                    {% for event in unpublished_events %}
                     {% if event.category != current_category.value %}
                     {% set current_category.value = event.category %}
                     <tr class="category-subheader-row">
@@ -171,41 +183,19 @@
                         </td>
                     </tr>
                     {% endif %}
-
                     <tr>
                         <td>{{ event.title }}</td>
                         <td>{{ event.start_datetime[:10] if event.start_datetime else 'N/A' }}</td>
-                        <td>
-                            {% if event.status == 'published' %}
-                            <span class="status-badge published">Published</span>
-                            {% else %}
-                            <span class="status-badge approved">Approved (Unpublished)</span>
-                            {% endif %}
-                        </td>
+                        <td><span class="status-badge approved">Approved (Unpublished)</span></td>
                         <td>{{ event.location or 'N/A' }}</td>
-                        <td>
-                            {% if event.status == 'published' %}
-                            <a href="{{ url_for('admin.admin_view_participants', event_id=event.event_id) }}"
-                                style="color: #60a5fa; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; transition: color 0.2s;"
-                                onmouseover="this.style.color='#93c5fd'" onmouseout="this.style.color='#60a5fa'">
-                                <i class="bi bi-people-fill"></i>
-                                {{ event.participant_count or 0 }} users
-                                <i class="bi bi-box-arrow-up-right" style="font-size: 0.75em;"></i>
-                            </a>
-                            {% else %}
-                            {{ event.participant_count or 0 }} users
-                            {% endif %}
-                        </td>
+                        <td>{{ event.participant_count or 0 }} users</td>
                         <td>{{ category_display.get(event.category, event.category) if event.category else 'N/A' }}</td>
                         <td class="actions-cell">
-                            {% if event.status == 'approved' %}
                             <form action="{{ url_for('admin.admin_publish_event', event_id=event.event_id) }}"
                                 method="POST" style="display:inline;">
                                 <button type="submit" class="action-icon publish" title="Publish"><i
                                         class="bi bi-globe"></i></button>
                             </form>
-                            {% endif %}
-
                             <button class="action-icon void" title="Void"
                                 data-void-url="{{ url_for('admin.admin_void_event', event_id=event.event_id) }}"
                                 onclick="openVoidModal(this.dataset.voidUrl)">
@@ -219,11 +209,151 @@
                         </td>
                     </tr>
                     {% endfor %}
-                    {% else %}
+                    {% endif %}
+
+                    {# 2. UNPUBLISHED CHALLENGES #}
+                    {% if unpublished_challenges %}
+                    <tr class="category-subheader-row">
+                        <td colspan="7"
+                            style="background: #374151; padding: 12px 20px; font-weight: 600; font-size: 0.95em; color: #d1d5db; border-left: 4px solid #ef4444;">
+                            📝 Unpublished Challenges
+                        </td>
+                    </tr>
+                    {% for challenge in unpublished_challenges %}
                     <tr>
-                        <td colspan="7" style="text-align: center; color: #9ca3af; padding: 40px;">No events found for
+                        <td>{{ challenge.title }}</td>
+                        <td>{{ challenge.start_date[:10] }} - {{ challenge.end_date[:10] }}</td>
+                        <td><span class="status-badge approved">Approved (Unpublished)</span></td>
+                        <td>—</td>
+                        <td>—</td>
+                        <td>🏆 Challenge</td>
+                        <td class="actions-cell">
+                            <form
+                                action="{{ url_for('admin.admin_publish_challenge', challenge_id=challenge.challenge_id) }}"
+                                method="POST" style="display:inline;">
+                                <button type="submit" class="action-icon publish" title="Publish"><i
+                                        class="bi bi-globe"></i></button>
+                            </form>
+
+                            <button type="button" class="action-icon void" title="Void"
+                                onclick="openVoidChallengeModal({{ challenge.challenge_id }})">
+                                <i class="bi bi-x-circle"></i>
+                            </button>
+                            <form
+                                action="{{ url_for('admin.admin_end_challenge', challenge_id=challenge.challenge_id) }}"
+                                method="POST" style="display:inline;"
+                                onsubmit="return confirm('Mark this challenge as ended?');">
+                                <button type="submit" class="action-icon end" title="End Challenge"><i
+                                        class="bi bi-flag-fill"></i></button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    {% endif %}
+
+                    {# 3. PUBLISHED EVENTS #}
+                    {% set published_events = events | selectattr('status', 'equalto', 'published') | list %}
+                    {% if published_events %}
+                    {% set current_category = namespace(value='') %}
+                    <tr class="category-header-row">
+                        <td colspan="7"
+                            style="background: #1f2937; padding: 15px 20px; font-weight: 700; font-size: 1.1em; color: #60a5fa; border-top: 2px solid #4b5563;">
+                            🌐 Published Events
+                        </td>
+                    </tr>
+                    {% for event in published_events %}
+                    {% if event.category != current_category.value %}
+                    {% set current_category.value = event.category %}
+                    <tr class="category-subheader-row">
+                        <td colspan="7"
+                            style="background: #374151; padding: 12px 20px; font-weight: 600; font-size: 0.95em; color: #d1d5db; border-left: 4px solid #ef4444;">
+                            {{ category_display.get(event.category, event.category) }}
+                        </td>
+                    </tr>
+                    {% endif %}
+                    <tr>
+                        <td>{{ event.title }}</td>
+                        <td>{{ event.start_datetime[:10] if event.start_datetime else 'N/A' }}</td>
+                        <td><span class="status-badge published">Published</span></td>
+                        <td>{{ event.location or 'N/A' }}</td>
+                        <td>
+                            <a href="{{ url_for('admin.admin_view_participants', event_id=event.event_id) }}"
+                                style="color: #60a5fa; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; transition: color 0.2s;"
+                                onmouseover="this.style.color='#93c5fd'" onmouseout="this.style.color='#60a5fa'">
+                                <i class="bi bi-people-fill"></i>
+                                {{ event.participant_count or 0 }} users
+                                <i class="bi bi-box-arrow-up-right" style="font-size: 0.75em;"></i>
+                            </a>
+                        </td>
+                        <td>{{ category_display.get(event.category, event.category) if event.category else 'N/A' }}</td>
+                        <td class="actions-cell">
+                            <form action="{{ url_for('admin.admin_unpublish_event', event_id=event.event_id) }}"
+                                method="POST" style="display:inline;">
+                                <button type="submit" class="action-icon unpublish" title="Unpublish"><i
+                                        class="bi bi-eye-slash"></i></button>
+                            </form>
+                            <button class="action-icon void" title="Void"
+                                data-void-url="{{ url_for('admin.admin_void_event', event_id=event.event_id) }}"
+                                onclick="openVoidModal(this.dataset.voidUrl)">
+                                <i class="bi bi-x-circle"></i>
+                            </button>
+                            <form action="{{ url_for('admin.admin_end_event', event_id=event.event_id) }}" method="POST"
+                                style="display:inline;">
+                                <button type="submit" class="action-icon end" title="End Event"><i
+                                        class="bi bi-flag-fill"></i></button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    {% endif %}
+
+                    {# 4. PUBLISHED CHALLENGES #}
+                    {% if published_challenges_list %}
+                    <tr class="category-subheader-row">
+                        <td colspan="7"
+                            style="background: #1f2937; padding: 12px 20px; font-weight: 700; font-size: 1.1em; color: #60a5fa; border-top: 2px solid #4b5563;">
+                            🏆 Published Challenges
+                        </td>
+                    </tr>
+                    {% for challenge in published_challenges_list %}
+                    <tr>
+                        <td>{{ challenge.title }}</td>
+                        <td>{{ challenge.start_date[:10] }} - {{ challenge.end_date[:10] }}</td>
+                        <td><span class="status-badge published">Published</span></td>
+                        <td>—</td>
+                        <td>—</td>
+                        <td>🏆 Challenge</td>
+                        <td class="actions-cell">
+                            <form
+                                action="{{ url_for('admin.admin_unpublish_challenge', challenge_id=challenge.challenge_id) }}"
+                                method="POST" style="display:inline;">
+                                <button type="submit" class="action-icon unpublish" title="Unpublish"><i
+                                        class="bi bi-eye-slash"></i></button>
+                            </form>
+                            <button type="button" class="action-icon void" title="Void"
+                                onclick="openVoidChallengeModal({{ challenge.challenge_id }})">
+                                <i class="bi bi-x-circle"></i>
+                            </button>
+                            <form
+                                action="{{ url_for('admin.admin_end_challenge', challenge_id=challenge.challenge_id) }}"
+                                method="POST" style="display:inline;"
+                                onsubmit="return confirm('Mark this challenge as ended?');">
+                                <button type="submit" class="action-icon end" title="End Challenge"><i
+                                        class="bi bi-flag-fill"></i></button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    {% endif %}
+
+                    {% if not events and not published_challenges %}
+                    <tr>
+                        <td colspan="7" style="text-align: center; color: #9ca3af; padding: 40px;">No events or
+                            challenges found for
                             this filter.</td>
                     </tr>
+                    {% endif %}
+
                     {% endif %}
 
                     {% else %}
@@ -279,11 +409,108 @@
                         </td>
                     </tr>
                     {% endfor %}
+                    {% endif %}
+
+                    {# Display pending challenges in Pending tab #}
+                    {% if current_filter == 'pending' and published_challenges %}
+                    {% for challenge in published_challenges %}
+                    {% if challenge.status == 'pending' %}
+                    <tr>
+                        <td>{{ challenge.title }}</td>
+                        <td>{{ challenge.start_date }} - {{ challenge.end_date }}</td>
+                        <td><span class="new-badge">NEW</span><span class="status-badge pending">Pending</span></td>
+                        <td>—</td>
+                        <td>—</td>
+                        <td>🏆 Challenge</td>
+                        <td class="actions-cell">
+                            <form
+                                action="{{ url_for('admin.admin_approve_challenge', challenge_id=challenge.challenge_id) }}"
+                                method="POST" style="display:inline;">
+                                <button type="submit" class="action-icon approve" title="Approve"><i
+                                        class="bi bi-check-lg"></i></button>
+                            </form>
+                            <button class="action-icon edit edit-challenge-btn"
+                                data-challenge-id="{{ challenge.challenge_id }}" data-title="{{ challenge.title }}"
+                                data-description="{{ challenge.description }}" data-start="{{ challenge.start_date }}"
+                                data-end="{{ challenge.end_date }}" title="Edit"
+                                onclick="openEditChallengeModal(this.dataset)">
+                                <i class="bi bi-pencil-square"></i>
+                            </button>
+                            <form
+                                action="{{ url_for('admin.admin_delete_challenge', challenge_id=challenge.challenge_id) }}"
+                                method="POST" style="display:inline;"
+                                onsubmit="return confirm('Are you sure you want to delete this challenge?');">
+                                <button type="submit" class="action-icon delete" title="Delete"><i
+                                        class="bi bi-trash"></i></button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endif %}
+                    {% endfor %}
+                    {% endif %}
+
+                    {# Display voided challenges in Voided tab #}
+                    {% if current_filter == 'voided' and published_challenges %}
+                    {% for challenge in published_challenges %}
+                    {% if challenge.status == 'voided' %}
+                    <tr>
+                        <td>{{ challenge.title }}</td>
+                        <td>{{ challenge.start_date }} - {{ challenge.end_date }}</td>
+                        <td>
+                            <span class="status-badge voided">Voided</span>
+                            {% if challenge.void_reason %}
+                            <div style="font-size: 0.8em; color: #9ca3af; margin-top: 5px;">Reason: {{
+                                challenge.void_reason }}</div>
+                            {% endif %}
+                        </td>
+                        <td>—</td>
+                        <td>—</td>
+                        <td>🏆 Challenge</td>
+                        <td class="actions-cell">
+                            <span style="color: #6b7280;">—</span>
+                        </td>
+                    </tr>
+                    {% endif %}
+                    {% endfor %}
+                    {% endif %}
+
+                    {# Display ended challenges in Past tab #}
+                    {% if current_filter == 'past' and published_challenges %}
+                    {% for challenge in published_challenges %}
+                    {% if challenge.status == 'ended' %}
+                    <tr>
+                        <td>{{ challenge.title }}</td>
+                        <td>{{ challenge.start_date }} - {{ challenge.end_date }}</td>
+                        <td><span class="status-badge finished">Ended</span></td>
+                        <td>—</td>
+                        <td>—</td>
+                        <td>🏆 Challenge</td>
+                        <td class="actions-cell">
+                            <span style="color: #6b7280;">—</span>
+                        </td>
+                    </tr>
+                    {% endif %}
+                    {% endfor %}
+                    {% endif %}
+
+                    {# No results message - check both events and challenges #}
+                    {% if not events %}
+                    {% if current_filter == 'pending' %}
+                    {% set has_pending_challenges = published_challenges|selectattr('status', 'equalto',
+                    'pending')|list|length > 0 %}
+                    {% if not has_pending_challenges %}
+                    <tr>
+                        <td colspan="7" style="text-align: center; color: #9ca3af; padding: 40px;">No events or
+                            challenges found for
+                            this filter.</td>
+                    </tr>
+                    {% endif %}
                     {% else %}
                     <tr>
                         <td colspan="7" style="text-align: center; color: #9ca3af; padding: 40px;">No events found for
                             this filter.</td>
                     </tr>
+                    {% endif %}
                     {% endif %}
                     {% endif %}
                 </tbody>
@@ -490,6 +717,105 @@
             </form>
         </div>
     </div>
+    <!-- Create Challenge Modal -->
+    <div id="createChallengeModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>🏆 Create New Challenge</h2>
+                <button class="modal-close" onclick="closeChallengeModal()">&times;</button>
+            </div>
+            <form action="{{ url_for('admin.admin_create_challenge_submit') }}" method="POST">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">Challenge Title</label>
+                        <input type="text" name="title" class="form-input" placeholder="e.g., 5-in-a-Month" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Description</label>
+                        <textarea name="description" class="form-input" rows="3"
+                            placeholder="Describe the challenge requirements..." required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Start Date & Time</label>
+                        <input type="datetime-local" name="start_datetime" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">End Date & Time</label>
+                        <input type="datetime-local" name="end_datetime" class="form-input" required>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-cancel" onclick="closeChallengeModal()">Cancel</button>
+                    <button type="submit" class="btn-submit"
+                        style="background: linear-gradient(135deg, #f59e0b, #d97706);">Create Challenge</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Void Challenge Modal -->
+    <div id="voidChallengeModal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 450px; background: #8a8a8a;">
+            <div class="modal-header" style="border-bottom: none; padding-bottom: 10px;">
+                <h2 style="color: #1f2937;">🚫 Void Challenge</h2>
+                <button class="modal-close" onclick="closeVoidChallengeModal()" style="color: #1f2937;">&times;</button>
+            </div>
+            <form id="voidChallengeForm" action="" method="POST">
+                <div class="form-grid" style="padding: 15px 24px;">
+                    <p style="color: #374151; margin-bottom: 15px;">Please provide a reason for voiding this challenge:
+                    </p>
+                    <div class="form-group">
+                        <textarea name="void_reason" class="form-input" rows="3"
+                            style="background: #fff; color: #1f2937;" placeholder="Reason for voiding..."
+                            required></textarea>
+                    </div>
+                </div>
+                <div class="modal-actions" style="border-top: 1px solid #6b7280; padding: 15px 24px;">
+                    <button type="button" class="btn-cancel" onclick="closeVoidChallengeModal()"
+                        style="background: #d1d5db; color: #1f2937;">Cancel</button>
+                    <button type="submit" class="btn-submit" style="background-color: #dc2626; color: #fff;">Void
+                        Challenge</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Challenge Modal -->
+    <div id="editChallengeModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Edit Challenge</h2>
+                <button class="modal-close" onclick="closeEditChallengeModal()">&times;</button>
+            </div>
+            <form id="editChallengeForm" action="" method="POST">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">Challenge Title</label>
+                        <input type="text" name="title" id="edit_challenge_title" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Description</label>
+                        <textarea name="description" id="edit_challenge_description" class="form-input" rows="3"
+                            required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Start Date & Time</label>
+                        <input type="datetime-local" name="start_datetime" id="edit_challenge_start" class="form-input"
+                            required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">End Date & Time</label>
+                        <input type="datetime-local" name="end_datetime" id="edit_challenge_end" class="form-input"
+                            required>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-cancel" onclick="closeEditChallengeModal()">Cancel</button>
+                    <button type="submit" class="btn-submit">Update Challenge</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <!-- Admin JS -->
     <script>
@@ -529,6 +855,77 @@
         function closeVoidModal() {
             document.getElementById('voidModal').classList.remove('active');
         }
+
+        // Challenge Modal Functions
+        function openCreateChallengeModal() {
+            document.getElementById('createChallengeModal').classList.add('active');
+        }
+
+        function closeChallengeModal() {
+            document.getElementById('createChallengeModal').classList.remove('active');
+        }
+
+        function openVoidChallengeModal(challengeId) {
+            document.getElementById('voidChallengeForm').action = '/admin/void-challenge/' + challengeId;
+            document.getElementById('voidChallengeModal').classList.add('active');
+        }
+
+        function closeVoidChallengeModal() {
+            document.getElementById('voidChallengeModal').classList.remove('active');
+        }
+
+        // Close modals on outside click
+        // Note: editChallengeModal handled in the block above to update list consistently
+        ['createChallengeModal', 'voidChallengeModal'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.addEventListener('click', function (e) {
+                    if (e.target === this) {
+                        this.classList.remove('active');
+                    }
+                });
+            }
+        });
+        // Edit Challenge Functions
+        function openEditChallengeModal(data) {
+            const modal = document.getElementById('editChallengeModal');
+            const form = document.getElementById('editChallengeForm');
+
+            // Set form action
+            form.action = `/admin/update-challenge/${data.challengeId}`;
+
+            // Populate fields
+            document.getElementById('edit_challenge_title').value = data.title;
+            document.getElementById('edit_challenge_description').value = data.description;
+
+            // Format dates for datetime-local (YYYY-MM-DDTHH:MM)
+            const formatForInput = (dateStr) => {
+                if (!dateStr) return '';
+                // Handle various formats if needed, assuming DB returns 'YYYY-MM-DD HH:MM:SS'
+                return dateStr.replace(' ', 'T').substring(0, 16);
+            };
+
+            document.getElementById('edit_challenge_start').value = formatForInput(data.start);
+            document.getElementById('edit_challenge_end').value = formatForInput(data.end);
+
+            modal.classList.add('active');
+        }
+
+        function closeEditChallengeModal() {
+            document.getElementById('editChallengeModal').classList.remove('active');
+        }
+
+        // Close using the same logic as others
+        ['createChallengeModal', 'voidChallengeModal', 'editChallengeModal'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.addEventListener('click', function (e) {
+                    if (e.target === this) {
+                        this.classList.remove('active');
+                    }
+                });
+            }
+        });
     </script>
     <script src="{{ url_for('static', filename='js/admin/manage_events.js') }}"></script>
 </body>

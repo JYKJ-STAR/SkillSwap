@@ -109,6 +109,8 @@ INSERT INTO event (created_by_user_id, grc_id, title, description, category, led
 -- HANDS-ON / COMMUNITY PROJECTS (Employee-led)
 -- (Removed unpublished events)
 
+
+
 -- EVENT ROLE REQUIREMENTS (Mentor=5, Participant=15 per event)
 INSERT INTO event_role_requirement (event_id, role_type, required_count) VALUES
 -- Event 1
@@ -172,3 +174,14 @@ INSERT INTO faq_article (question, answer, category, is_active) VALUES
 ('How do I report a safety concern?', 'Use the Safety Report feature in the Support page to submit a report. Our team will review it within 24 hours.', 'Safety', 1),
 ('What are the different event categories?', 'We have 6 categories: Tech and Digital, Life Skills, Health and Wellness, Culture and Creative, Social Games, and Community Projects.', 'Events', 1),
 ('Can I suggest a new event?', 'Yes! Contact us through the Support page with your event idea and we will consider adding it to our calendar.', 'Events', 1);
+
+
+-- CHALLENGES SEED DATA (Current Month)
+INSERT INTO challenge (title, description, start_date, end_date, status, created_by, published_at) VALUES
+('Monthly Step Challenge', 'Walk 10,000 steps daily for 30 days - Track your progress and compete with friends', '2026-02-01', '2026-02-28', 'published', 1, '2025-01-01 12:00:00'),
+('Digital Detox Weekend', 'Reduce screen time to 2 hours/day for one weekend - Share your offline activities', '2026-02-08', '2026-02-09', 'published', 1, '2025-01-01 12:00:00'),
+('Community Garden Project', 'Plant and maintain a community garden plot - Harvest fresh vegetables together', '2026-02-15', '2026-04-15', 'published', 1, '2025-01-01 12:00:00'),
+('Learn a New Skill', 'Master a new skill and teach it to others - Document your learning journey', '2026-02-01', '2026-03-01', 'published', 1, '2025-01-01 12:00:00'),
+('Zero Waste Challenge', 'Reduce household waste by 50% - Share your eco-friendly tips and tricks', '2026-02-10', '2026-03-10', 'published', 1, '2025-01-01 12:00:00');
+
+

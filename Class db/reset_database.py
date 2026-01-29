@@ -88,6 +88,39 @@ def reset_events(cursor):
     else:
         print(f"⚠ seed.sql not found at {seed_path}")
 
+def reset_challenges(cursor):
+    """Reset challenges table with seed data"""
+    import os
+    
+    # Delete all challenges
+    cursor.execute("DELETE FROM challenge")
+    
+    # Reset sequence
+    cursor.execute("DELETE FROM sqlite_sequence WHERE name='challenge'")
+    print("✓ Deleted all existing challenges")
+    
+    # Read and execute seed.sql for challenges
+    seed_path = os.path.join(os.path.dirname(__file__), 'seed.sql')
+    
+    if os.path.exists(seed_path):
+        with open(seed_path, 'r', encoding='utf-8') as f:
+            seed_sql = f.read()
+        
+        # Execute only the challenge INSERT statements
+        statements = seed_sql.split(';')
+        challenge_count = 0
+        for stmt in statements:
+            if 'INSERT INTO challenge' in stmt:
+                try:
+                    cursor.execute(stmt.strip() + ';')
+                    challenge_count += 1
+                except Exception as e:
+                    print(f"  ⚠ Skipped statement: {e}")
+        
+        print(f"✓ Inserted {challenge_count} challenge batches from seed.sql")
+    else:
+        print(f"⚠ seed.sql not found at {seed_path}")
+
 def reset_users(cursor):
     """Reset users table"""
     # Delete all users and reset auto-increment counter
@@ -152,12 +185,13 @@ if __name__ == '__main__':
     parser.add_argument('--users', action='store_true', help='Reset users table only')
     parser.add_argument('--admins', action='store_true', help='Reset admins table only')
     parser.add_argument('--events', action='store_true', help='Reset events table with seed data (all Published)')
+    parser.add_argument('--challenges', action='store_true', help='Reset challenges table with seed data')
     # If no flags are provided, it will run default behavior (both users & admins)
     
     args = parser.parse_args()
     
     # Check if any specific flag was set
-    if args.users or args.admins or args.events:
+    if args.users or args.admins or args.events or args.challenges:
         conn = sqlite3.connect(DB_PATH)
         cursor = conn.cursor()
         try:
@@ -167,6 +201,11 @@ if __name__ == '__main__':
                 reset_admins(cursor)
             if args.events:
                 reset_events(cursor)
+                # Also reset challenges when resetting events (as per user request)
+                reset_challenges(cursor)
+            
+            if args.challenges and not args.events:
+                reset_challenges(cursor)
             
             conn.commit()
             print("\n✅ Selected tables reset complete!")

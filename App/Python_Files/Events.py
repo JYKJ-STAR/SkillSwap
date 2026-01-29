@@ -13,6 +13,42 @@ CATEGORY_DISPLAY = {
     'community_projects': '🛠️ Hands-On / Community Projects'
 }
 
+def get_active_challenges():
+    """Fetch published monthly challenges visible to users."""
+    db = get_db_connection()
+    
+    # Check if published_at column exists
+    cursor = db.execute("PRAGMA table_info(challenge)")
+    columns = [row['name'] for row in cursor.fetchall()]
+    has_published_at = 'published_at' in columns
+    
+    if has_published_at:
+        cursor = db.execute('''
+            SELECT *,
+                   CASE 
+                       WHEN published_at IS NOT NULL 
+                       AND julianday('now') - julianday(published_at) <= 7 
+                       THEN 1 
+                       ELSE 0 
+                   END as is_new
+            FROM challenge 
+            WHERE status = 'published' 
+            ORDER BY end_date ASC
+        ''')
+    else:
+        cursor = db.execute("SELECT *, 0 as is_new FROM challenge WHERE status = 'published' ORDER BY end_date ASC")
+        
+    challenges = cursor.fetchall()
+    
+    # Convert to list of dicts for template usage
+    challenge_list = []
+    for c in challenges:
+        c_dict = dict(c)
+        c_dict['is_new'] = bool(c['is_new']) if has_published_at else False
+        challenge_list.append(c_dict)
+        
+    return challenge_list
+
 def get_all_events():
     """Fetch all open events from database."""
     db = get_db_connection()
@@ -35,7 +71,7 @@ def get_all_events():
                        ELSE 0 
                    END as is_new
             FROM event 
-            WHERE status IN ('approved', 'published')
+            WHERE status IN ('published')
             ORDER BY start_datetime ASC
         ''')
     else:
@@ -46,7 +82,7 @@ def get_all_events():
                    NULL as published_at,
                    0 as is_new
             FROM event 
-            WHERE status IN ('approved', 'published')
+            WHERE status IN ('published')
             ORDER BY start_datetime ASC
         ''')
     
@@ -117,10 +153,10 @@ def categorize_events(events, user_interests=None):
         if user_interests:
             # Map event categories to skill categories
             category_skill_map = {
-                'tech_digital': 'Tech & Digital',
+                'tech_digital': 'Tech and Digital',
                 'life_skills': 'Life Skills',
-                'health_wellness': 'Health & Wellness',
-                'culture_creative': 'Culture & Creative'
+                'health_wellness': 'Health and Wellness',
+                'culture_creative': 'Culture and Creative'
             }
             skill_category = category_skill_map.get(category)
             if skill_category and skill_category in user_interests:
@@ -166,6 +202,9 @@ def events():
     # Categorize events
     categorized = categorize_events(all_events, user_interests)
     
+    # Fetch Challenges
+    challenges = get_active_challenges()
+    
     if role == 'admin':
         return redirect(url_for('admin.admin_dashboard'))
     elif role == 'senior':
@@ -174,14 +213,16 @@ def events():
                              recommended_events=categorized['recommended'],
                              bond_events=categorized['bond'],
                              events_by_category=categorized['by_category'],
-                             category_display=CATEGORY_DISPLAY)
+                             category_display=CATEGORY_DISPLAY,
+                             challenges=challenges)
     else:  # youth or default
         return render_template('youth/youth_events.html',
                              new_events=categorized['new'],
                              recommended_events=categorized['recommended'],
                              bond_events=categorized['bond'],
                              events_by_category=categorized['by_category'],
-                             category_display=CATEGORY_DISPLAY)
+                             category_display=CATEGORY_DISPLAY,
+                             challenges=challenges)
 
 
 # =====================================================

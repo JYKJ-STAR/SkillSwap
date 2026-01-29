@@ -61,6 +61,11 @@
                         <span class="checkmark"></span>
                         🛠️ Community Projects
                     </label>
+                    <label class="checkbox-container">
+                        <input type="checkbox" value="challenges" onchange="filterByCategory('challenges')">
+                        <span class="checkmark"></span>
+                        🏆 Challenges
+                    </label>
                 </div>
             </div>
 
@@ -117,6 +122,32 @@
                         <span class="event-led-by">Led by: {{ event.led_by|capitalize }}</span>
                         <a href="{{ url_for('events.event_details', event_id=event.id) }}" class="event-card-btn">View
                             Details</a>
+                    </div>
+                    {% endfor %}
+                </div>
+            </section>
+            {% endif %}
+
+            <!-- Monthly Challenges Section -->
+            {% if challenges %}
+            <section class="events-section" data-section="challenges">
+                <h2 class="section-title">🏆 Monthly Challenges</h2>
+                <div class="events-row">
+                    {% for challenge in challenges %}
+                    <div class="event-card-compact challenge-card {% if challenge.is_new %}event-card-new{% endif %}"
+                        data-category="challenges" data-location="all">
+                        {% if challenge.is_new %}
+                        <span class="event-new-badge">NEW</span>
+                        {% endif %}
+                        <span class="event-category-badge category-challenge">🏆 Challenge</span>
+                        <h3 class="event-card-title">{{ challenge.title }}</h3>
+                        <p class="event-card-description">{{ challenge.description }}</p>
+                        <div class="event-card-meta">
+                            <div class="event-card-meta-item">
+                                <span>📅 {{ challenge.start_date }} - {{ challenge.end_date }}</span>
+                            </div>
+                        </div>
+                        <span class="event-led-by">Monthly Goal</span>
                     </div>
                     {% endfor %}
                 </div>

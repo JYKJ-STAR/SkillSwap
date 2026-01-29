@@ -76,6 +76,29 @@ body {
     background: #b91c1c;
 }
 
+/* New Challenge Button - Decoupled for custom styling */
+.btn-new-challenge {
+    padding: 10px 25px;
+    background: #dc2626;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.9em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    /* Specific layout styles moved from inline */
+    width: 200px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+}
+
+.btn-new-challenge:hover {
+    background: #b91c1c;
+}
+
 /* Table Container */
 .table-container {
     background: #374151;
@@ -228,6 +251,12 @@ body {
     background: #6b7280;
     color: white;
     border-color: #6b7280;
+}
+
+.action-icon.unpublish:hover {
+    background: #f59e0b;
+    color: white;
+    border-color: #f59e0b;
 }
 
 /* Modal Overlay */
