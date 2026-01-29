@@ -299,10 +299,18 @@ body {
 }
 
 /* Active State - Resolved tab (Green) */
-.custom-tab.active[data-filter="resolved"] {
+.custom-tab.active[data-filter="resolved"],
+.custom-tab.active[data-filter="active"] {
     background-color: rgba(40, 167, 69, 0.2);
     color: #28a745;
     border-color: #28a745;
+}
+
+/* Active State - Closed/Rejected tab (Red) */
+.custom-tab.active[data-filter="closed"] {
+    background-color: rgba(220, 53, 69, 0.2);
+    color: #dc3545;
+    border-color: #dc3545;
 }
 
 /* Refresh Button Style */

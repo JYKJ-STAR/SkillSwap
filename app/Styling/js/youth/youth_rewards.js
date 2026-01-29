@@ -66,12 +66,14 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
+    let pendingRedemption = null;
+
     function attemptRedeem(title, vendor, points) {
         if (userPoints < points) {
             showSnackbar('Error: Insufficient points');
             setTimeout(hideSnackbar, 5000);
         } else {
-            // Show confirmation or process redemption
+            pendingRedemption = { title, vendor, points };
             showRedeemModal(title, vendor, points);
         }
     }
@@ -79,10 +81,13 @@ document.addEventListener('DOMContentLoaded', function () {
     // =========================
     // Claim Reward - Event Delegation
     // =========================
+    let currentRedemptionId = null;
+
     document.querySelectorAll('.claim-btn').forEach(btn => {
         btn.addEventListener('click', function () {
             const name = this.dataset.name;
             const vendor = this.dataset.vendor;
+            currentRedemptionId = this.dataset.redemptionId;
 
             if (name && vendor) {
                 showClaimModal(name, vendor);
@@ -102,13 +107,51 @@ document.addEventListener('DOMContentLoaded', function () {
 
     window.hideRedeemModal = function () {
         document.getElementById('redeem-modal').classList.remove('show');
+        // Don't clear pendingRedemption here just in case, but usually safe
     };
 
     window.confirmRedeem = function () {
+        if (!pendingRedemption) return;
+
+        const { title, vendor, points } = pendingRedemption;
         hideRedeemModal();
-        setTimeout(() => {
-            showSubmittedModal();
-        }, 300);
+
+        // Perform AJAX request
+        fetch('/redeem_reward', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                reward_name: title,
+                reward_vendor: vendor,
+                points_required: points
+            })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Deduct points locally
+                    userPoints -= points;
+                    const pointsDisplay = document.getElementById('user-points');
+                    if (pointsDisplay) {
+                        pointsDisplay.textContent = userPoints + ' Points';
+                        pointsDisplay.dataset.points = userPoints;
+                    }
+
+                    showSubmittedModal();
+                } else {
+                    showSnackbar(data.error || 'Redemption failed');
+                    setTimeout(hideSnackbar, 5000);
+                }
+            })
+            .catch(error => {
+                console.error('Error redeeming reward:', error);
+                showSnackbar('Network error, please try again');
+                setTimeout(hideSnackbar, 5000);
+            });
+
+        pendingRedemption = null;
     };
 
     // =========================
@@ -150,7 +193,43 @@ document.addEventListener('DOMContentLoaded', function () {
 
     window.dismissReward = function () {
         hideVendorModal();
-        // Handle reward dismissal - could make AJAX call here
+
+        if (!currentRedemptionId) {
+            console.error('No redemption ID found');
+            return;
+        }
+
+        // Find and fade out the reward card
+        const card = document.querySelector(`.reward-card[data-redemption-id="${currentRedemptionId}"]`);
+        if (card) {
+            card.style.transition = 'opacity 0.3s ease';
+            card.style.opacity = '0';
+            setTimeout(() => card.remove(), 300);
+        }
+
+        // Make AJAX call to persist dismiss action
+        fetch('/dismiss_reward', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                redemption_id: parseInt(currentRedemptionId)
+            })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    console.log('Reward dismissed successfully');
+                } else {
+                    console.error('Failed to dismiss reward:', data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error dismissing reward:', error);
+            });
+
+        currentRedemptionId = null;
     };
 
     // =========================

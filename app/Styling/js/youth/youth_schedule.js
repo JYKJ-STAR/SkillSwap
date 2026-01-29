@@ -3,91 +3,134 @@
  * Handles tab switching, modals, and user interactions
  */
 
+// ========================================
+// GLOBAL MODAL HELPERS (Internal use)
+// ========================================
+function openModal(modalId) {
+    console.log('openModal called with:', modalId);
+    const modal = document.getElementById(modalId);
+    console.log('Modal element found:', modal);
+    if (modal) {
+        console.log('Adding show class...');
+        modal.classList.add('show');
+        console.log('Modal classList after:', modal.classList.toString());
+        console.log('Modal display:', window.getComputedStyle(modal).display);
+        console.log('Modal opacity:', window.getComputedStyle(modal).opacity);
+        console.log('Modal visibility:', window.getComputedStyle(modal).visibility);
+    } else {
+        console.error("Modal not found:", modalId);
+    }
+}
+
+function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.classList.remove('show');
+    }
+}
+
+
 document.addEventListener('DOMContentLoaded', function () {
+    console.log('Schedule JS loaded');
 
     // ========================================
     // TAB SWITCHING
     // ========================================
     const tabs = document.querySelectorAll('.filter-tab');
-    const completedView = document.getElementById('completed-view');
     const upcomingView = document.getElementById('upcoming-view');
-    const allEmptyState = document.getElementById('all-empty-state');
+    const waitingView = document.getElementById('waiting-view');
+    const completedView = document.getElementById('completed-view');
 
     function updateView(filter) {
-        // Reset visibility
-        completedView.style.display = 'none';
-        upcomingView.style.display = 'none';
-        allEmptyState.style.display = 'none';
+        console.log('Switching to view:', filter);
+        // Reset all to hidden
+        if (upcomingView) upcomingView.style.display = 'none';
+        if (waitingView) waitingView.style.display = 'none';
+        if (completedView) completedView.style.display = 'none';
 
-        // Helper to check if a view has actual cards (ignoring empty message p tag)
-        const hasCompleted = completedView.querySelector('.event-card') !== null;
-        const hasUpcoming = upcomingView.querySelector('.event-card') !== null;
-
-        // Manage individual empty messages visibility
-        const completedMsg = completedView.querySelector('p.text-muted');
-        const upcomingMsg = upcomingView.querySelector('p.text-muted');
-
-        if (filter === 'completed') {
-            completedView.style.display = 'flex';
-            if (completedMsg) completedMsg.style.display = hasCompleted ? 'none' : 'block';
-        } else if (filter === 'upcoming') {
+        if (filter === 'upcoming' && upcomingView) {
             upcomingView.style.display = 'flex';
-            if (upcomingMsg) upcomingMsg.style.display = hasUpcoming ? 'none' : 'block';
-        } else {
-            // ALL View
-            if (!hasCompleted && !hasUpcoming) {
-                // Both empty -> show combined message, hide individual views/messages
-                allEmptyState.style.display = 'block';
-            } else {
-                // At least one has content
-                completedView.style.display = hasCompleted ? 'flex' : 'none';
-                upcomingView.style.display = hasUpcoming ? 'flex' : 'none';
-
-                // Ensure individual empty messages are hidden in "All" view to avoid clutter
-                if (completedMsg) completedMsg.style.display = 'none';
-                if (upcomingMsg) upcomingMsg.style.display = 'none';
-            }
+        } else if (filter === 'waiting' && waitingView) {
+            waitingView.style.display = 'block';
+        } else if (filter === 'completed' && completedView) {
+            completedView.style.display = 'flex';
         }
     }
 
-    // Initial load logic (All view)
-    updateView('all');
+    // Initial load logic (Upcoming is active by default in HTML)
+    updateView('upcoming');
 
     tabs.forEach(tab => {
         tab.addEventListener('click', () => {
-            // Remove active class from all tabs
             tabs.forEach(t => t.classList.remove('active'));
-            // Add active class to clicked tab
             tab.classList.add('active');
 
-            let filter = 'all';
-            if (tab.classList.contains('completed')) filter = 'completed';
-            if (tab.classList.contains('upcoming')) filter = 'upcoming';
-
-            updateView(filter);
+            if (tab.classList.contains('upcoming')) updateView('upcoming');
+            if (tab.classList.contains('waiting')) updateView('waiting');
+            if (tab.classList.contains('completed')) updateView('completed');
         });
     });
 
     // ========================================
-    // MODAL LOGIC
+    // BUTTON LISTENERS (Upload Only)
     // ========================================
+    console.log('Attaching button listeners...');
+    const uploadBtns = document.querySelectorAll('.js-open-upload');
 
-    // Open Modal Function - attached to global window for inline onclicks
-    window.openModal = function (modalId) {
-        const modal = document.getElementById(modalId);
-        if (modal) {
-            modal.classList.add('show');
+    console.log('Found upload buttons:', uploadBtns.length);
+
+    uploadBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            console.log('Upload button clicked!');
+            const eventId = btn.dataset.id;
+            const title = btn.dataset.title;
+
+            console.log('Event ID:', eventId, 'Title:', title);
+
+            document.getElementById('upload_event_id').value = eventId;
+            const titleEl = document.getElementById('upload-event-title');
+            if (titleEl) titleEl.textContent = title;
+
+            openModal('upload-modal');
+        });
+    });
+
+    // ========================================
+    // SUB-TAB SWITCHING (Waiting for Feedback)
+    // ========================================
+    const subTabs = document.querySelectorAll('.sub-filter-tab');
+    const actionRequiredView = document.getElementById('action-required-view');
+    const pendingReviewView = document.getElementById('pending-review-view');
+
+    function updateSubView(filter) {
+        if (!actionRequiredView || !pendingReviewView) return;
+
+        actionRequiredView.style.display = 'none';
+        pendingReviewView.style.display = 'none';
+
+        if (filter === 'action-required') {
+            actionRequiredView.style.display = 'flex';
+        } else if (filter === 'pending-review') {
+            pendingReviewView.style.display = 'flex';
         }
-    };
+    }
 
-    // Close Modal Function
-    window.closeModal = function (modalId) {
-        const modal = document.getElementById(modalId);
-        if (modal) {
-            modal.classList.remove('show');
-        }
-    };
+    // Initial sub-view (Action Required is active by default)
+    updateSubView('action-required');
 
+    subTabs.forEach(subTab => {
+        subTab.addEventListener('click', () => {
+            subTabs.forEach(t => t.classList.remove('active'));
+            subTab.classList.add('active');
+
+            if (subTab.classList.contains('action-required')) updateSubView('action-required');
+            if (subTab.classList.contains('pending-review')) updateSubView('pending-review');
+        });
+    });
+
+    // ========================================
+    // CLOSE BUTTONS & OVERLAYS
+    // ========================================
     // Close buttons handler
     document.querySelectorAll('.close-modal').forEach(btn => {
         btn.addEventListener('click', (e) => {
@@ -108,15 +151,6 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    // Log Reflection buttons -> Open Feedback Modal (Example connection)
-    document.querySelectorAll('.log-reflection-btn').forEach(btn => {
-        if (!btn.classList.contains('gray')) { // Only enable for non-gray buttons
-            btn.addEventListener('click', () => {
-                openModal('feedback-modal');
-            });
-        }
-    });
-
     // ========================================
     // STAR RATING LOGIC
     // ========================================
@@ -126,6 +160,8 @@ document.addEventListener('DOMContentLoaded', function () {
     stars.forEach((star, index) => {
         star.addEventListener('click', () => {
             currentRating = index + 1;
+            const ratingInput = document.getElementById('rating_input');
+            if (ratingInput) ratingInput.value = currentRating;
             updateStars();
         });
 
@@ -211,16 +247,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const withdrawSubmitBtn = document.querySelector('.btn-withdraw');
     if (withdrawSubmitBtn) {
         withdrawSubmitBtn.addEventListener('click', () => {
-            const reasoning = document.querySelector('.reasoning-textarea')?.value;
-            // Basic validation
-            // In a real app, you might want to require reasoning
-            // if (!reasoning || reasoning.trim() === '') {
-            //     alert('Please provide a reason for withdrawing.');
-            //     return;
-            // }
-
-            // Mock submission
-            // alert('Event withdrawal submitted.');
             closeModal('withdraw-modal');
         });
     }

@@ -187,7 +187,14 @@
                 <div class="form-group">
                     <div class="upload-area" id="upload-area">
                         <span class="upload-text">Upload Screenshot (Optional)</span>
-                        <input type="file" class="upload-input" id="screenshot-upload" accept="image/*">
+                        <input type="file" class="upload-input" id="screenshot-upload" accept="image/*"
+                            onchange="handleScreenshotUpload(event)">
+                    </div>
+                    <div id="screenshot-preview" style="display: none; margin-top: 10px; position: relative;">
+                        <img id="preview-image" src="" alt="Screenshot preview"
+                            style="max-width: 100%; max-height: 200px; border-radius: 8px; border: 2px solid #e0e0e0;">
+                        <button type="button" class="delete-screenshot-btn" onclick="deleteScreenshot()"
+                            style="position: absolute; top: 5px; right: 5px; background: #dc2626; color: white; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer; font-size: 18px; line-height: 1; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">×</button>
                     </div>
                 </div>
 
@@ -206,6 +213,31 @@
         </div>
 
         <script>
+            // Global variable to store the selected file
+            let selectedScreenshot = null;
+
+            // Handle screenshot upload and preview
+            function handleScreenshotUpload(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    selectedScreenshot = file;
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        document.getElementById('preview-image').src = e.target.result;
+                        document.getElementById('screenshot-preview').style.display = 'block';
+                    };
+                    reader.readAsDataURL(file);
+                }
+            }
+
+            // Delete screenshot
+            function deleteScreenshot() {
+                selectedScreenshot = null;
+                document.getElementById('screenshot-upload').value = '';
+                document.getElementById('screenshot-preview').style.display = 'none';
+                document.getElementById('preview-image').src = '';
+            }
+
             async function submitReport() {
                 // 1. Get the button and disable it to prevent double-clicks
                 const btn = document.getElementById('submit-report-btn');
@@ -214,24 +246,27 @@
                 btn.innerText = "Sending...";
 
                 // 2. Collect data from your specific HTML IDs
-                // Note: We combine 'involved person' into the description for simplicity, 
-                // or you can add a field for it in your Python backend.
                 const involvedPerson = document.getElementById('involved-person').value;
                 const descriptionText = document.getElementById('incident-description').value;
 
-                const payload = {
-                    issueType: document.getElementById('issue-type').value,
-                    eventName: document.getElementById('event-name').value,
-                    // We combine the involved person name into the description so the admin sees it
-                    description: `Involved: ${involvedPerson} \n\n ${descriptionText}`
-                };
+                // Create FormData to handle file upload
+                const formData = new FormData();
+                formData.append('issueType', document.getElementById('issue-type').value);
+                formData.append('eventName', document.getElementById('event-name').value);
+                formData.append('description', `Involved: ${involvedPerson}
+
+${descriptionText}`);
+
+                // Add screenshot if one was selected
+                if (selectedScreenshot) {
+                    formData.append('screenshot', selectedScreenshot);
+                }
 
                 try {
                     // 3. Send data to the Python Route '/submit-ticket'
                     const response = await fetch('/submit-ticket', {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
+                        body: formData  // Send FormData instead of JSON
                     });
 
                     const result = await response.json();
@@ -243,6 +278,7 @@
                         // Clear the form
                         document.getElementById('involved-person').value = '';
                         document.getElementById('incident-description').value = '';
+                        deleteScreenshot();  // Clear screenshot
 
                         // Hide success message after 3 seconds
                         setTimeout(() => {

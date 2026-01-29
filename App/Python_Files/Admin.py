@@ -4,7 +4,7 @@ from werkzeug.utils import secure_filename
 from app.db import get_db_connection
 from functools import wraps
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 from flask import current_app
 from flask import jsonify
 
@@ -132,7 +132,7 @@ def admin_login_submit():
     
     conn = get_db_connection()
     admin = conn.execute(
-        "SELECT admin_id, name, email, password_hash, privileged FROM admin WHERE email = ?",
+        "SELECT admin_id, name, email, password_hash, privileged, photo FROM admin WHERE email = ?",
         (email,)
     ).fetchone()
     conn.close()
@@ -150,6 +150,7 @@ def admin_login_submit():
     session['admin_id'] = admin['admin_id']
     session['admin_name'] = admin['name']
     session['admin_email'] = admin['email']
+    session['admin_photo'] = admin['photo']
     session['is_admin'] = True
     session['privileged'] = admin['privileged']
     session['user_name'] = admin['name']  # For template compatibility
@@ -163,6 +164,20 @@ def admin_login_submit():
         return redirect(next_url)
 
     return redirect(url_for('admin.admin_dashboard'))
+
+@admin_bp.context_processor
+def inject_admin_data():
+    """Inject admin data into all admin templates."""
+    if session.get('is_admin'):
+        return {
+            'admin_name': session.get('admin_name'),
+            # Ensure user_name is available for legacy templates 
+            'user_name': session.get('user_name', session.get('admin_name')),
+            'admin_email': session.get('admin_email'),
+            'admin_photo': session.get('admin_photo'),
+            'privileged': session.get('privileged')
+        }
+    return {}
 
 @admin_bp.route('/logout')
 def admin_logout():
@@ -219,8 +234,7 @@ def admin_dashboard():
     conn.close()
     
     return render_template('admin/admin_dashboard.html', 
-                           user_name=session.get('user_name'),
-                           admin_email=session.get('admin_email', 'Admin@123.com'),
+                           # user_name and admin_email are now injected via context_processor
                            total_users=total_users,
                            total_points=total_points,
                            current_open_tickets=current_open_tickets,
@@ -503,8 +517,6 @@ def admin_manage_events():
     conn.close()
     
     return render_template('admin/admin_manage_events.html',
-                           user_name=session.get('admin_name'),
-                           admin_email=session.get('admin_email', 'Admin@123.com'),
                            events=events,
                            grcs=grcs,
                            category_display=category_display,
@@ -729,8 +741,6 @@ def admin_manage_users():
     conn.close()
     
     return render_template('admin/admin_manage_users.html',
-                           user_name=session.get('admin_name'),
-                           admin_email=session.get('admin_email', 'Admin@123.com'),
                            all_users=all_users)
 
 
@@ -833,6 +843,25 @@ def admin_support_tickets():
     
     tickets = conn.execute(query, params).fetchall()
     
+    # Convert tickets to list of dicts and adjust timezone (UTC to UTC+8)
+    tickets_list = []
+    for ticket in tickets:
+        ticket_dict = dict(ticket)
+        # Convert created_at from UTC to UTC+8
+        if ticket_dict['created_at']:
+            try:
+                # Parse the datetime string
+                utc_time = datetime.strptime(ticket_dict['created_at'], '%Y-%m-%d %H:%M:%S')
+                # Add 8 hours for UTC+8
+                local_time = utc_time + timedelta(hours=8)
+                # Format back to string
+                ticket_dict['created_at'] = local_time.strftime('%Y-%m-%d %H:%M:%S')
+            except:
+                pass  # Keep original if conversion fails
+        tickets_list.append(ticket_dict)
+    
+    tickets = tickets_list
+    
     # 5. Calculate statistics with error handling
     try:
         total_tickets = conn.execute("SELECT COUNT(*) FROM support_ticket").fetchone()[0]
@@ -860,8 +889,6 @@ def admin_support_tickets():
     conn.close()
     
     return render_template('admin/admin_support_tickets.html',
-                           user_name=session.get('admin_name'),
-                           admin_email=session.get('admin_email', 'Admin@123.com'),
                            tickets=tickets,
                            current_filter=filter_status,
                            total_tickets=total_tickets,
@@ -884,27 +911,210 @@ def save_ticket_reply(ticket_id):
     
     flash("Reply sent and ticket marked as resolved.", "success")
     return redirect(url_for('admin.admin_support_tickets'))
+@admin_bp.route('/clear-tickets')
+@admin_required
+def clear_tickets():
+    conn = get_db_connection()
+    try:
+        # Delete all rows from the support_ticket table
+        conn.execute("DELETE FROM support_ticket")
+        
+        # Optional: Reset the ID counter back to 1
+        conn.execute("DELETE FROM sqlite_sequence WHERE name='support_ticket'")
+        
+        conn.commit()
+        flash("All support tickets have been deleted!", "success")
+    except Exception as e:
+        flash(f"Error clearing tickets: {e}", "error")
+    finally:
+        conn.close()
+    
+    return redirect(url_for('admin.admin_support_tickets'))
 # =====================================================
 # MANAGE REWARDS PAGE (Placeholder)
 # =====================================================
 @admin_bp.route('/manage-rewards')
 @admin_required
 def admin_manage_rewards():
-    """Display the rewards management page."""
+    """Display the rewards management page with verification and rewards sections."""
     conn = get_db_connection()
     
-    # Get all rewards
-    rewards = conn.execute(
-        """SELECT reward_id, name, description, points_required, is_active, total_quantity
-           FROM reward ORDER BY points_required ASC"""
-    ).fetchall()
+    # Get all active rewards for Manage Rewards tab
+    rewards = conn.execute("""
+        SELECT reward_id, name, description, points_required, is_active, total_quantity
+        FROM reward 
+        ORDER BY points_required ASC
+    """).fetchall()
+
+    # Get Pending Proofs (for User Verification section)
+    pending_proofs = conn.execute("""
+        SELECT 
+            eb.user_id, eb.event_id, eb.proof_media_url, eb.role_type,
+            u.name as user_name,
+            e.title as event_title,
+            e.base_points_participant
+        FROM event_booking eb
+        JOIN user u ON eb.user_id = u.user_id
+        JOIN event e ON eb.event_id = e.event_id
+        WHERE eb.proof_media_url IS NOT NULL 
+          AND eb.status != 'completed'
+    """).fetchall()
+    
+    # Get Redeemed Rewards (for Redeemed Rewards tab)
+    redeemed_rewards = conn.execute("""
+        SELECT 
+            rr.redemption_id,
+            rr.created_at,
+            rr.status,
+            u.name as user_name,
+            u.email as user_email,
+            r.name as reward_name,
+            r.points_required
+        FROM reward_redemption rr
+        JOIN user u ON rr.user_id = u.user_id
+        JOIN reward r ON rr.reward_id = r.reward_id
+        WHERE rr.status IN ('approved', 'redeemed')
+        ORDER BY rr.created_at DESC
+    """).fetchall()
     
     conn.close()
     
     return render_template('admin/admin_manage_rewards.html',
-                           user_name=session.get('admin_name'),
-                           admin_email=session.get('admin_email', 'Admin@123.com'),
-                           rewards=rewards)
+                           rewards=rewards,
+                           pending_proofs=pending_proofs,
+                           redeemed_rewards=redeemed_rewards)
+
+@admin_bp.route('/verify-proof/<int:event_id>/<int:user_id>', methods=['POST'])
+@admin_required
+def admin_verify_proof(event_id, user_id):
+    """Verify proof and award points."""
+    conn = get_db_connection()
+    
+    # 1. Get points to award
+    # For now assuming base_points_participant. In future could be dynamic based on role.
+    event = conn.execute("SELECT base_points_participant FROM event WHERE event_id = ?", (event_id,)).fetchone()
+    points = event['base_points_participant'] if event and event['base_points_participant'] else 100 # Default
+    
+    # 2. Update status to completed
+    conn.execute("UPDATE event_booking SET status = 'completed' WHERE event_id = ? AND user_id = ?", 
+                 (event_id, user_id))
+                 
+    # 3. Award points to user
+    conn.execute("UPDATE user SET total_points = total_points + ? WHERE user_id = ?", (points, user_id))
+    
+    conn.commit()
+    conn.close()
+    
+    flash(f"Proof verified! Awarded {points} points.", "success")
+    return redirect(url_for('admin.admin_manage_rewards'))
+
+@admin_bp.route('/reject-proof/<int:event_id>/<int:user_id>', methods=['POST'])
+@admin_required
+def admin_reject_proof(event_id, user_id):
+    """Reject proof submission - clears photo and resets to booked status."""
+    conn = get_db_connection()
+    
+    # Get proof photo to delete
+    booking = conn.execute(
+        "SELECT proof_media_url FROM event_booking WHERE event_id = ? AND user_id = ?",
+        (event_id, user_id)
+    ).fetchone()
+    
+    if booking and booking['proof_media_url']:
+        # Delete photo from filesystem
+        photo_path = os.path.join(current_app.static_folder, 'img', 'users', 'Upload_proof', booking['proof_media_url'])
+        if os.path.exists(photo_path):
+            os.remove(photo_path)
+    
+    # Clear proof_media_url and keep status as 'booked' so it goes back to action required
+    conn.execute(
+        "UPDATE event_booking SET proof_media_url = NULL WHERE event_id = ? AND user_id = ?",
+        (event_id, user_id)
+    )
+    
+    # Also delete the review if exists (so they have to resubmit both)
+    conn.execute(
+        "DELETE FROM review WHERE event_id = ? AND user_id = ?",
+        (event_id, user_id)
+    )
+    
+    conn.commit()
+    conn.close()
+    
+    flash("Proof rejected. User must resubmit.", "info")
+    return redirect(url_for('admin.admin_manage_rewards'))
+
+
+@admin_bp.route('/admin/add-reward', methods=['POST'])
+@admin_required
+def admin_add_reward():
+    """Add a new reward to the catalog."""
+    name = request.form.get('name')
+    description = request.form.get('description')
+    points_required = request.form.get('points_required')
+    total_quantity = request.form.get('total_quantity') or None
+    
+    if not name or not points_required:
+        flash("Reward name and points are required.", "error")
+        return redirect(url_for('admin.admin_manage_rewards'))
+    
+    conn = get_db_connection()
+    conn.execute("""
+        INSERT INTO reward (name, description, points_required, total_quantity, is_active)
+        VALUES (?, ?, ?, ?, 1)
+    """, (name, description, int(points_required), total_quantity))
+    conn.commit()
+    conn.close()
+    
+    flash(f"Reward '{name}' added successfully!", "success")
+    return redirect(url_for('admin.admin_manage_rewards'))
+
+
+@admin_bp.route('/admin/delete-reward/<int:reward_id>', methods=['POST'])
+@admin_required
+def admin_delete_reward(reward_id):
+    """Delete a reward from the catalog."""
+    conn = get_db_connection()
+    
+    # Get reward name for flash message
+    reward = conn.execute("SELECT name FROM reward WHERE reward_id = ?", (reward_id,)).fetchone()
+    reward_name = reward['name'] if reward else 'Unknown'
+    
+    conn.execute("DELETE FROM reward WHERE reward_id = ?", (reward_id,))
+    conn.commit()
+    conn.close()
+    
+    flash(f"Reward '{reward_name}' deleted successfully.", "success")
+    return redirect(url_for('admin.admin_manage_rewards'))
+
+
+@admin_bp.route('/admin/edit-reward/<int:reward_id>', methods=['POST'])
+@admin_required
+def admin_edit_reward(reward_id):
+    """Edit an existing reward."""
+    name = request.form.get('name')
+    description = request.form.get('description')
+    points_required = request.form.get('points_required')
+    total_quantity = request.form.get('total_quantity') or None
+    is_active = request.form.get('is_active') == 'on'
+    
+    if not name or not points_required:
+        flash("Reward name and points are required.", "error")
+        return redirect(url_for('admin.admin_manage_rewards'))
+    
+    conn = get_db_connection()
+    conn.execute("""
+        UPDATE reward 
+        SET name = ?, description = ?, points_required = ?, total_quantity = ?, is_active = ?
+        WHERE reward_id = ?
+    """, (name, description, int(points_required), total_quantity, 1 if is_active else 0, reward_id))
+    
+    conn.commit()
+    conn.close()
+    
+    flash(f"Reward updated successfully!", "success")
+    return redirect(url_for('admin.admin_manage_rewards'))
+
 
 
 # =====================================================
@@ -981,3 +1191,160 @@ def admin_view_participants(event_id):
                            role_display=role_display,
                            total_count=len(participants))
 
+
+
+
+# =====================================================
+# LIVE CHAT ROUTES
+# =====================================================
+
+@admin_bp.route('/live-chats')
+@admin_required
+def admin_live_chats():
+    """Display all live chat sessions"""
+    try:
+        conn = get_db_connection()
+        
+        # Fetch all chat sessions with user info
+        chats = conn.execute(
+            """SELECT cs.session_id, cs.user_id, cs.status, cs.created_at, cs.last_message_at,
+                      u.name as user_name,
+                      (SELECT message_text FROM live_chat_message WHERE session_id = cs.session_id ORDER BY created_at DESC LIMIT 1) as last_message,
+                      (SELECT COUNT(*) FROM live_chat_message WHERE session_id = cs.session_id) as message_count
+               FROM live_chat_session cs
+               JOIN user u ON cs.user_id = u.user_id
+               ORDER BY cs.last_message_at DESC"""
+        ).fetchall()
+        
+        # Convert to list of dicts and adjust timezone
+        chats_list = []
+        for chat in chats:
+            chat_dict = dict(chat)
+            # Convert timestamps to UTC+8
+            if chat_dict['created_at']:
+                try:
+                    utc_time = datetime.strptime(chat_dict['created_at'], '%Y-%m-%d %H:%M:%S')
+                    local_time = utc_time + timedelta(hours=8)
+                    chat_dict['created_at'] = local_time.strftime('%Y-%m-%d %H:%M:%S')
+                except:
+                    pass
+            chats_list.append(chat_dict)
+        
+        # Calculate statistics
+        total_chats = len(chats_list)
+        active_chats = sum(1 for c in chats_list if c['status'] == 'active')
+        
+        # Closed today
+        today = datetime.now().date()
+        closed_today = 0
+        for chat in chats_list:
+            if chat['status'] == 'closed' and chat['last_message_at']:
+                try:
+                    chat_date = datetime.strptime(chat['last_message_at'], '%Y-%m-%d %H:%M:%S').date()
+                    if chat_date == today:
+                        closed_today += 1
+                except:
+                    pass
+        
+        conn.close()
+        
+        return render_template('admin/admin_live_chats.html',
+                               chats=chats_list,
+                               total_chats=total_chats,
+                               active_chats=active_chats,
+                               closed_today=closed_today,
+                               user_name=session.get('user_name', 'Admin'),
+                               admin_email=session.get('email', ''))
+    except Exception as e:
+        print(f"ERROR in admin_live_chats: {e}")
+        import traceback
+        traceback.print_exc()
+        return f"Error loading live chats: {str(e)}", 500
+
+@admin_bp.route('/get-chat-details/<int:session_id>')
+@admin_required
+def get_chat_details(session_id):
+    """Get details for a specific chat session"""
+    conn = get_db_connection()
+    
+    chat = conn.execute(
+        """SELECT cs.*, u.name as user_name, u.email as user_email
+           FROM live_chat_session cs
+           JOIN user u ON cs.user_id = u.user_id
+           WHERE cs.session_id = ?""",
+        (session_id,)
+    ).fetchone()
+    
+    conn.close()
+    
+    if not chat:
+        return jsonify({'error': 'Chat not found'}), 404
+    
+    return jsonify(dict(chat))
+
+@admin_bp.route('/get-chat-messages/<int:session_id>')
+@admin_required
+def get_chat_messages(session_id):
+    """Get all messages for a chat session"""
+    conn = get_db_connection()
+    
+    messages = conn.execute(
+        """SELECT m.*, u.name as sender_name
+           FROM live_chat_message m
+           LEFT JOIN user u ON m.sender_id = u.user_id AND m.sender_type = 'user'
+           WHERE m.session_id = ?
+           ORDER BY m.created_at ASC""",
+        (session_id,)
+    ).fetchall()
+    
+    conn.close()
+    
+    return jsonify({'messages': [dict(m) for m in messages]})
+
+@admin_bp.route('/send-chat-message', methods=['POST'])
+@admin_required
+def send_chat_message():
+    """Send a message as admin in a chat session"""
+    data = request.json
+    session_id = data.get('session_id')
+    message_text = data.get('message')
+    
+    if not session_id or not message_text:
+        return jsonify({'error': 'Missing session_id or message'}), 400
+    
+    admin_id = session.get('user_id')  # Admin's user_id
+    
+    conn = get_db_connection()
+    
+    # Insert admin message
+    conn.execute(
+        "INSERT INTO live_chat_message (session_id, sender_type, sender_id, message_text) VALUES (?, 'admin', ?, ?)",
+        (session_id, admin_id, message_text)
+    )
+    
+    # Update last_message_at
+    conn.execute(
+        "UPDATE live_chat_session SET last_message_at = CURRENT_TIMESTAMP WHERE session_id = ?",
+        (session_id,)
+    )
+    
+    conn.commit()
+    conn.close()
+    
+    return jsonify({'status': 'sent'})
+
+@admin_bp.route('/close-chat/<int:session_id>', methods=['POST'])
+@admin_required
+def close_chat_session(session_id):
+    """Close a chat session"""
+    conn = get_db_connection()
+    
+    conn.execute(
+        "UPDATE live_chat_session SET status = 'closed' WHERE session_id = ?",
+        (session_id,)
+    )
+    
+    conn.commit()
+    conn.close()
+    
+    return jsonify({'status': 'closed'})

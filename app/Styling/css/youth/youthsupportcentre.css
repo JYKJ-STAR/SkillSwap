@@ -1128,3 +1128,58 @@
              max-width: 90%;
          }
      }
+
+     /* Message Bubble Styles */
+     .message-bubble {
+         max-width: 70%;
+         margin-bottom: 1rem;
+         padding: 0.75rem 1rem;
+         border-radius: 12px;
+         word-wrap: break-word;
+     }
+
+     .message-user {
+         align-self: flex-end;
+         background-color: #3b82f6;
+         color: white;
+         margin-left: auto;
+     }
+
+     .message-admin {
+         align-self: flex-start;
+         background-color: #e5e5e5;
+         color: #1a1a1a;
+     }
+
+     .message-system {
+         align-self: center;
+         background-color: #f3f4f6;
+         color: #6b7280;
+         font-size: 0.85rem;
+         text-align: center;
+         max-width: 80%;
+         margin: 0.5rem auto;
+     }
+
+     .message-sender {
+         font-size: 0.75rem;
+         font-weight: 600;
+         margin-bottom: 0.25rem;
+         opacity: 0.8;
+     }
+
+     .message-text {
+         font-size: 0.95rem;
+         line-height: 1.4;
+     }
+
+     .message-time {
+         font-size: 0.7rem;
+         margin-top: 0.25rem;
+         opacity: 0.6;
+     }
+
+     .chat-messages {
+         display: flex;
+         flex-direction: column;
+     }
