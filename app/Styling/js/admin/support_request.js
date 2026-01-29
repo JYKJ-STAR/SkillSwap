@@ -250,14 +250,25 @@ window.onclick = function (event) {
         modal.style.display = "none";
     }
 }
-function openTicketModal(ticketId, description) {
-    // 1. Set description
-    document.getElementById('modalDescriptionContent').innerText = description;
+function openTicketModal(ticketId, description, screenshotPath) {
+    // 1. Set description - use textContent to preserve newlines
+    document.getElementById('modalDescriptionContent').textContent = description;
 
-    // 2. Set the form action dynamically to point to the correct ID
+    // 2. Handle screenshot display
+    const screenshotGroup = document.getElementById('screenshotGroup');
+    const modalScreenshot = document.getElementById('modalScreenshot');
+
+    if (screenshotPath && screenshotPath.trim() !== '') {
+        modalScreenshot.src = screenshotPath;
+        screenshotGroup.style.display = 'block';
+    } else {
+        screenshotGroup.style.display = 'none';
+    }
+
+    // 3. Set the form action dynamically to point to the correct ID
     document.getElementById('replyForm').action = `/admin/save-ticket-reply/${ticketId}`;
 
-    // 3. Show Modal
+    // 4. Show Modal
     document.getElementById('ticketModal').style.display = 'flex';
 }
 
@@ -267,23 +278,10 @@ function closeTicketModal() {
 
 // Toggle between Support Tickets and Live Chats
 function toggleView() {
-    const currentView = document.getElementById('current-view');
-    const toggleHint = document.querySelector('.toggle-hint');
-    const pageTitle = document.querySelector('.page-title');
-
-    // The button shows what you can switch TO, not what you're currently on
-    if (currentView.textContent === 'Live Chat') {
-        // Currently on Tickets, switching to Live Chats
-        currentView.textContent = 'Tickets';
-        toggleHint.textContent = 'Click to switch view';
-        pageTitle.textContent = 'Live Chats';
-
-        // Show a message that Live Chats feature is coming soon
-        alert('Live Chats feature is coming soon! This will allow you to manage real-time chat support with users.');
-    } else {
-        // Currently on Live Chats, switching back to Tickets
-        currentView.textContent = 'Live Chat';
-        toggleHint.textContent = 'Click to switch view';
-        pageTitle.textContent = 'Support Ticket';
-    }
+    // Redirect to Live Chats page
+    window.location.href = '/admin/live-chats';
 }
+
+
+
+

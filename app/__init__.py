@@ -11,7 +11,7 @@ def create_app():
     """Create the main Flask app for Youth and Seniors."""
     load_dotenv(override=True)
 
-    app = Flask(__name__, template_folder='HTML_Files', static_folder='Styling')
+    app = Flask(__name__, template_folder='HTML_Files', static_folder='Styling', static_url_path='')
     app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "dev-secret")
     app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=31)
     app.config['TEMPLATES_AUTO_RELOAD'] = True
@@ -57,7 +57,7 @@ def create_admin_app():
     """Create the Admin Flask app - separate domain on port 5001."""
     load_dotenv(override=True)
 
-    app = Flask(__name__, template_folder='HTML_Files', static_folder='Styling')
+    app = Flask(__name__, template_folder='HTML_Files', static_folder='Styling', static_url_path='')
     app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "admin-secret-key")
     app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)
     app.config['TEMPLATES_AUTO_RELOAD'] = True

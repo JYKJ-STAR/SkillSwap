@@ -4,7 +4,7 @@ from werkzeug.utils import secure_filename
 from app.db import get_db_connection
 from functools import wraps
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 from flask import current_app
 from flask import jsonify
 
@@ -1085,6 +1085,25 @@ def admin_support_tickets():
     
     tickets = conn.execute(query, params).fetchall()
     
+    # Convert tickets to list of dicts and adjust timezone (UTC to UTC+8)
+    tickets_list = []
+    for ticket in tickets:
+        ticket_dict = dict(ticket)
+        # Convert created_at from UTC to UTC+8
+        if ticket_dict['created_at']:
+            try:
+                # Parse the datetime string
+                utc_time = datetime.strptime(ticket_dict['created_at'], '%Y-%m-%d %H:%M:%S')
+                # Add 8 hours for UTC+8
+                local_time = utc_time + timedelta(hours=8)
+                # Format back to string
+                ticket_dict['created_at'] = local_time.strftime('%Y-%m-%d %H:%M:%S')
+            except:
+                pass  # Keep original if conversion fails
+        tickets_list.append(ticket_dict)
+    
+    tickets = tickets_list
+    
     # 5. Calculate statistics with error handling
     try:
         total_tickets = conn.execute("SELECT COUNT(*) FROM support_ticket").fetchone()[0]
@@ -1133,6 +1152,25 @@ def save_ticket_reply(ticket_id):
     conn.close()
     
     flash("Reply sent and ticket marked as resolved.", "success")
+    return redirect(url_for('admin.admin_support_tickets'))
+@admin_bp.route('/clear-tickets')
+@admin_required
+def clear_tickets():
+    conn = get_db_connection()
+    try:
+        # Delete all rows from the support_ticket table
+        conn.execute("DELETE FROM support_ticket")
+        
+        # Optional: Reset the ID counter back to 1
+        conn.execute("DELETE FROM sqlite_sequence WHERE name='support_ticket'")
+        
+        conn.commit()
+        flash("All support tickets have been deleted!", "success")
+    except Exception as e:
+        flash(f"Error clearing tickets: {e}", "error")
+    finally:
+        conn.close()
+    
     return redirect(url_for('admin.admin_support_tickets'))
 # =====================================================
 # MANAGE REWARDS PAGE (Placeholder)
@@ -1395,3 +1433,158 @@ def admin_view_participants(event_id):
                            role_display=role_display,
                            total_count=len(participants))
 
+
+
+
+# =====================================================
+# LIVE CHAT ROUTES
+# =====================================================
+
+@admin_bp.route('/live-chats')
+@admin_required
+def admin_live_chats():
+    """Display all live chat sessions"""
+    try:
+        conn = get_db_connection()
+        
+        # Fetch all chat sessions with user info
+        chats = conn.execute(
+            """SELECT cs.session_id, cs.user_id, cs.status, cs.created_at, cs.last_message_at,
+                      u.name as user_name,
+                      (SELECT message_text FROM live_chat_message WHERE session_id = cs.session_id ORDER BY created_at DESC LIMIT 1) as last_message,
+                      (SELECT COUNT(*) FROM live_chat_message WHERE session_id = cs.session_id) as message_count
+               FROM live_chat_session cs
+               JOIN user u ON cs.user_id = u.user_id
+               ORDER BY cs.last_message_at DESC"""
+        ).fetchall()
+        
+        # Convert to list of dicts and adjust timezone
+        chats_list = []
+        for chat in chats:
+            chat_dict = dict(chat)
+            # Convert timestamps to UTC+8
+            if chat_dict['created_at']:
+                try:
+                    utc_time = datetime.strptime(chat_dict['created_at'], '%Y-%m-%d %H:%M:%S')
+                    local_time = utc_time + timedelta(hours=8)
+                    chat_dict['created_at'] = local_time.strftime('%Y-%m-%d %H:%M:%S')
+                except:
+                    pass
+            chats_list.append(chat_dict)
+        
+        # Calculate statistics
+        total_chats = len(chats_list)
+        active_chats = sum(1 for c in chats_list if c['status'] == 'active')
+        
+        # Closed today
+        today = datetime.now().date()
+        closed_today = 0
+        for chat in chats_list:
+            if chat['status'] == 'closed' and chat['last_message_at']:
+                try:
+                    chat_date = datetime.strptime(chat['last_message_at'], '%Y-%m-%d %H:%M:%S').date()
+                    if chat_date == today:
+                        closed_today += 1
+                except:
+                    pass
+        
+        conn.close()
+        
+        return render_template('admin/admin_live_chats.html',
+                               chats=chats_list,
+                               total_chats=total_chats,
+                               active_chats=active_chats,
+                               closed_today=closed_today)
+    except Exception as e:
+        print(f"ERROR in admin_live_chats: {e}")
+        import traceback
+        traceback.print_exc()
+        return f"Error loading live chats: {str(e)}", 500
+
+@admin_bp.route('/get-chat-details/<int:session_id>')
+@admin_required
+def get_chat_details(session_id):
+    """Get details for a specific chat session"""
+    conn = get_db_connection()
+    
+    chat = conn.execute(
+        """SELECT cs.*, u.name as user_name, u.email as user_email
+           FROM live_chat_session cs
+           JOIN user u ON cs.user_id = u.user_id
+           WHERE cs.session_id = ?""",
+        (session_id,)
+    ).fetchone()
+    
+    conn.close()
+    
+    if not chat:
+        return jsonify({'error': 'Chat not found'}), 404
+    
+    return jsonify(dict(chat))
+
+@admin_bp.route('/get-chat-messages/<int:session_id>')
+@admin_required
+def get_chat_messages(session_id):
+    """Get all messages for a chat session"""
+    conn = get_db_connection()
+    
+    messages = conn.execute(
+        """SELECT m.*, u.name as sender_name
+           FROM live_chat_message m
+           LEFT JOIN user u ON m.sender_id = u.user_id AND m.sender_type = 'user'
+           WHERE m.session_id = ?
+           ORDER BY m.created_at ASC""",
+        (session_id,)
+    ).fetchall()
+    
+    conn.close()
+    
+    return jsonify({'messages': [dict(m) for m in messages]})
+
+@admin_bp.route('/send-chat-message', methods=['POST'])
+@admin_required
+def send_chat_message():
+    """Send a message as admin in a chat session"""
+    data = request.json
+    session_id = data.get('session_id')
+    message_text = data.get('message')
+    
+    if not session_id or not message_text:
+        return jsonify({'error': 'Missing session_id or message'}), 400
+    
+    admin_id = session.get('user_id')  # Admin's user_id
+    
+    conn = get_db_connection()
+    
+    # Insert admin message
+    conn.execute(
+        "INSERT INTO live_chat_message (session_id, sender_type, sender_id, message_text) VALUES (?, 'admin', ?, ?)",
+        (session_id, admin_id, message_text)
+    )
+    
+    # Update last_message_at
+    conn.execute(
+        "UPDATE live_chat_session SET last_message_at = CURRENT_TIMESTAMP WHERE session_id = ?",
+        (session_id,)
+    )
+    
+    conn.commit()
+    conn.close()
+    
+    return jsonify({'status': 'sent'})
+
+@admin_bp.route('/close-chat/<int:session_id>', methods=['POST'])
+@admin_required
+def close_chat_session(session_id):
+    """Close a chat session"""
+    conn = get_db_connection()
+    
+    conn.execute(
+        "UPDATE live_chat_session SET status = 'closed' WHERE session_id = ?",
+        (session_id,)
+    )
+    
+    conn.commit()
+    conn.close()
+    
+    return jsonify({'status': 'closed'})
