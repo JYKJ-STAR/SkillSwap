@@ -1252,9 +1252,7 @@ def admin_live_chats():
                                chats=chats_list,
                                total_chats=total_chats,
                                active_chats=active_chats,
-                               closed_today=closed_today,
-                               user_name=session.get('user_name', 'Admin'),
-                               admin_email=session.get('email', ''))
+                               closed_today=closed_today)
     except Exception as e:
         print(f"ERROR in admin_live_chats: {e}")
         import traceback

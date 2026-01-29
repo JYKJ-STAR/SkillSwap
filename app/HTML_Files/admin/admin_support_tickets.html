@@ -160,8 +160,8 @@
         </div>
 
         <!-- Tickets Table -->
-        <div class="table-responsive">
-            <table class="table align-middle">
+        <div class="tickets-table-container">
+            <table class="tickets-table">
                 <thead>
                     <tr>
                         <th scope="col">TICKET-ID</th>
@@ -219,7 +219,9 @@
                     </tr>
                     {% else %}
                     <tr>
-                        <td colspan="7" class="text-center py-4 text-muted">No tickets found.</td>
+                        <td colspan="7" class="text-center py-4 text-muted"
+                            style="text-align: center; padding: 2rem; color: #9ca3af;">
+                            No tickets found.</td>
                     </tr>
                     {% endfor %}
                 </tbody>
