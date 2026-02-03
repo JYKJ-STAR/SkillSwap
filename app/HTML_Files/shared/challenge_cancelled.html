@@ -1,0 +1,70 @@
+{% extends "shared/base.html" %}
+
+{% block title %}Challenge Cancelled - SkillSwap{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/shared/event_cancelled.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="cancelled-page">
+    <div class="cancelled-container">
+        <!-- Status Icon -->
+        <div class="cancelled-icon">
+            {% if challenge.status == 'voided' %}
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            {% else %}
+            <i class="bi bi-check-circle-fill" style="color: #10b981;"></i>
+            {% endif %}
+        </div>
+
+        <!-- Title -->
+        {% if challenge.status == 'voided' %}
+        <h1 class="cancelled-title">Challenge Cancelled</h1>
+        {% else %}
+        <h1 class="cancelled-title" style="color: #10b981;">Challenge Ended</h1>
+        {% endif %}
+
+        <p class="event-name">"{{ challenge.title }}"</p>
+
+        <!-- Reason / Details Box -->
+        {% if challenge.status == 'voided' %}
+        <div class="reason-box">
+            <div class="reason-label">
+                <i class="bi bi-info-circle"></i> Reason for Cancellation
+            </div>
+            <div class="reason-text">{{ challenge.void_reason or "No reason provided." }}</div>
+        </div>
+        {% else %}
+        <div class="reason-box" style="background: rgba(16, 185, 129, 0.1); border-left: 4px solid #10b981;">
+            <div class="reason-label">
+                <i class="bi bi-calendar-check"></i> Challenge Completed
+            </div>
+            <div class="reason-text">
+                This challenge ended on {{ challenge.end_date }}.<br>
+                Thank you to everyone who participated!
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Message -->
+        <p class="apology-text">
+            {% if challenge.status == 'voided' %}
+            This challenge is no longer active.
+            {% else %}
+            Check out our new and upcoming challenges!
+            {% endif %}
+        </p>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <a href="{{ url_for('events.events') }}" class="btn btn-primary">
+                <i class="bi bi-trophy"></i> View Other Challenges
+            </a>
+            <a href="{{ url_for('dashboard.dashboard') }}" class="btn btn-secondary">
+                <i class="bi bi-house-door"></i> Back to Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

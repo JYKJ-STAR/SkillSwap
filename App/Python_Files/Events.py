@@ -435,6 +435,17 @@ def event_details(event_id):
                              void_reason=event.get('void_reason', 'This event has been cancelled.'),
                              user_role=role)
     
+    # Check if event has started (compare current time with event start time)
+    from datetime import datetime
+    has_started = True  # Default to True
+    try:
+        event_start = datetime.strptime(event['start_datetime'], '%Y-%m-%d %H:%M:%S')
+        now = datetime.now()
+        has_started = now >= event_start
+    except:
+        # If parsing fails, allow sign-up (default behavior)
+        has_started = True
+    
     # Get role slot information
     slots = get_role_slots(event_id)
     
@@ -453,7 +464,8 @@ def event_details(event_id):
                          role_display=ROLE_DISPLAY,
                          user_signed_up_role=user_signed_up_role,
                          user_role=role,
-                         can_mentor=can_mentor)
+                         can_mentor=can_mentor,
+                         has_started=has_started)
 
 
 @events_bp.route('/event/<int:event_id>/signup', methods=['POST'])

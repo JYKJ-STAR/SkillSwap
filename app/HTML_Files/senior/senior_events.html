@@ -150,6 +150,8 @@
                             {% endif %}
                         </div>
                         <span class="event-led-by-senior">Monthly Goal</span>
+                        <a href="{{ url_for('dashboard.challenge_details', challenge_id=challenge.challenge_id) }}"
+                            class="senior-view-details-btn">View Details</a>
                     </div>
                     {% endfor %}
                 </div>

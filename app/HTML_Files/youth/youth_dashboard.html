@@ -115,6 +115,62 @@
         </div>
     </section>
 
+    <!-- Active Challenges Section -->
+    {% if challenges %}
+    <section class="challenges-section" style="margin-bottom: 2rem;">
+        <h2 class="section-title">Active Challenges</h2>
+        <p class="section-subtitle">Complete goals to earn bonus points!</p>
+        <div class="challenges-grid"
+            style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; margin-top: 1rem;">
+            {% for challenge in challenges %}
+            <div class="challenge-card"
+                style="background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); border: 1px solid #f3f4f6; transition: transform 0.2s;">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <h3 class="challenge-title" style="margin:0; font-size: 1.1em; font-weight: 700; color: #1f2937;">{{
+                        challenge.title }}</h3>
+                    <span class="badge"
+                        style="background: #fffbeb; color: #d97706; border: 1px solid #fcd34d; font-weight: 600;">+{{
+                        challenge.bonus_points }} pts</span>
+                </div>
+                <p class="challenge-desc"
+                    style="color: #6b7280; font-size: 0.9em; margin-bottom: 15px; line-height: 1.5;">
+                    {{ challenge.description|truncate(100) }}</p>
+
+                <div class="challenge-meta d-flex justify-content-between mb-3"
+                    style="font-size: 0.85em; color: #4b5563; background: #f9fafb; padding: 8px; border-radius: 6px;">
+                    <span><i class="bi bi-clock" style="margin-right: 4px;"></i> {{ challenge.time_left }}</span>
+                    <span
+                        style="font-weight: 600; color: {% if challenge.status == 'Completed' %}#059669{% else %}#2563eb{% endif %};">{{
+                        challenge.status }}</span>
+                </div>
+
+                <!-- Progress -->
+                <div class="challenge-progress mb-4">
+                    <div class="d-flex justify-content-between mb-1" style="font-size: 0.85em; font-weight: 500;">
+                        <span>Progress</span>
+                        <span>{{ challenge.progress }} / {{ challenge.target_count }} events</span>
+                    </div>
+                    <div class="progress"
+                        style="height: 8px; background: #e5e7eb; border-radius: 4px; overflow: hidden; box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);">
+                        <div class="progress-bar" role="progressbar"
+                            style="width: {{ (challenge.progress / challenge.target_count * 100)|round }}%; background: linear-gradient(90deg, #f59e0b, #d97706); transition: width 0.5s ease;"
+                            aria-valuenow="{{ challenge.progress }}" aria-valuemin="0"
+                            aria-valuemax="{{ challenge.target_count }}"></div>
+                    </div>
+                </div>
+
+                <a href="{{ url_for('dashboard.challenge_details', challenge_id=challenge.id) }}" class="btn w-100"
+                    style="border: 2px solid #f59e0b; color: #ffffff; font-weight: 600; background: linear-gradient(135deg, #f59e0b, #d97706); transition: all 0.2s; text-decoration: none; padding: 12px; text-align: center; border-radius: 8px;"
+                    onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(245, 158, 11, 0.3)';"
+                    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
+                    View Details →
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
     <!-- Recommended for You Section -->
     <section class="recommended-section">
         <div class="recommended-header">

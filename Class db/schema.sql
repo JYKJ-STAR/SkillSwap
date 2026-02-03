@@ -293,6 +293,7 @@ CREATE TABLE IF NOT EXISTS challenge (
   start_date TEXT NOT NULL, -- YYYY-MM-DD
   end_date TEXT NOT NULL,   -- YYYY-MM-DD
   bonus_points INTEGER DEFAULT 0,
+  target_count INTEGER DEFAULT 1,
   status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'active', 'inactive', 'published', 'voided', 'ended')),
   void_reason TEXT,
   created_by INTEGER,

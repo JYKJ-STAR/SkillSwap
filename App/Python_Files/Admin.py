@@ -373,8 +373,11 @@ def create_event():
     max_capacity = request.form.get('max_capacity') or None
     
     # New Role Capacities
+    # New Role Capacities & Points
     mentor_capacity = request.form.get('mentor_capacity', 5)
     participant_capacity = request.form.get('participant_capacity', 15)
+    base_points_teacher = request.form.get('base_points_teacher', 30)
+    base_points_participant = request.form.get('base_points_participant', 10)
     
     admin_id = session.get('admin_id', 1)
     
@@ -397,10 +400,11 @@ def create_event():
     
     # Insert Event
     cursor.execute(
-        """INSERT INTO event (created_by_user_id, grc_id, title, description, start_datetime, location, category, led_by, max_capacity, status)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')""",
-        (admin_id, grc_id, title, description, start_datetime, location, category, led_by, max_capacity)
+        """INSERT INTO event (created_by_user_id, grc_id, title, description, start_datetime, location, category, led_by, max_capacity, status, base_points_teacher, base_points_participant)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+        (admin_id, grc_id, title, description, start_datetime, location, category, led_by, max_capacity, 'pending', base_points_teacher, base_points_participant)
     )
+
     event_id = cursor.lastrowid
     
     # Insert Role Requirements (Dynamic Capacities)
@@ -582,13 +586,17 @@ def admin_create_challenge_submit():
     start_db = start_datetime.replace('T', ' ')
     end_db = end_datetime.replace('T', ' ')
     
+    # Get numeric fields
+    bonus_points = request.form.get('bonus_points', 0)
+    target_count = request.form.get('target_count', 15)  # Default to 15 events implementation
+
     status = 'pending'
         
     conn = get_db_connection()
     try:
         conn.execute(
-            "INSERT INTO challenge (title, description, start_date, end_date, status, created_by) VALUES (?, ?, ?, ?, ?, ?)",
-            (title, description, start_db, end_db, status, admin_id)
+            "INSERT INTO challenge (title, description, start_date, end_date, status, created_by, bonus_points, target_count) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            (title, description, start_db, end_db, status, admin_id, bonus_points, target_count)
         )
         conn.commit()
     except Exception as e:
@@ -641,10 +649,14 @@ def admin_update_challenge(challenge_id):
     start_db = start_datetime.replace('T', ' ')
     end_db = end_datetime.replace('T', ' ')
     
+    # Get numeric fields
+    bonus_points = request.form.get('bonus_points', 0)
+    target_count = request.form.get('target_count', 15)
+    
     conn = get_db_connection()
     conn.execute(
-        "UPDATE challenge SET title = ?, description = ?, start_date = ?, end_date = ? WHERE challenge_id = ?",
-        (title, description, start_db, end_db, challenge_id)
+        "UPDATE challenge SET title = ?, description = ?, start_date = ?, end_date = ?, bonus_points = ?, target_count = ? WHERE challenge_id = ?",
+        (title, description, start_db, end_db, bonus_points, target_count, challenge_id)
     )
     conn.commit()
     conn.close()
@@ -808,14 +820,17 @@ def admin_update_event(event_id):
     # New Role Capacities
     mentor_capacity = request.form.get('mentor_capacity', 5)
     participant_capacity = request.form.get('participant_capacity', 15)
+    base_points_teacher = request.form.get('base_points_teacher', 30)
+    base_points_participant = request.form.get('base_points_participant', 10)
     
     conn = get_db_connection()
     conn.execute(
         """UPDATE event 
            SET title = ?, description = ?, start_datetime = ?, location = ?, 
-               grc_id = ?, category = ?, led_by = ?, status = ?, max_capacity = ?
+               grc_id = ?, category = ?, led_by = ?, status = ?, max_capacity = ?,
+               base_points_teacher = ?, base_points_participant = ?
            WHERE event_id = ?""",
-        (title, description, start_datetime, location, grc_id, category, led_by, status, max_capacity, event_id)
+        (title, description, start_datetime, location, grc_id, category, led_by, status, max_capacity, base_points_teacher, base_points_participant, event_id)
     )
     
     # Update Role Requirements

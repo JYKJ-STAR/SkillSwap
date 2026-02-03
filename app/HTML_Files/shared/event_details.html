@@ -58,6 +58,13 @@
                     <span class="info-label">Capacity</span>
                     <span class="info-value">{{ slots.total_filled }} / {{ slots.total_capacity }} Signed Up</span>
                 </div>
+                <div class="info-item">
+                    <span class="info-label">Points Worth</span>
+                    <span class="info-value">
+                        <i class="bi bi-star-fill text-warning"></i> {{ event.base_points_participant }} pts
+                        (Participant)
+                    </span>
+                </div>
             </div>
 
             <!-- Role Slots Display -->
@@ -93,7 +100,14 @@
         <div class="signup-section">
             <h3 class="signup-title">Sign Up As</h3>
 
-            {% if user_signed_up_role %}
+            <!-- Check if event has started -->
+            {% if not has_started %}
+            <div class="signed-up-notice">
+                <p>🚫 <strong>Sign-up Not Yet Open</strong></p>
+                <p style="margin-top: 8px; font-size: 0.9em;">You can only view the details for now. Sign-up will open
+                    when the event starts.</p>
+            </div>
+            {% elif user_signed_up_role %}
             <!-- Already signed up - show current role and withdraw option -->
             <div class="signed-up-notice">
                 <p>✅ You are signed up as <strong>{{ role_display[user_signed_up_role] }}</strong></p>

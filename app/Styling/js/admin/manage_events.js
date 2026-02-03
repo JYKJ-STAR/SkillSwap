@@ -12,7 +12,7 @@ function closeCreateModal() {
 }
 
 // Edit Modal Functions
-function openEditModal(eventId, title, datetime, location, category, status, ledBy, maxCapacity, mentorCapacity, participantCapacity, description, grcId) {
+function openEditModal(eventId, title, datetime, location, category, status, ledBy, maxCapacity, mentorCapacity, participantCapacity, basePointsTeacher, basePointsParticipant, description, grcId) {
     const modal = document.getElementById('editModal');
     const form = document.getElementById('editForm');
 
@@ -30,6 +30,10 @@ function openEditModal(eventId, title, datetime, location, category, status, led
     // Populate New Capacity Fields
     document.getElementById('edit_mentor_capacity').value = mentorCapacity || 5;
     document.getElementById('edit_participant_capacity').value = participantCapacity || 15;
+    
+    // Populate Points Fields
+    document.getElementById('edit_base_points_teacher').value = basePointsTeacher || 30;
+    document.getElementById('edit_base_points_participant').value = basePointsParticipant || 10;
 
     document.getElementById('edit_description').value = description || '';
     document.getElementById('edit_grc').value = grcId || '';
@@ -86,11 +90,15 @@ document.addEventListener('DOMContentLoaded', function () {
             // New Capacity Data Attributes
             const mentorCapacity = this.dataset.mentorCapacity;
             const participantCapacity = this.dataset.participantCapacity;
+            
+            // Points Data Attributes
+            const basePointsTeacher = this.dataset.basePointsTeacher;
+            const basePointsParticipant = this.dataset.basePointsParticipant;
 
             const description = this.dataset.description;
             const grcId = this.dataset.grcId;
 
-            openEditModal(eventId, title, datetime, location, category, status, ledBy, maxCapacity, mentorCapacity, participantCapacity, description, grcId);
+            openEditModal(eventId, title, datetime, location, category, status, ledBy, maxCapacity, mentorCapacity, participantCapacity, basePointsTeacher, basePointsParticipant, description, grcId);
         });
     });
 });

@@ -89,6 +89,61 @@
         </div>
     </section>
 
+    <!-- Active Challenges Section -->
+    {% if challenges %}
+    <section class="challenges-section-senior" style="margin-bottom: 3rem;">
+        <h2 class="section-title-main-senior">🏆 Active Challenges</h2>
+        <p class="section-subtitle-main-senior" style="font-size: 1.1rem;">Participate in these challenges to earn bonus
+            points!</p>
+
+        <div class="challenges-grid-senior"
+            style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px; margin-top: 1.5rem;">
+            {% for challenge in challenges %}
+            <div class="challenge-card-senior"
+                style="background: white; padding: 24px; border-radius: 16px; border: 2px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);">
+                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.75rem;">
+                    <h3 style="color: #1a202c; font-size: 1.35rem; font-weight: 700; margin: 0;">{{ challenge.title }}
+                    </h3>
+                    <span
+                        style="background: #fff7ed; color: #c2410c; padding: 4px 12px; border-radius: 20px; font-weight: 700; border: 1px solid #fdba74;">
+                        +{{ challenge.bonus_points }} pts
+                    </span>
+                </div>
+
+                <p style="color: #4a5568; font-size: 1.1rem; line-height: 1.5; margin-bottom: 1.25rem;">
+                    {{ challenge.description }}
+                </p>
+
+                <div style="margin-bottom: 1.5rem; background: #f7fafc; padding: 16px; border-radius: 12px;">
+                    <div
+                        style="display: flex; justify-content: space-between; margin-bottom: 0.75rem; font-size: 1.1rem; font-weight: 600; color: #2d3748;">
+                        <span>Status: {{ challenge.status }}</span>
+                        <span>{{ challenge.time_left }}</span>
+                    </div>
+
+                    <div
+                        style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 1rem; color: #4a5568;">
+                        <span>Progress</span>
+                        <span>{{ challenge.progress }} / {{ challenge.target_count }} events</span>
+                    </div>
+                    <div style="height: 16px; background: #cbd5e0; border-radius: 8px; overflow: hidden;">
+                        <div
+                            style="width: {{ (challenge.progress / challenge.target_count * 100)|round }}%; background: linear-gradient(90deg, #ed8936, #dd6b20); height: 100%;">
+                        </div>
+                    </div>
+                </div>
+
+                <a href="{{ url_for('dashboard.challenge_details', challenge_id=challenge.id) }}"
+                    class="btn-senior-primary"
+                    style="display: block; text-align: center; text-decoration: none; width: 100%; padding: 14px; font-size: 1.1rem;">
+                    View Challenge Details ➜
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
     <!-- Recommended for You Section -->
     <section class="recommended-section-senior">
         <div class="section-header-senior">

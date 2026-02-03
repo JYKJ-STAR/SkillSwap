@@ -1,78 +1,350 @@
 {% extends "shared/base.html" %}
+{% import "shared/macros.html" as macros %}
 
-{% block title %}Challenge Details - SkillSwap{% endblock %}
+{% block title %}{{ challenge.title }} - SkillSwap{% endblock %}
 
 {% block styles %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/shared/event_cancelled.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/shared/event_details.css') }}">
+<style>
+    .proof-section {
+        background: #f9fafb;
+        padding: 24px;
+        border-radius: 12px;
+        margin-top: 32px;
+        border: 2px dashed #d1d5db;
+    }
+
+    .proof-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .proof-form {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .form-group-challenge {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .form-label-challenge {
+        font-weight: 600;
+        color: #374151;
+        font-size: 0.95rem;
+    }
+
+    .form-input-challenge {
+        padding: 12px;
+        border: 2px solid #e5e7eb;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: border-color 0.2s;
+    }
+
+    .form-input-challenge:focus {
+        outline: none;
+        border-color: #f59e0b;
+    }
+
+    .form-textarea-challenge {
+        min-height: 120px;
+        resize: vertical;
+    }
+
+    .file-upload-area {
+        border: 2px dashed #cbd5e0;
+        border-radius: 8px;
+        padding: 24px;
+        text-align: center;
+        background: white;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .file-upload-area:hover {
+        border-color: #f59e0b;
+        background: #fffbeb;
+    }
+
+    .upload-icon {
+        font-size: 3rem;
+        color: #9ca3af;
+        margin-bottom: 8px;
+    }
+
+    .upload-text {
+        color: #6b7280;
+        font-size: 0.95rem;
+    }
+
+    .submit-proof-btn {
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+        color: white;
+        padding: 14px 32px;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .submit-proof-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(245, 158, 11, 0.3);
+    }
+
+    .challenge-status-badge {
+        display: inline-block;
+        padding: 6px 16px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        margin-left: 12px;
+    }
+
+    .status-active {
+        background: #d1fae5;
+        color: #065f46;
+    }
+
+    .status-upcoming {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+
+    .status-ended {
+        background: #e5e7eb;
+        color: #4b5563;
+    }
+
+    .progress-container {
+        margin-top: 24px;
+        padding: 20px;
+        background: white;
+        border-radius: 12px;
+        border: 1px solid #e5e7eb;
+    }
+
+    .progress-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 12px;
+        font-weight: 600;
+        color: #374151;
+    }
+
+    .progress-bar-wrapper {
+        height: 12px;
+        background: #e5e7eb;
+        border-radius: 6px;
+        overflow: hidden;
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .progress-bar-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #f59e0b, #d97706);
+        transition: width 0.5s ease;
+    }
+</style>
 {% endblock %}
 
 {% block content %}
-<div class="cancelled-page">
-    <div class="cancelled-container">
-        <!-- Status Icon -->
-        <div class="cancelled-icon">
-            {% if challenge.status == 'voided' %}
-            <i class="bi bi-exclamation-triangle-fill"></i>
-            {% else %}
-            <i class="bi bi-check-circle-fill" style="color: #10b981;"></i>
-            {% endif %}
+<div class="container py-4">
+    <!-- Back Button -->
+    <a href="{{ url_for('dashboard.dashboard') }}" class="back-button">
+        ← Back to Dashboard
+    </a>
+
+    <!-- Challenge Details Card -->
+    <div class="event-details-card">
+        <!-- Status Badge -->
+        <span class="challenge-status-badge 
+            {% if challenge.status == 'Not Yet Started' %}status-upcoming
+            {% elif challenge.status == 'Active' %}status-active
+            {% else %}status-ended
+            {% endif %}">
+            {{ challenge.status }}
+        </span>
+
+        {% if challenge.is_new %}
+        <span class="event-details-new-badge">NEW</span>
+        {% endif %}
+
+        <!-- Challenge Header -->
+        <div class="event-header">
+            <h1 class="event-title">{{ challenge.title }}</h1>
+            <p class="event-description">{{ challenge.description }}</p>
         </div>
 
-        <!-- Title -->
-        {% if challenge.status == 'voided' %}
-        <h1 class="cancelled-title">Challenge Cancelled</h1>
+        <!-- Challenge Info Grid -->
+        <div class="event-info-grid">
+            <div class="info-column">
+                <div class="info-item">
+                    <span class="info-label">Start Date</span>
+                    <span class="info-value">{{ challenge.start_date }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">End Date</span>
+                    <span class="info-value">{{ challenge.end_date }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Target</span>
+                    <span class="info-value">{{ challenge.target_count }} Events</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Bonus Points</span>
+                    <span class="info-value">
+                        <i class="bi bi-trophy-fill text-warning"></i> {{ challenge.bonus_points }} pts
+                    </span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Time Remaining</span>
+                    <span class="info-value">{{ challenge.time_left }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Progress Section (Only for Active Challenges) -->
+        {% if challenge.status == 'Active' %}
+        <div class="progress-container">
+            <div class="progress-header">
+                <span>Your Progress</span>
+                <span>{{ challenge.user_progress }} / {{ challenge.target_count }} Events Completed</span>
+            </div>
+            <div class="progress-bar-wrapper">
+                <div class="progress-bar-fill"
+                    style="width: {{ (challenge.user_progress / challenge.target_count * 100)|round }}%;"></div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Submit Proof Section (Only for Active Challenges) -->
+        {% if challenge.status == 'Active' %}
+        {% if submission and submission.status == 'pending' %}
+        <div class="proof-section" style="border-color: #ffd700; background: #fffbeb;">
+            <div class="proof-title" style="color: #b45309;">
+                <i class="bi bi-hourglass-split"></i>
+                Submission Under Review
+            </div>
+            <p style="color: #92400e;">
+                We have received your proof! Our team is currently reviewing it. check back soon.
+            </p>
+            <div class="bg-white p-3 rounded mt-3" style="border: 1px solid #fcd34d;">
+                <small class="text-muted d-block uppercase mb-1">Your Submission:</small>
+                <strong>{{ submission.proof_description }}</strong>
+                {% if submission.proof_file %}
+                <div class="mt-1 small text-muted"><i class="bi bi-paperclip"></i> {{ submission.proof_file }}</div>
+                {% endif %}
+            </div>
+        </div>
+        {% elif submission and submission.status == 'approved' %}
+        <div class="proof-section" style="border-color: #34d399; background: #ecfdf5;">
+            <div class="proof-title" style="color: #065f46;">
+                <i class="bi bi-check-circle-fill"></i>
+                Challenge Completed!
+            </div>
+            <p style="color: #064e3b;">
+                Congratulations! Your proof has been verified and you have earned <strong>{{ challenge.bonus_points }}
+                    pts</strong>.
+            </p>
+        </div>
         {% else %}
-        <h1 class="cancelled-title" style="color: #10b981;">Challenge Ended</h1>
-        {% endif %}
-        <p class="event-name">"{{ challenge.title }}"</p>
-
-        <!-- Challenge Period -->
-        <div class="reason-box" style="background: rgba(59, 130, 246, 0.1); border-left: 4px solid #3b82f6;">
-            <div class="reason-label">
-                <i class="bi bi-calendar-event"></i> Challenge Period
+        <div class="proof-section">
+            <div class="proof-title">
+                <i class="bi bi-file-earmark-check"></i>
+                Submit Proof of Completion
             </div>
-            <div class="reason-text">{{ challenge.start_date }} to {{ challenge.end_date }}</div>
-        </div>
+            <p style="color: #6b7280; margin-bottom: 20px;">
+                Share your achievements and earn bonus points upon verification!
+            </p>
 
-        <!-- Void Reason (if voided) -->
-        {% if challenge.status == 'voided' and challenge.void_reason %}
-        <div class="reason-box">
-            <div class="reason-label">
-                <i class="bi bi-info-circle"></i> Cancellation Reason
-            </div>
-            <div class="reason-text">{{ challenge.void_reason }}</div>
+            <form class="proof-form" method="POST" enctype="multipart/form-data">
+                <div class="form-group-challenge">
+                    <label class="form-label-challenge" for="proof_description">
+                        Description of your achievement
+                    </label>
+                    <textarea id="proof_description" name="proof_description"
+                        class="form-input-challenge form-textarea-challenge"
+                        placeholder="Tell us about what you accomplished for this challenge..."
+                        required>{{ submission.proof_description if submission and request.args.get('retry') else '' }}</textarea>
+                </div>
+
+                <div class="form-group-challenge">
+                    <label class="form-label-challenge">
+                        Upload Proof (Photo, Screenshot, Document)
+                    </label>
+                    <label for="proof_file" class="file-upload-area">
+                        <input type="file" id="proof_file" name="proof_file" accept="image/*,.pdf,.doc,.docx"
+                            style="display: none;" onchange="updateFileName(this)">
+                        <div class="upload-icon">📁</div>
+                        <div class="upload-text">
+                            <strong>Click to upload</strong> or drag and drop<br>
+                            <span id="file-name" style="color: #f59e0b; font-weight: 600;"></span>
+                        </div>
+                    </label>
+                </div>
+
+                <button type="submit" class="submit-proof-btn">
+                    <i class="bi bi-check-circle"></i> {{ 'Resubmit Proof' if request.args.get('retry') else 'Submit
+                    Proof' }}
+                </button>
+            </form>
         </div>
         {% endif %}
-
-        <!-- End Message (if ended) -->
-        {% if challenge.status == 'ended' %}
-        <div class="reason-box" style="background: rgba(16, 185, 129, 0.1); border-left: 4px solid #10b981;">
-            <div class="reason-label">
-                <i class="bi bi-trophy-fill"></i> Completion Status
+        {% elif challenge.status == 'Not Yet Started' %}
+        <div class="proof-section" style="border-color: #93c5fd; background: #eff6ff;">
+            <div class="proof-title" style="color: #1e40af;">
+                <i class="bi bi-clock-history"></i>
+                Challenge Not Started Yet
             </div>
-            <div class="reason-text">This challenge has been completed! Thank you for participating.</div>
+            <p style="color: #1e40af;">
+                This challenge will begin on <strong>{{ challenge.start_date }}</strong>.
+                Check back then to start earning points!
+            </p>
+        </div>
+        {% else %}
+        <div class="proof-section" style="border-color: #cbd5e0; background: #f3f4f6;">
+            <div class="proof-title" style="color: #6b7280;">
+                <i class="bi bi-info-circle"></i>
+                Challenge Ended
+            </div>
+            <p style="color: #6b7280;">
+                This challenge has ended. Explore other active challenges to keep earning points!
+            </p>
         </div>
         {% endif %}
-
-        <!-- Message -->
-        <p class="apology-text">
-            {% if challenge.status == 'voided' %}
-            We apologize for any inconvenience this may have caused.
-            {% else %}
-            Great job on completing this challenge!
-            {% endif %}
-            Check out our other available challenges and events!
-        </p>
 
         <!-- Action Buttons -->
-        <div class="action-buttons">
-            <a href="{{ url_for('events.events') }}" class="btn btn-primary">
-                <i class="bi bi-calendar-event"></i> Browse Events
-            </a>
-            <a href="{{ url_for('dashboard.dashboard') }}" class="btn btn-secondary">
-                <i class="bi bi-house-door"></i> Back to Dashboard
-            </a>
+        <div class="signup-section" style="margin-top: 24px;">
+            <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                <a href="{{ url_for('events.events') }}" class="btn-signup btn-participant"
+                    style="flex: 1; text-decoration: none; text-align: center;">
+                    <i class="bi bi-calendar-event"></i> View Eligible Events
+                </a>
+                <a href="{{ url_for('events.events') }}" class="btn-signup btn-mentor"
+                    style="flex: 1; text-decoration: none; text-align: center;">
+                    <i class="bi bi-trophy"></i> View Other Challenges
+                </a>
+            </div>
         </div>
     </div>
 </div>
+
+<script>
+    function updateFileName(input) {
+        const fileName = input.files[0] ? input.files[0].name : '';
+        document.getElementById('file-name').textContent = fileName ? `Selected: ${fileName}` : '';
+    }
+</script>
 {% endblock %}

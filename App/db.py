@@ -80,6 +80,15 @@ def migrate_database():
                 print("✅ Challenge table migration complete!")
         except Exception as migration_error:
             print(f"⚠️ Challenge migration note: {migration_error}")
+        # Challenge Table Migration for target_count
+        cursor.execute("PRAGMA table_info(challenge)")
+        columns = [row[1] for row in cursor.fetchall()]
+        
+        if 'target_count' not in columns:
+            print("🔄 Adding 'target_count' column to challenge table...")
+            cursor.execute("ALTER TABLE challenge ADD COLUMN target_count INTEGER DEFAULT 1")
+            conn.commit()
+            print("✅ Database migration complete for challenge table (target_count)!")
         
         # Create live chat tables if they don't exist
         try:
@@ -115,6 +124,32 @@ def migrate_database():
         except Exception as chat_error:
             print(f"⚠️ Chat migration note: {chat_error}")
         
+        # Create user_challenge table for proof submissions
+        try:
+            cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='user_challenge'")
+            if not cursor.fetchone():
+                print("🔄 Creating user_challenge table...")
+                cursor.execute("""
+                    CREATE TABLE IF NOT EXISTS user_challenge (
+                        user_challenge_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        user_id INTEGER NOT NULL,
+                        challenge_id INTEGER NOT NULL,
+                        status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected')),
+                        proof_file TEXT,
+                        proof_description TEXT,
+                        admin_comment TEXT,
+                        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                        FOREIGN KEY (user_id) REFERENCES user(user_id) ON DELETE CASCADE,
+                        FOREIGN KEY (challenge_id) REFERENCES challenge(challenge_id) ON DELETE CASCADE
+                    )
+                """)
+                cursor.execute("CREATE INDEX IF NOT EXISTS idx_user_challenge_user ON user_challenge(user_id)")
+                cursor.execute("CREATE INDEX IF NOT EXISTS idx_user_challenge_challenge ON user_challenge(challenge_id)")
+                conn.commit()
+                print("✅ user_challenge table created!")
+        except Exception as uc_error:
+            print(f"⚠️ User challenge migration note: {uc_error}")
+
         conn.close()
     except Exception as e:
         print(f"⚠️ Migration warning: {e}")
