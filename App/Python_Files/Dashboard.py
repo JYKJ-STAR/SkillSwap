@@ -83,7 +83,7 @@ def dashboard():
     
     
     notifications_rows = conn.execute('''
-        SELECT notification_id, message, created_at, event_id 
+        SELECT notification_id, message, created_at, event_id, challenge_id 
         FROM notification 
         WHERE user_id = ? AND is_read = 0 
         ORDER BY created_at DESC
@@ -136,7 +136,7 @@ def dismiss_notification(notification_id):
 def view_notification_details(notification_id):
     """
     Handle notification click.
-    Marks as read and redirects to relevant page (e.g., Event Details).
+    Marks as read and redirects to relevant page (e.g., Event Details or Challenge Details).
     """
     if 'user_id' not in session:
         flash("Please log in.", "warning")
@@ -146,7 +146,7 @@ def view_notification_details(notification_id):
     conn = get_db_connection()
     
     # Get notification details
-    note = conn.execute("SELECT event_id FROM notification WHERE notification_id = ? AND user_id = ?", 
+    note = conn.execute("SELECT event_id, challenge_id FROM notification WHERE notification_id = ? AND user_id = ?", 
                        (notification_id, user_id)).fetchone()
     
     if note:
@@ -154,17 +154,91 @@ def view_notification_details(notification_id):
         conn.execute("UPDATE notification SET is_read = 1 WHERE notification_id = ?", (notification_id,))
         conn.commit()
         
-        # Redirect if it has an event_id
-        if note['event_id']:
+        # Check challenge_id first (use bracket notation for Row objects)
+        challenge_id = note['challenge_id'] if note['challenge_id'] else None
+        event_id = note['event_id'] if note['event_id'] else None
+        
+        if challenge_id:
             conn.close()
-            return redirect(url_for('events.event_details', event_id=note['event_id']))
+            return redirect(url_for('dashboard.challenge_notification_details', challenge_id=challenge_id))
+        
+        if event_id:
+            conn.close()
+            return redirect(url_for('dashboard.event_notification_details', event_id=event_id))
             
     conn.close()
     
-    # Default fallback if no event_id or not found
+    # Default fallback if no event_id/challenge_id or not found
     return redirect(url_for('dashboard.dashboard'))
 
+@dashboard_bp.route('/challenge-details/<int:challenge_id>')
+def challenge_notification_details(challenge_id):
+    """Display challenge details for voided or ended challenges."""
+    if 'user_id' not in session:
+        flash("Please log in.", "warning")
+        return redirect(url_for('home.login_page'))
+    
+    user_role = session.get('user_role')
+    conn = get_db_connection()
+    
+    # Get challenge details
+    challenge = conn.execute(
+        "SELECT * FROM challenge WHERE challenge_id = ?",
+        (challenge_id,)
+    ).fetchone()
+    
+    conn.close()
+    
+    if not challenge:
+        flash("Challenge not found.", "error")
+        return redirect(url_for('dashboard.dashboard'))
+    
+    # Prepare challenge data (use bracket notation for Row objects)
+    challenge_data = {
+        'title': challenge['title'],
+        'description': challenge['description'],
+        'status': challenge['status'],
+        'void_reason': challenge['void_reason'] if challenge['void_reason'] else None,
+        'start_date': challenge['start_date'],
+        'end_date': challenge['end_date']
+    }
+    
+    return render_template('shared/challenge_details.html', 
+                         challenge=challenge_data,
+                         user_role=user_role)
 
-
-
-
+@dashboard_bp.route('/event-details/<int:event_id>')
+def event_notification_details(event_id):
+    """Display event details for voided or ended events."""
+    if 'user_id' not in session:
+        flash("Please log in.", "warning")
+        return redirect(url_for('home.login_page'))
+    
+    user_role = session.get('user_role')
+    conn = get_db_connection()
+    
+    # Get event details
+    event = conn.execute(
+        "SELECT * FROM event WHERE event_id = ?",
+        (event_id,)
+    ).fetchone()
+    
+    conn.close()
+    
+    if not event:
+        flash("Event not found.", "error")
+        return redirect(url_for('dashboard.dashboard'))
+    
+    # Prepare event data
+    event_data = {
+        'title': event['title'],
+        'description': event['description'],
+        'status': event['status'],
+        'void_reason': event['void_reason'] if event['void_reason'] else None,
+        'location': event['location'],
+        'start_datetime': event['start_datetime']
+    }
+    
+    return render_template('shared/event_notification_details.html', 
+                         event=event_data,
+                         user_role=user_role)

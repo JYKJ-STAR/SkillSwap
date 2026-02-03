@@ -22,7 +22,7 @@ def run_admin():
     app.run(debug=False, port=5001, threaded=True)
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  
     print("=" * 55)
     print("SKILLSWAP - Starting Both Domains")
     print("=" * 55)

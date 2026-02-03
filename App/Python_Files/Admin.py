@@ -716,14 +716,42 @@ def admin_delete_challenge(challenge_id):
 def admin_void_challenge(challenge_id):
     """Void a challenge (cancel it)."""
     void_reason = request.form.get('void_reason', 'No reason provided')
+    notify_users = request.form.get('notify_users') == 'yes'  # Check if checkbox is checked
+    
     conn = get_db_connection()
+    
+    # Get challenge title
+    challenge = conn.execute("SELECT title FROM challenge WHERE challenge_id = ?", (challenge_id,)).fetchone()
+    challenge_title = challenge['title'] if challenge else 'Unknown Challenge'
+    
+    # Update challenge status to voided
     conn.execute(
         "UPDATE challenge SET status = 'voided', void_reason = ?, voided_at = datetime('now') WHERE challenge_id = ?",
         (void_reason, challenge_id)
     )
+    
+    # Create notifications for all users if checkbox is checked
+    notified_count = 0
+    if notify_users:
+        # Fetch all users (youth and senior roles)
+        all_users = conn.execute("""
+            SELECT user_id, name, role 
+            FROM user 
+            WHERE role IN ('youth', 'senior')
+        """).fetchall()
+        
+        notification_message = f"The challenge '{challenge_title}' has been cancelled."
+        for user in all_users:
+            conn.execute("""
+                INSERT INTO notification (user_id, message, challenge_id, created_at) 
+                VALUES (?, ?, ?, datetime('now'))
+            """, (user['user_id'], notification_message, challenge_id))
+            notified_count += 1
+    
     conn.commit()
     conn.close()
-    flash("Challenge voided.", "success")
+    
+    # No flash message - just redirect to voided tab
     return redirect(url_for('admin.admin_manage_events', filter='voided'))
 
 @admin_bp.route('/end-challenge/<int:challenge_id>', methods=['POST'])
@@ -731,14 +759,36 @@ def admin_void_challenge(challenge_id):
 def admin_end_challenge(challenge_id):
     """End a challenge (mark as completed)."""
     conn = get_db_connection()
+    
+    # Get challenge title before updating
+    challenge = conn.execute("SELECT title FROM challenge WHERE challenge_id = ?", (challenge_id,)).fetchone()
+    challenge_title = challenge['title'] if challenge else 'Unknown Challenge'
+    
+    # Update challenge status
     conn.execute(
         "UPDATE challenge SET status = 'ended', ended_at = datetime('now') WHERE challenge_id = ?",
         (challenge_id,)
     )
+    
+    # Notify all users about challenge ending
+    all_users = conn.execute("""
+        SELECT user_id, name, role 
+        FROM user 
+        WHERE role IN ('youth', 'senior')
+    """).fetchall()
+    
+    notification_message = f"The challenge '{challenge_title}' has ended."
+    for user in all_users:
+        conn.execute("""
+            INSERT INTO notification (user_id, message, challenge_id, created_at) 
+            VALUES (?, ?, ?, datetime('now'))
+        """, (user['user_id'], notification_message, challenge_id))
+    
     conn.commit()
     conn.close()
-    flash("Challenge ended.", "success")
-    return redirect(url_for('admin.admin_manage_events', filter='ended'))
+    
+    # No flash message - just redirect to ended tab (filter=past)
+    return redirect(url_for('admin.admin_manage_events', filter='past'))
 
 
 @admin_bp.route('/update-event/<int:event_id>', methods=['POST'])
@@ -862,30 +912,29 @@ def admin_void_event(event_id):
     conn.execute("UPDATE event SET status = 'voided', void_reason = ? WHERE event_id = ?", (void_reason, event_id))
     
     # Create notifications only if checkbox is checked
+    # Create notifications only if checkbox is checked
     notified_count = 0
-    if notify_users and participants:
-        notification_message = f"The event '{event_title}' you registered for has been cancelled by the organisers."
-        for participant in participants:
+    if notify_users:
+        # Fetch all users (youth and senior roles) to match Challenge workflow
+        all_users = conn.execute("""
+            SELECT user_id, name, role 
+            FROM user 
+            WHERE role IN ('youth', 'senior')
+        """).fetchall()
+
+        notification_message = f"The event '{event_title}' has been cancelled by the organisers."
+        for user in all_users:
             conn.execute("""
                 INSERT INTO notification (user_id, message, event_id, created_at) 
                 VALUES (?, ?, ?, datetime('now'))
-            """, (participant['user_id'], notification_message, event_id))
+            """, (user['user_id'], notification_message, event_id))
             notified_count += 1
     
     conn.commit()
     conn.close()
     
-    # If this was a published event with participants and notifications were sent, show confirmation page
-    # Logic to redirect to confirmation page removed as per user request.
-    # if was_published and participants and notify_users: ...
-    
-    # Show appropriate message based on notification status
-    if notified_count > 0:
-        flash(f"Event removed successfully. All {notified_count} registered participants have been notified.", "success")
-    else:
-        flash("Event removed successfully.", "success")
-    # Redirect back to the 'approved' list so admin stays in the same context
-    return redirect(url_for('admin.admin_manage_events', filter='approved'))
+    # Clean redirect without flash
+    return redirect(url_for('admin.admin_manage_events', filter='voided'))
 
 
 @admin_bp.route('/event-cancellation-confirm')
@@ -909,13 +958,33 @@ def event_cancellation_confirm():
 def admin_end_event(event_id):
     """End an approved event (approved -> ended/past)."""
     conn = get_db_connection()
+    
+    # Get event title and participants
+    event = conn.execute("SELECT title FROM event WHERE event_id = ?", (event_id,)).fetchone()
+    event_title = event['title'] if event else 'Unknown Event'
+
+    # Update event status
     conn.execute("UPDATE event SET status = 'ended' WHERE event_id = ?", (event_id,))
+
+    # Notify ALL users (consistent with Challenges)
+    all_users = conn.execute("""
+        SELECT user_id, name, role 
+        FROM user 
+        WHERE role IN ('youth', 'senior')
+    """).fetchall()
+
+    message = f"The event '{event_title}' has ended. We hope you enjoyed it!"
+    for user in all_users:
+         conn.execute("""
+            INSERT INTO notification (user_id, message, event_id, created_at) 
+            VALUES (?, ?, ?, datetime('now'))
+        """, (user['user_id'], message, event_id))
+
     conn.commit()
     conn.close()
     
-    flash("Event ended and moved to Past.", "success")
-    # Redirect back to the 'approved' list so admin stays in the same context
-    return redirect(url_for('admin.admin_manage_events', filter='approved'))
+    # Clean redirect without flash
+    return redirect(url_for('admin.admin_manage_events', filter='past'))
 
 
 @admin_bp.route('/clear-tab/<tab_name>', methods=['POST'])

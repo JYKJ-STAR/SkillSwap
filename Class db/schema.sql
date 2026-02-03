@@ -116,7 +116,7 @@ CREATE TABLE IF NOT EXISTS event (
   void_reason TEXT,
   max_capacity INTEGER,
   base_points_teacher INTEGER DEFAULT 0,
-  base_points_buddy INTEGER DEFAULT 0,
+
   base_points_participant INTEGER DEFAULT 0,
   created_at TEXT NOT NULL DEFAULT (datetime('now')),
   published_at TEXT,
@@ -228,34 +228,43 @@ CREATE TABLE IF NOT EXISTS support_ticket (
 
 ALTER TABLE support_ticket ADD COLUMN reply TEXT;
 
+-- Live Chat Tables
 CREATE TABLE IF NOT EXISTS live_chat_session (
-  session_id INTEGER PRIMARY KEY AUTOINCREMENT,
-  user_id INTEGER NOT NULL,
-  admin_id INTEGER,
-  started_at TEXT NOT NULL DEFAULT (datetime('now')),
-  FOREIGN KEY (user_id) REFERENCES user(user_id) ON DELETE CASCADE,
-  FOREIGN KEY (admin_id) REFERENCES user(user_id) ON DELETE SET NULL
+    session_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    status TEXT DEFAULT 'active' CHECK (status IN ('active', 'closed')),
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    last_message_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES user (user_id) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS chat_message (
-  message_id INTEGER PRIMARY KEY AUTOINCREMENT,
-  session_id INTEGER NOT NULL,
-  sender_id INTEGER NOT NULL,
-  message_text TEXT NOT NULL,
-  sent_at TEXT NOT NULL DEFAULT (datetime('now')),
-  FOREIGN KEY (session_id) REFERENCES live_chat_session(session_id) ON DELETE CASCADE,
-  FOREIGN KEY (sender_id) REFERENCES user(user_id) ON DELETE CASCADE
+CREATE TABLE IF NOT EXISTS live_chat_message (
+    message_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    session_id INTEGER NOT NULL,
+    sender_type TEXT NOT NULL CHECK (sender_type IN ('user', 'admin', 'system')),
+    sender_id INTEGER,  -- user_id or admin_id (NULL for system messages)
+    message_text TEXT NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (session_id) REFERENCES live_chat_session (session_id) ON DELETE CASCADE
 );
+
+-- Create indexes for better performance
+CREATE INDEX IF NOT EXISTS idx_chat_session_user ON live_chat_session(user_id);
+CREATE INDEX IF NOT EXISTS idx_chat_session_status ON live_chat_session(status);
+CREATE INDEX IF NOT EXISTS idx_chat_message_session ON live_chat_message(session_id);
+
 
 CREATE TABLE IF NOT EXISTS notification (
   notification_id INTEGER PRIMARY KEY AUTOINCREMENT,
   user_id INTEGER NOT NULL,
-  message TEXT NOT NULL,
-  is_read INTEGER DEFAULT 0 CHECK (is_read IN (0,1)),
   event_id INTEGER,
+  challenge_id INTEGER,
+  message TEXT NOT NULL,
+  is_read INTEGER DEFAULT 0,
   created_at TEXT NOT NULL DEFAULT (datetime('now')),
-  FOREIGN KEY (user_id) REFERENCES user(user_id) ON DELETE CASCADE,
-  FOREIGN KEY (event_id) REFERENCES event(event_id) ON DELETE SET NULL
+  FOREIGN KEY (user_id) REFERENCES user(user_id),
+  FOREIGN KEY (event_id) REFERENCES event(event_id) ON DELETE CASCADE,
+  FOREIGN KEY (challenge_id) REFERENCES challenge(challenge_id) ON DELETE CASCADE
 );
 
 -- NEW: Safety Report (Reporting users)
@@ -283,6 +292,7 @@ CREATE TABLE IF NOT EXISTS challenge (
   description TEXT,
   start_date TEXT NOT NULL, -- YYYY-MM-DD
   end_date TEXT NOT NULL,   -- YYYY-MM-DD
+  bonus_points INTEGER DEFAULT 0,
   status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'active', 'inactive', 'published', 'voided', 'ended')),
   void_reason TEXT,
   created_by INTEGER,
@@ -292,3 +302,4 @@ CREATE TABLE IF NOT EXISTS challenge (
   ended_at TEXT,
   FOREIGN KEY (created_by) REFERENCES admin(admin_id) ON DELETE SET NULL
 );
+

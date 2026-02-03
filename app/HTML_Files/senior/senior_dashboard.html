@@ -24,7 +24,7 @@
                 <strong style="font-size: 1.2rem;">My Notification:</strong>
                 <div style="font-size: 1.1rem; margin-top: 0.25rem;">
                     {{ note.message }}
-                    {% if note.event_id %}
+                    {% if note.event_id or note.challenge_id %}
                     <a href="{{ url_for('dashboard.view_notification_details', notification_id=note.notification_id) }}"
                         class="d-inline-block ms-2 px-3 py-1"
                         style="background-color: #f59e0b; color: white; text-decoration: none; border-radius: 20px; font-size: 1rem;">

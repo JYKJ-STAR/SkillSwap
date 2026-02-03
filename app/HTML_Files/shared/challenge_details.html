@@ -1,0 +1,78 @@
+{% extends "shared/base.html" %}
+
+{% block title %}Challenge Details - SkillSwap{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/shared/event_cancelled.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="cancelled-page">
+    <div class="cancelled-container">
+        <!-- Status Icon -->
+        <div class="cancelled-icon">
+            {% if challenge.status == 'voided' %}
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            {% else %}
+            <i class="bi bi-check-circle-fill" style="color: #10b981;"></i>
+            {% endif %}
+        </div>
+
+        <!-- Title -->
+        {% if challenge.status == 'voided' %}
+        <h1 class="cancelled-title">Challenge Cancelled</h1>
+        {% else %}
+        <h1 class="cancelled-title" style="color: #10b981;">Challenge Ended</h1>
+        {% endif %}
+        <p class="event-name">"{{ challenge.title }}"</p>
+
+        <!-- Challenge Period -->
+        <div class="reason-box" style="background: rgba(59, 130, 246, 0.1); border-left: 4px solid #3b82f6;">
+            <div class="reason-label">
+                <i class="bi bi-calendar-event"></i> Challenge Period
+            </div>
+            <div class="reason-text">{{ challenge.start_date }} to {{ challenge.end_date }}</div>
+        </div>
+
+        <!-- Void Reason (if voided) -->
+        {% if challenge.status == 'voided' and challenge.void_reason %}
+        <div class="reason-box">
+            <div class="reason-label">
+                <i class="bi bi-info-circle"></i> Cancellation Reason
+            </div>
+            <div class="reason-text">{{ challenge.void_reason }}</div>
+        </div>
+        {% endif %}
+
+        <!-- End Message (if ended) -->
+        {% if challenge.status == 'ended' %}
+        <div class="reason-box" style="background: rgba(16, 185, 129, 0.1); border-left: 4px solid #10b981;">
+            <div class="reason-label">
+                <i class="bi bi-trophy-fill"></i> Completion Status
+            </div>
+            <div class="reason-text">This challenge has been completed! Thank you for participating.</div>
+        </div>
+        {% endif %}
+
+        <!-- Message -->
+        <p class="apology-text">
+            {% if challenge.status == 'voided' %}
+            We apologize for any inconvenience this may have caused.
+            {% else %}
+            Great job on completing this challenge!
+            {% endif %}
+            Check out our other available challenges and events!
+        </p>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <a href="{{ url_for('events.events') }}" class="btn btn-primary">
+                <i class="bi bi-calendar-event"></i> Browse Events
+            </a>
+            <a href="{{ url_for('dashboard.dashboard') }}" class="btn btn-secondary">
+                <i class="bi bi-house-door"></i> Back to Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -33,7 +33,7 @@ def get_active_challenges():
                    END as is_new
             FROM challenge 
             WHERE status = 'published' 
-            ORDER BY end_date ASC
+            ORDER BY is_new DESC, end_date ASC
         ''')
     else:
         cursor = db.execute("SELECT *, 0 as is_new FROM challenge WHERE status = 'published' ORDER BY end_date ASC")
@@ -72,7 +72,7 @@ def get_all_events():
                    END as is_new
             FROM event 
             WHERE status IN ('published')
-            ORDER BY start_datetime ASC
+            ORDER BY is_new DESC, start_datetime ASC
         ''')
     else:
         # Fallback query without published_at (backward compatibility)
@@ -289,7 +289,7 @@ def get_event_by_id(event_id):
         'location': event['location'],
         'grc_name': event['grc_name'],
         'base_points_teacher': event['base_points_teacher'] or 0,
-        'base_points_buddy': event['base_points_buddy'] or 0,
+
         'base_points_participant': event['base_points_participant'] or 0,
         'max_capacity': event['max_capacity'],
         'status': event['status'],

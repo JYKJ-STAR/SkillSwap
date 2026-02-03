@@ -22,7 +22,7 @@
             <i class="bi bi-bell-fill me-3" style="font-size: 1.25rem; color: #f59e0b;"></i>
             <div class="flex-grow-1">
                 <strong>Notification:</strong> {{ note.message }}
-                {% if note.event_id %}
+                {% if note.event_id or note.challenge_id %}
                 <a href="{{ url_for('dashboard.view_notification_details', notification_id=note.notification_id) }}"
                     class="btn btn-sm ms-2"
                     style="background-color: #f59e0b; color: white; border: none; padding: 2px 10px; font-size: 0.85rem; border-radius: 20px;">

@@ -65,46 +65,46 @@ INSERT INTO user_skill_interest (user_id, skill_id) VALUES
 -- =====================================================
 
 -- TECH AND DIGITAL SKILLS (Youth-led)
-INSERT INTO event (created_by_user_id, grc_id, title, description, category, led_by, start_datetime, location, status, base_points_teacher, base_points_buddy, base_points_participant) VALUES
-(1, 1, 'Tech + Life Swap: WhatsApp Basics', 'WhatsApp basics + simple snack demo - Learn messaging, photos, video calls while enjoying treats', 'tech_digital', 'youth', '2026-02-15 14:00:00', 'Toa Payoh CC', 'published', 30, 20, 10),
-(1, 2, 'Photo Memories Workshop', 'Phone camera/editing + seniors storytelling - Capture and edit photos while sharing memories', 'tech_digital', 'youth', '2026-02-17 10:00:00', 'Bishan CC', 'published', 30, 20, 10),
-(1, 3, 'Online Safety and Scam Awareness', 'Learn to identify scams and stay safe online - Interactive sharing session', 'tech_digital', 'youth', '2026-02-18 15:00:00', 'Ang Mo Kio CC', 'published', 30, 20, 10),
-(1, 4, 'Fitness App Basics', 'Learn to use fitness/health apps + step tracking - Get started with health tracking', 'tech_digital', 'youth', '2026-02-20 09:00:00', 'Tampines Hub', 'published', 30, 20, 10),
-(1, 5, 'Beginner Photography Walk', 'Team photos around the neighbourhood - Learn composition and lighting', 'tech_digital', 'youth', '2026-02-22 16:00:00', 'Jurong Lake Gardens', 'published', 30, 20, 10),
-(1, 6, 'Coding Unplugged', 'Logic games and puzzles - No heavy computers needed, just fun problem solving', 'tech_digital', 'youth', '2026-02-24 14:00:00', 'Yishun CC', 'published', 30, 20, 10);
+INSERT INTO event (created_by_user_id, grc_id, title, description, category, led_by, start_datetime, location, status, base_points_teacher, base_points_participant) VALUES
+(1, 1, 'Tech + Life Swap: WhatsApp Basics', 'WhatsApp basics + simple snack demo - Learn messaging, photos, video calls while enjoying treats', 'tech_digital', 'youth', '2026-02-15 14:00:00', 'Toa Payoh CC', 'published', 30, 10),
+(1, 2, 'Photo Memories Workshop', 'Phone camera/editing + seniors storytelling - Capture and edit photos while sharing memories', 'tech_digital', 'youth', '2026-02-17 10:00:00', 'Bishan CC', 'published', 30, 10),
+(1, 3, 'Online Safety and Scam Awareness', 'Learn to identify scams and stay safe online - Interactive sharing session', 'tech_digital', 'youth', '2026-02-18 15:00:00', 'Ang Mo Kio CC', 'published', 30, 10),
+(1, 4, 'Fitness App Basics', 'Learn to use fitness/health apps + step tracking - Get started with health tracking', 'tech_digital', 'youth', '2026-02-20 09:00:00', 'Tampines Hub', 'published', 30, 10),
+(1, 5, 'Beginner Photography Walk', 'Team photos around the neighbourhood - Learn composition and lighting', 'tech_digital', 'youth', '2026-02-22 16:00:00', 'Jurong Lake Gardens', 'published', 30, 10),
+(1, 6, 'Coding Unplugged', 'Logic games and puzzles - No heavy computers needed, just fun problem solving', 'tech_digital', 'youth', '2026-02-24 14:00:00', 'Yishun CC', 'published', 30, 10);
 
 -- LIFE SKILLS AND HOME SKILLS (Senior-led)
-INSERT INTO event (created_by_user_id, grc_id, title, description, category, led_by, start_datetime, location, status, base_points_teacher, base_points_buddy, base_points_participant) VALUES
-(1, 1, 'Traditional Cooking Class', 'Learn classic recipes from experienced home cooks - Youth help setup and document', 'life_skills', 'senior', '2026-02-16 10:00:00', 'Toa Payoh CC Kitchen', 'published', 30, 20, 10),
-(1, 2, 'Sewing and Simple Repairs', 'Button fixing, basic stitches, and simple repairs - Practical skills for everyday life', 'life_skills', 'senior', '2026-02-19 14:00:00', 'Bishan CC', 'published', 30, 20, 10),
-(1, 7, 'Gardening 101', 'Plant care basics + mini hydroponics starter kit - Green your home', 'life_skills', 'senior', '2026-02-21 09:00:00', 'Punggol Community Garden', 'published', 30, 20, 10),
-(1, 8, 'Home Organisation Hacks', 'DIY decluttering and organisation tips - Transform your living space', 'life_skills', 'senior', '2026-02-23 15:00:00', 'Bedok CC', 'published', 30, 20, 10);
+INSERT INTO event (created_by_user_id, grc_id, title, description, category, led_by, start_datetime, location, status, base_points_teacher, base_points_participant) VALUES
+(1, 1, 'Traditional Cooking Class', 'Learn classic recipes from experienced home cooks - Youth help setup and document', 'life_skills', 'senior', '2026-02-16 10:00:00', 'Toa Payoh CC Kitchen', 'published', 30, 10),
+(1, 2, 'Sewing and Simple Repairs', 'Button fixing, basic stitches, and simple repairs - Practical skills for everyday life', 'life_skills', 'senior', '2026-02-19 14:00:00', 'Bishan CC', 'published', 30, 10),
+(1, 7, 'Gardening 101', 'Plant care basics + mini hydroponics starter kit - Green your home', 'life_skills', 'senior', '2026-02-21 09:00:00', 'Punggol Community Garden', 'published', 30, 10),
+(1, 8, 'Home Organisation Hacks', 'DIY decluttering and organisation tips - Transform your living space', 'life_skills', 'senior', '2026-02-23 15:00:00', 'Bedok CC', 'published', 30, 10);
 
 -- HEALTH AND WELLNESS (Employee-led)
-INSERT INTO event (created_by_user_id, grc_id, title, description, category, led_by, start_datetime, location, status, base_points_teacher, base_points_buddy, base_points_participant) VALUES
-(1, 1, 'Gentle Stretching and Tai Chi', 'Relaxing stretches + fitness tracking tips - Suitable for all fitness levels', 'health_wellness', 'employee', '2026-02-15 08:00:00', 'Toa Payoh Stadium', 'published', 30, 20, 10),
-(1, 5, 'Light Hiking Adventure', 'Beginner-friendly park walk - Explore nature trails together', 'health_wellness', 'employee', '2026-02-18 07:00:00', 'MacRitchie Reservoir', 'published', 30, 20, 10),
-(1, 3, 'Basic First Aid Workshop', 'Essential first aid skills + wellness tips - Everyone learns together', 'health_wellness', 'employee', '2026-02-22 14:00:00', 'Ang Mo Kio CC', 'published', 30, 20, 10),
-(1, 4, 'Healthy Meal Planning', 'Nutrition basics + simple meal prep - Eat well on any budget', 'health_wellness', 'employee', '2026-02-25 10:00:00', 'Tampines Hub', 'published', 30, 20, 10);
+INSERT INTO event (created_by_user_id, grc_id, title, description, category, led_by, start_datetime, location, status, base_points_teacher, base_points_participant) VALUES
+(1, 1, 'Gentle Stretching and Tai Chi', 'Relaxing stretches + fitness tracking tips - Suitable for all fitness levels', 'health_wellness', 'employee', '2026-02-15 08:00:00', 'Toa Payoh Stadium', 'published', 30, 10),
+(1, 5, 'Light Hiking Adventure', 'Beginner-friendly park walk - Explore nature trails together', 'health_wellness', 'employee', '2026-02-18 07:00:00', 'MacRitchie Reservoir', 'published', 30, 10),
+(1, 3, 'Basic First Aid Workshop', 'Essential first aid skills + wellness tips - Everyone learns together', 'health_wellness', 'employee', '2026-02-22 14:00:00', 'Ang Mo Kio CC', 'published', 30, 10),
+(1, 4, 'Healthy Meal Planning', 'Nutrition basics + simple meal prep - Eat well on any budget', 'health_wellness', 'employee', '2026-02-25 10:00:00', 'Tampines Hub', 'published', 30, 10);
 
 -- CULTURE, HERITAGE AND CREATIVE (Employee-led)
-INSERT INTO event (created_by_user_id, grc_id, title, description, category, led_by, start_datetime, location, status, base_points_teacher, base_points_buddy, base_points_participant) VALUES
-(1, 1, 'Heritage Trail Walk', 'Visit heritage sites - Seniors share memories, youth capture photos', 'culture_creative', 'employee', '2026-02-17 09:00:00', 'Chinatown Heritage Centre', 'published', 30, 20, 10),
-(1, 2, 'Music Jam Session', 'Percussion, ukulele, and singing - No experience needed', 'culture_creative', 'employee', '2026-02-20 15:00:00', 'Bishan CC Music Room', 'published', 30, 20, 10),
-(1, 6, 'Craft Workshop: Origami and Clay', 'Create beautiful origami, clay art, and keychains - All materials provided', 'culture_creative', 'employee', '2026-02-23 14:00:00', 'Yishun CC', 'published', 30, 20, 10),
-(1, 7, 'Language Exchange', 'English, Chinese, dialect phrases and etiquette - Learn from each other', 'culture_creative', 'employee', '2026-02-26 10:00:00', 'Punggol CC', 'published', 30, 20, 10);
+INSERT INTO event (created_by_user_id, grc_id, title, description, category, led_by, start_datetime, location, status, base_points_teacher, base_points_participant) VALUES
+(1, 1, 'Heritage Trail Walk', 'Visit heritage sites - Seniors share memories, youth capture photos', 'culture_creative', 'employee', '2026-02-17 09:00:00', 'Chinatown Heritage Centre', 'published', 30, 10),
+(1, 2, 'Music Jam Session', 'Percussion, ukulele, and singing - No experience needed', 'culture_creative', 'employee', '2026-02-20 15:00:00', 'Bishan CC Music Room', 'published', 30, 10),
+(1, 6, 'Craft Workshop: Origami and Clay', 'Create beautiful origami, clay art, and keychains - All materials provided', 'culture_creative', 'employee', '2026-02-23 14:00:00', 'Yishun CC', 'published', 30, 10),
+(1, 7, 'Language Exchange', 'English, Chinese, dialect phrases and etiquette - Learn from each other', 'culture_creative', 'employee', '2026-02-26 10:00:00', 'Punggol CC', 'published', 30, 10);
 
 -- SOCIAL AND GAMES - Classic Games (Senior-led)
-INSERT INTO event (created_by_user_id, grc_id, title, description, category, led_by, start_datetime, location, status, base_points_teacher, base_points_buddy, base_points_participant) VALUES
-(1, 1, 'Five Stones Tournament', 'Learn the classic kampong game - Fun for all ages', 'social_games', 'senior', '2026-02-16 15:00:00', 'Toa Payoh CC', 'published', 20, 15, 10),
-(1, 2, 'Chapteh Challenge', 'Kick shuttlecock competition - Test your skills', 'social_games', 'senior', '2026-02-18 16:00:00', 'Bishan Sports Hall', 'published', 20, 15, 10),
-(1, 3, 'Zero Point / O-Sum Games', 'Rubber band and string games - Relive childhood memories', 'social_games', 'senior', '2026-02-20 14:00:00', 'Ang Mo Kio CC', 'published', 20, 15, 10);
+INSERT INTO event (created_by_user_id, grc_id, title, description, category, led_by, start_datetime, location, status, base_points_teacher, base_points_participant) VALUES
+(1, 1, 'Five Stones Tournament', 'Learn the classic kampong game - Fun for all ages', 'social_games', 'senior', '2026-02-16 15:00:00', 'Toa Payoh CC', 'published', 20, 10),
+(1, 2, 'Chapteh Challenge', 'Kick shuttlecock competition - Test your skills', 'social_games', 'senior', '2026-02-18 16:00:00', 'Bishan Sports Hall', 'published', 20, 10),
+(1, 3, 'Zero Point / O-Sum Games', 'Rubber band and string games - Relive childhood memories', 'social_games', 'senior', '2026-02-20 14:00:00', 'Ang Mo Kio CC', 'published', 20, 10);
 
 -- SOCIAL AND GAMES - Modern Games (Youth-led)
-INSERT INTO event (created_by_user_id, grc_id, title, description, category, led_by, start_datetime, location, status, base_points_teacher, base_points_buddy, base_points_participant) VALUES
-(1, 1, 'UNO and DOS Game Night', 'Card game showdown - Easy to learn, hard to master', 'social_games', 'youth', '2026-02-17 19:00:00', 'Toa Payoh CC', 'published', 20, 15, 10),
-(1, 2, 'Dobble and Spot It Challenge', 'Fast-paced matching games - Test your reflexes', 'social_games', 'youth', '2026-02-19 15:00:00', 'Bishan CC', 'published', 20, 15, 10),
-(1, 3, 'Jenga Tower Challenge', 'How high can you go? - Steady hands competition', 'social_games', 'youth', '2026-02-21 16:00:00', 'Ang Mo Kio CC', 'published', 20, 15, 10);
+INSERT INTO event (created_by_user_id, grc_id, title, description, category, led_by, start_datetime, location, status, base_points_teacher, base_points_participant) VALUES
+(1, 1, 'UNO and DOS Game Night', 'Card game showdown - Easy to learn, hard to master', 'social_games', 'youth', '2026-02-17 19:00:00', 'Toa Payoh CC', 'published', 20, 10),
+(1, 2, 'Dobble and Spot It Challenge', 'Fast-paced matching games - Test your reflexes', 'social_games', 'youth', '2026-02-19 15:00:00', 'Bishan CC', 'published', 20, 10),
+(1, 3, 'Jenga Tower Challenge', 'How high can you go? - Steady hands competition', 'social_games', 'youth', '2026-02-21 16:00:00', 'Ang Mo Kio CC', 'published', 20, 10);
 
 -- HANDS-ON / COMMUNITY PROJECTS (Employee-led)
 -- (Removed unpublished events)
@@ -177,11 +177,12 @@ INSERT INTO faq_article (question, answer, category, is_active) VALUES
 
 
 -- CHALLENGES SEED DATA (Current Month)
-INSERT INTO challenge (title, description, start_date, end_date, status, created_by, published_at) VALUES
-('Monthly Step Challenge', 'Walk 10,000 steps daily for 30 days - Track your progress and compete with friends', '2026-02-01', '2026-02-28', 'published', 1, '2025-01-01 12:00:00'),
-('Digital Detox Weekend', 'Reduce screen time to 2 hours/day for one weekend - Share your offline activities', '2026-02-08', '2026-02-09', 'published', 1, '2025-01-01 12:00:00'),
-('Community Garden Project', 'Plant and maintain a community garden plot - Harvest fresh vegetables together', '2026-02-15', '2026-04-15', 'published', 1, '2025-01-01 12:00:00'),
-('Learn a New Skill', 'Master a new skill and teach it to others - Document your learning journey', '2026-02-01', '2026-03-01', 'published', 1, '2025-01-01 12:00:00'),
-('Zero Waste Challenge', 'Reduce household waste by 50% - Share your eco-friendly tips and tricks', '2026-02-10', '2026-03-10', 'published', 1, '2025-01-01 12:00:00');
+INSERT INTO challenge (title, description, start_date, end_date, bonus_points, status, created_by, published_at) VALUES
+('Monthly Step Challenge', 'Walk 10,000 steps daily for 30 days - Track your progress and compete with friends', '2026-02-01', '2026-02-28', 50, 'published', 1, '2025-01-01 12:00:00'),
+('Digital Detox Weekend', 'Reduce screen time to 2 hours/day for one weekend - Share your offline activities', '2026-02-08', '2026-02-09', 30, 'published', 1, '2025-01-01 12:00:00'),
+('Community Garden Project', 'Plant and maintain a community garden plot - Harvest fresh vegetables together', '2026-02-15', '2026-04-15', 75, 'published', 1, '2025-01-01 12:00:00'),
+('Learn a New Skill', 'Master a new skill and teach it to others - Document your learning journey', '2026-02-01', '2026-03-01', 60, 'published', 1, '2025-01-01 12:00:00'),
+('Zero Waste Challenge', 'Reduce household waste by 50% - Share your eco-friendly tips and tricks', '2026-02-10', '2026-03-10', 40, 'published', 1, '2025-01-01 12:00:00');
+
 
 

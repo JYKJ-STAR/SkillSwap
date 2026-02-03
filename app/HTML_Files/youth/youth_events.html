@@ -118,6 +118,9 @@
                                 <span>|</span>
                                 <span>{{ event.location }}</span>
                             </div>
+                            {% if event.base_points_participant %}
+                            <div class="points-badge">🌟 {{ event.base_points_participant }} pts</div>
+                            {% endif %}
                         </div>
                         <span class="event-led-by">Led by: {{ event.led_by|capitalize }}</span>
                         <a href="{{ url_for('events.event_details', event_id=event.id) }}" class="event-card-btn">View
@@ -146,6 +149,9 @@
                             <div class="event-card-meta-item">
                                 <span>📅 {{ challenge.start_date }} - {{ challenge.end_date }}</span>
                             </div>
+                            {% if challenge.bonus_points %}
+                            <div class="points-badge challenge-points">🏆 {{ challenge.bonus_points }} pts</div>
+                            {% endif %}
                         </div>
                         <span class="event-led-by">Monthly Goal</span>
                     </div>
@@ -175,6 +181,9 @@
                                 <span>|</span>
                                 <span>{{ event.location }}</span>
                             </div>
+                            {% if event.base_points_participant %}
+                            <div class="points-badge">🌟 {{ event.base_points_participant }} pts</div>
+                            {% endif %}
                         </div>
                         <span class="event-led-by">Led by: {{ event.led_by|capitalize }}</span>
                         <a href="{{ url_for('events.event_details', event_id=event.id) }}" class="event-card-btn">View
@@ -210,6 +219,9 @@
                                 <span>|</span>
                                 <span>{{ event.location }}</span>
                             </div>
+                            {% if event.base_points_participant %}
+                            <div class="points-badge">🌟 {{ event.base_points_participant }} pts</div>
+                            {% endif %}
                         </div>
                         <span class="event-led-by">Led by: {{ event.led_by|capitalize }}</span>
                         <a href="{{ url_for('events.event_details', event_id=event.id) }}" class="event-card-btn">View
@@ -245,6 +257,9 @@
                                 <span>|</span>
                                 <span>{{ event.location }}</span>
                             </div>
+                            {% if event.base_points_participant %}
+                            <div class="points-badge">🌟 {{ event.base_points_participant }} pts</div>
+                            {% endif %}
                         </div>
                         <span class="event-led-by">Led by: {{ event.led_by|capitalize }}</span>
                         <a href="{{ url_for('events.event_details', event_id=event.id) }}" class="event-card-btn">View
