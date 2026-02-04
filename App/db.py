@@ -149,6 +149,26 @@ def migrate_database():
                 print("✅ user_challenge table created!")
         except Exception as uc_error:
             print(f"⚠️ User challenge migration note: {uc_error}")
+        
+        # Add proof_description column to event_booking table
+        cursor.execute("PRAGMA table_info(event_booking)")
+        columns = [row[1] for row in cursor.fetchall()]
+        
+        if 'proof_description' not in columns:
+            print("🔄 Adding 'proof_description' column to event_booking table...")
+            cursor.execute("ALTER TABLE event_booking ADD COLUMN proof_description TEXT")
+            conn.commit()
+            print("✅ Database migration complete for event_booking table!")
+        
+        # Add expiry_date column to reward_redemption table
+        cursor.execute("PRAGMA table_info(reward_redemption)")
+        columns = [row[1] for row in cursor.fetchall()]
+        
+        if 'expiry_date' not in columns:
+            print("🔄 Adding 'expiry_date' column to reward_redemption table...")
+            cursor.execute("ALTER TABLE reward_redemption ADD COLUMN expiry_date TEXT")
+            conn.commit()
+            print("✅ Database migration complete for reward_redemption table!")
 
         conn.close()
     except Exception as e:

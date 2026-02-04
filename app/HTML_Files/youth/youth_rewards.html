@@ -66,6 +66,7 @@
         <div class="rewards-tabs">
             <button class="rewards-tab active" data-tab="redeem">Redeem Rewards</button>
             <button class="rewards-tab" data-tab="my-rewards">My Rewards</button>
+            <button class="rewards-tab" data-tab="history">History</button>
         </div>
 
         <!-- Redeem Rewards Tab Content -->
@@ -79,6 +80,11 @@
                         <div class="reward-info">
                             <h3>{{ reward.name }}</h3>
                             <p class="vendor">SkillSwap Reward</p>
+                            {% if reward.description %}
+                            <p class="description"
+                                style="color: #9ca3af; font-size: 0.9em; margin-top: 8px; line-height: 1.4;">{{
+                                reward.description }}</p>
+                            {% endif %}
                             <p class="points">{{ reward.points_required }} Points</p>
                         </div>
                     </div>
@@ -118,6 +124,45 @@
                 <div class="no-rewards-message">
                     <h3>No rewards to claim yet.</h3>
                     <p>Redeem rewards from the "Redeem Rewards" tab and wait for admin approval!</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- History Tab Content -->
+        <div class="tab-content" id="history-content">
+            <div class="rewards-grid">
+                {% if history_rewards %}
+                {% for reward in history_rewards %}
+                <div class="reward-card" style="{% if reward.display_status == 'Expired' %}opacity: 0.7;{% endif %}">
+                    <div class="reward-header">
+                        <div class="reward-image"></div>
+                        <div class="reward-info">
+                            <h3>{{ reward.name }}</h3>
+                            <p class="vendor">SkillSwap Reward</p>
+                            {% if reward.expiry_date %}
+                            <p class="expiry-date" style="color: #9ca3af; font-size: 0.85em; margin-top: 5px;">
+                                {% if reward.display_status == 'Expired' %}
+                                Expired: {{ reward.expiry_date }}
+                                {% elif reward.display_status == 'Used' %}
+                                Used before: {{ reward.expiry_date }}
+                                {% else %}
+                                {{ reward.expiry_date }}
+                                {% endif %}
+                            </p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <span class="status-badge"
+                        style="background: {% if reward.display_status == 'Expired' %}#ef4444{% elif reward.display_status == 'Cancelled' %}#f59e0b{% else %}#6b7280{% endif %}; color: white; padding: 8px 16px; border-radius: 6px; font-size: 0.9em; font-weight: 600;">
+                        {{ reward.display_status }}
+                    </span>
+                </div>
+                {% endfor %}
+                {% else %}
+                <div class="no-rewards-message">
+                    <h3>No reward history yet.</h3>
+                    <p>Your expired and used rewards will appear here!</p>
                 </div>
                 {% endif %}
             </div>

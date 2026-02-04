@@ -1275,7 +1275,7 @@ def admin_manage_rewards():
     # Get Pending Proofs (for User Verification section)
     pending_proofs = conn.execute("""
         SELECT 
-            eb.user_id, eb.event_id, eb.proof_media_url, eb.role_type,
+            eb.user_id, eb.event_id, eb.proof_media_url, eb.role_type, eb.proof_description,
             u.name as user_name,
             e.title as event_title,
             e.base_points_participant
@@ -1391,7 +1391,7 @@ def admin_reject_proof(event_id, user_id):
     return redirect(url_for('admin.admin_manage_rewards'))
 
 
-@admin_bp.route('/admin/add-reward', methods=['POST'])
+@admin_bp.route('/add-reward', methods=['POST'])
 @admin_required
 def admin_add_reward():
     """Add a new reward to the catalog."""
@@ -1416,10 +1416,14 @@ def admin_add_reward():
     return redirect(url_for('admin.admin_manage_rewards'))
 
 
-@admin_bp.route('/admin/delete-reward/<int:reward_id>', methods=['POST'])
+@admin_bp.route('/delete-reward/<int:reward_id>', methods=['GET', 'POST'])
 @admin_required
 def admin_delete_reward(reward_id):
     """Delete a reward from the catalog."""
+    # If method is GET, just redirect back
+    if request.method == 'GET':
+        return redirect(url_for('admin.admin_manage_rewards'))
+    
     conn = get_db_connection()
     
     # Get reward name for flash message
@@ -1434,10 +1438,14 @@ def admin_delete_reward(reward_id):
     return redirect(url_for('admin.admin_manage_rewards'))
 
 
-@admin_bp.route('/admin/edit-reward/<int:reward_id>', methods=['POST'])
+@admin_bp.route('/edit-reward/<int:reward_id>', methods=['GET', 'POST'])
 @admin_required
 def admin_edit_reward(reward_id):
     """Edit an existing reward."""
+    # If method is GET, just redirect back (shouldn't normally happen)
+    if request.method == 'GET':
+        return redirect(url_for('admin.admin_manage_rewards'))
+    
     name = request.form.get('name')
     description = request.form.get('description')
     points_required = request.form.get('points_required')
@@ -1501,12 +1509,15 @@ def admin_approve_redemption(redemption_id):
         WHERE user_id = ?
     """, (redemption['points_required'], redemption['user_id']))
     
-    # Update redemption status to approved
+    # Update redemption status to approved and set expiry date (30 days from now)
+    from datetime import datetime, timedelta
+    expiry_date = (datetime.now() + timedelta(days=30)).strftime('%Y-%m-%d')
+    
     conn.execute("""
         UPDATE reward_redemption 
-        SET status = 'approved' 
+        SET status = 'approved', expiry_date = ?
         WHERE redemption_id = ?
-    """, (redemption_id,))
+    """, (expiry_date, redemption_id))
     
     # Decrement reward quantity if it's tracked (not NULL)
     if redemption['total_quantity'] is not None:

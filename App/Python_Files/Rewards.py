@@ -80,6 +80,7 @@ def rewards():
         'age': age,
         'points': user_dict.get('total_points', 0),
         'role': role,
+        'profile_photo': user_dict.get('profile_photo'),
         'skills': [row['name'] for row in skills_rows],
         'interests': [row['name'] for row in interests_rows]
     }
@@ -95,18 +96,39 @@ def rewards():
     """
     all_rewards_rows = conn.execute(all_rewards_query).fetchall()
     all_rewards_list = [dict(row) for row in all_rewards_rows]
+    
+    # Fetch History Rewards (expired + used/dismissed)
+    history_rewards_query = """
+        SELECT rr.redemption_id, r.name, rr.expiry_date, rr.status,
+               CASE 
+                   WHEN rr.status = 'redeemed' THEN 'Used'
+                   WHEN rr.status = 'cancelled' THEN 'Cancelled'
+                   WHEN rr.expiry_date IS NOT NULL AND rr.expiry_date < date('now') THEN 'Expired'
+                   ELSE 'Active'
+               END as display_status
+        FROM reward_redemption rr
+        JOIN reward r ON rr.reward_id = r.reward_id
+        WHERE rr.user_id = ? 
+          AND (rr.status IN ('redeemed', 'cancelled') 
+               OR (rr.status = 'approved' AND rr.expiry_date IS NOT NULL AND rr.expiry_date < date('now')))
+        ORDER BY rr.created_at DESC
+    """
+    history_rewards_rows = conn.execute(history_rewards_query, (user_id,)).fetchall()
+    history_rewards_list = [dict(row) for row in history_rewards_rows]
     conn.close()
     
     if role == 'senior':
         return render_template('senior/senior_rewards.html', 
                              user=user_data, 
                              user_rewards=user_rewards_list,
-                             rewards=all_rewards_list)
+                             rewards=all_rewards_list,
+                             history_rewards=history_rewards_list)
     else:
         return render_template('youth/youth_rewards.html', 
                              user=user_data, 
                              user_rewards=user_rewards_list,
-                             rewards=all_rewards_list)
+                             rewards=all_rewards_list,
+                             history_rewards=history_rewards_list)
 
 @rewards_bp.route('/dismiss_reward', methods=['POST'])
 def dismiss_reward():

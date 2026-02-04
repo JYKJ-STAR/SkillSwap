@@ -199,14 +199,6 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
-        // Find and fade out the reward card
-        const card = document.querySelector(`.reward-card[data-redemption-id="${currentRedemptionId}"]`);
-        if (card) {
-            card.style.transition = 'opacity 0.3s ease';
-            card.style.opacity = '0';
-            setTimeout(() => card.remove(), 300);
-        }
-
         // Make AJAX call to persist dismiss action
         fetch('/dismiss_reward', {
             method: 'POST',
@@ -221,6 +213,8 @@ document.addEventListener('DOMContentLoaded', function () {
             .then(data => {
                 if (data.success) {
                     console.log('Reward dismissed successfully');
+                    // Reload page to update History tab with dismissed reward
+                    window.location.reload();
                 } else {
                     console.error('Failed to dismiss reward:', data.error);
                 }
