@@ -191,7 +191,7 @@
 
 .filter-tab.active {
     /* Active State (Dark) */
-    background: var(--text-dark);
+    background: var(--primary-teal);
     /* #333 */
     color: white;
 }
@@ -285,7 +285,7 @@
 
 /* Completed View Buttons */
 .log-reflection-btn {
-    background: #e88a7d;
+    background: var(--primary-teal);
     /* Kept specific color */
     color: white;
     border: none;
@@ -319,7 +319,7 @@
 
 /* Upcoming View Buttons */
 .info-badge {
-    background: var(--text-secondary);
+    background: var(--primary-teal);
     /* #6b6b6b */
     color: white;
     padding: 8px 20px;

@@ -45,6 +45,8 @@ def schedule():
     # Prepare user data object (consistent with dashboard)
     # Convert sqlite3.Row to dict to use .get()
     user_dict = dict(user)
+    print(f"DEBUG_KEYS: {user_dict.keys()}")
+    print(f"DEBUG_PHOTO: {user_dict.get('profile_photo')}")
     
     user_data = {
         'name': user_dict['name'],
@@ -52,7 +54,8 @@ def schedule():
         'points': user_dict['total_points'],
         'role': role,
         'skills': [row['name'] for row in skills_rows],
-        'interests': [row['name'] for row in interests_rows]
+        'interests': [row['name'] for row in interests_rows],
+        'profile_photo': user_dict.get('profile_photo')
     }
 
     
@@ -77,6 +80,7 @@ def schedule():
     conn.close()
 
     upcoming_events = []
+    ongoing_events = []
     action_required_events = []
     pending_review_events = []
     completed_events = []
@@ -88,13 +92,29 @@ def schedule():
         # Parse datetime for display and comparison
         try:
             start_dt = datetime.strptime(evt['start_datetime'], '%Y-%m-%d %H:%M:%S')
+            
+            # Try to parse end_datetime
+            if evt['end_datetime']:
+                try:
+                    end_dt = datetime.strptime(evt['end_datetime'], '%Y-%m-%d %H:%M:%S')
+                except ValueError:
+                    end_dt = start_dt
+            else:
+                end_dt = start_dt
+
             evt['display_date'] = start_dt.strftime('%d - %m - %Y')
             evt['display_time'] = start_dt.strftime('%H%M')
-            is_past = start_dt < today
+            
+            is_past = end_dt < today
+            is_ongoing = start_dt <= today <= end_dt
+            is_upcoming = start_dt > today
+            
         except ValueError:
             evt['display_date'] = evt['start_datetime']
             evt['display_time'] = ''
             is_past = False
+            is_ongoing = False
+            is_upcoming = True
 
         # Check conditions
         has_proof = evt['proof_media_url'] is not None and evt['proof_media_url'] != ''
@@ -102,10 +122,11 @@ def schedule():
         is_verified = evt['status'] == 'completed'
 
         # Categorization Logic
-        if not is_past:
-            # Future events
+        if is_upcoming:
             upcoming_events.append(evt)
-        else:
+        elif is_ongoing:
+            ongoing_events.append(evt)
+        elif is_past:
             # Past events
             if is_verified:
                 # Admin verified - goes to Completed
@@ -121,6 +142,7 @@ def schedule():
     if role == 'youth':
         return render_template('youth/youth_schedule.html', 
                              user=user_data, 
+                             ongoing_events=ongoing_events,
                              upcoming_events=upcoming_events, 
                              action_required_events=action_required_events,
                              pending_review_events=pending_review_events,
@@ -128,6 +150,7 @@ def schedule():
     else:
         return render_template('senior/senior_schedule.html', 
                              user=user_data,
+                             ongoing_events=ongoing_events,
                              upcoming_events=upcoming_events, 
                              completed_events=completed_events)
 

@@ -14,6 +14,8 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
         rel="stylesheet">
+    <!-- SweetAlert2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bootstrap-4/bootstrap-4.min.css" rel="stylesheet">
     <!-- Global Design Tokens (includes navbar, footer, and all shared styles) -->
     <link href="{{ url_for('static', filename='css/shared/global.css') }}" rel="stylesheet">
     {% block styles %}{% endblock %}
@@ -138,6 +140,7 @@
     </footer>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     {% block scripts %}{% endblock %}
 </body>
 
