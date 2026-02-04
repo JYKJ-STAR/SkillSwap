@@ -136,6 +136,7 @@
             <div class="controls-row" style="margin-bottom: 20px;">
                 <div class="filter-tabs" id="rewardsTabs">
                     <button class="filter-tab active" data-tab="manage">Manage Rewards</button>
+                    <button class="filter-tab" data-tab="approval">Rewards Approval</button>
                     <button class="filter-tab" data-tab="redeemed">Redeemed Rewards</button>
                 </div>
             </div>
@@ -197,6 +198,69 @@
                 </div>
                 {% else %}
                 <p style="color:#9ca3af; background:#1f2937; padding:20px; border-radius:8px;">No rewards configured.
+                </p>
+                {% endif %}
+            </div>
+
+            <!-- Rewards Approval Tab -->
+            <div class="tab-content" id="approval-tab">
+                <h2 style="color:white; margin-bottom:20px; font-size: 1.3em;">Pending Reward Redemptions</h2>
+
+                {% if pending_redemptions %}
+                <div class="table-container">
+                    <table class="events-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>User</th>
+                                <th>Email</th>
+                                <th>Reward</th>
+                                <th>Points Required</th>
+                                <th>User Points</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for redemption in pending_redemptions %}
+                            <tr>
+                                <td>{{ redemption.created_at[:10] if redemption.created_at else 'N/A' }}</td>
+                                <td><strong>{{ redemption.user_name }}</strong></td>
+                                <td>{{ redemption.user_email }}</td>
+                                <td>{{ redemption.reward_name }}</td>
+                                <td><span class="status-badge published">{{ redemption.points_required }} pts</span>
+                                </td>
+                                <td>
+                                    {% if redemption.user_points >= redemption.points_required %}
+                                    <span class="status-badge published">{{ redemption.user_points }} pts</span>
+                                    {% else %}
+                                    <span class="status-badge voided">{{ redemption.user_points }} pts
+                                        (Insufficient)</span>
+                                    {% endif %}
+                                </td>
+                                <td class="actions-cell">
+                                    <form
+                                        action="{{ url_for('admin.admin_approve_redemption', redemption_id=redemption.redemption_id) }}"
+                                        method="POST" style="display:inline;">
+                                        <button type="submit" class="action-icon approve" title="Approve" {% if
+                                            redemption.user_points < redemption.points_required %}disabled{% endif %}>
+                                            <i class="bi bi-check-circle"></i>
+                                        </button>
+                                    </form>
+                                    <form
+                                        action="{{ url_for('admin.admin_reject_redemption', redemption_id=redemption.redemption_id) }}"
+                                        method="POST" style="display:inline; margin-left:5px;">
+                                        <button type="submit" class="action-icon delete" title="Reject">
+                                            <i class="bi bi-x-circle"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p style="color:#9ca3af; background:#1f2937; padding:20px; border-radius:8px;">No pending redemptions.
                 </p>
                 {% endif %}
             </div>

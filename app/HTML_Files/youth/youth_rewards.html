@@ -16,10 +16,15 @@
     <!-- Sidebar -->
     <aside class="rewards-sidebar">
         <div class="profile-avatar">
+            {% if user and user.profile_photo %}
+            <img src="{{ url_for('static', filename='img/users/profiles/' + user.profile_photo) }}" alt="Profile"
+                style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+            {% else %}
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
                 <circle cx="12" cy="7" r="4" />
             </svg>
+            {% endif %}
         </div>
         <h2 class="profile-name">{{ user.name if user else 'User' }}</h2>
         <p class="profile-age">{{ user.age if user and user.age else '' }} Years Old</p>
@@ -110,29 +115,9 @@
                 </div>
                 {% endfor %}
                 {% else %}
-                <!-- Demo user rewards -->
-                <div class="reward-card" data-redemption-id="0">
-                    <div class="reward-header">
-                        <div class="reward-image"></div>
-                        <div class="reward-info">
-                            <h3>$5 NTUC FairPrice Voucher</h3>
-                            <p class="vendor">NTUC Fair Price</p>
-                        </div>
-                    </div>
-                    <button class="claim-btn" data-redemption-id="0" data-name="$5 NTUC FairPrice Voucher"
-                        data-vendor="NTUC Fair Price">Claim</button>
-                </div>
-
-                <div class="reward-card" data-redemption-id="0">
-                    <div class="reward-header">
-                        <div class="reward-image"></div>
-                        <div class="reward-info">
-                            <h3>$5 KOI Voucher</h3>
-                            <p class="vendor">KOI</p>
-                        </div>
-                    </div>
-                    <button class="claim-btn" data-redemption-id="0" data-name="$5 KOI Voucher"
-                        data-vendor="KOI">Claim</button>
+                <div class="no-rewards-message">
+                    <h3>No rewards to claim yet.</h3>
+                    <p>Redeem rewards from the "Redeem Rewards" tab and wait for admin approval!</p>
                 </div>
                 {% endif %}
             </div>

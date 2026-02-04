@@ -84,12 +84,13 @@ def rewards():
         'interests': [row['name'] for row in interests_rows]
     }
     
-    # Fetch all active rewards for Redeem Rewards tab
+    # Fetch all active rewards for Redeem Rewards tab (exclude out of stock)
     conn = get_db_connection()
     all_rewards_query = """
         SELECT reward_id, name, description, points_required, total_quantity
         FROM reward 
-        WHERE is_active = 1
+        WHERE is_active = 1 
+          AND (total_quantity IS NULL OR total_quantity > 0)
         ORDER BY points_required ASC
     """
     all_rewards_rows = conn.execute(all_rewards_query).fetchall()

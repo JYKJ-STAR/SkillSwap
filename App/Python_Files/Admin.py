@@ -1303,12 +1303,32 @@ def admin_manage_rewards():
         ORDER BY rr.created_at DESC
     """).fetchall()
     
+    # Get Pending Redemptions (for Rewards Approval tab)
+    pending_redemptions = conn.execute("""
+        SELECT 
+            rr.redemption_id,
+            rr.created_at,
+            rr.user_id,
+            u.name as user_name,
+            u.email as user_email,
+            u.total_points as user_points,
+            r.reward_id,
+            r.name as reward_name,
+            r.points_required
+        FROM reward_redemption rr
+        JOIN user u ON rr.user_id = u.user_id
+        JOIN reward r ON rr.reward_id = r.reward_id
+        WHERE rr.status = 'requested'
+        ORDER BY rr.created_at ASC
+    """).fetchall()
+    
     conn.close()
     
     return render_template('admin/admin_manage_rewards.html',
                            rewards=rewards,
                            pending_proofs=pending_proofs,
-                           redeemed_rewards=redeemed_rewards)
+                           redeemed_rewards=redeemed_rewards,
+                           pending_redemptions=pending_redemptions)
 
 @admin_bp.route('/verify-proof/<int:event_id>/<int:user_id>', methods=['POST'])
 @admin_required
@@ -1439,6 +1459,109 @@ def admin_edit_reward(reward_id):
     conn.close()
     
     flash(f"Reward updated successfully!", "success")
+    return redirect(url_for('admin.admin_manage_rewards'))
+
+
+@admin_bp.route('/approve-redemption/<int:redemption_id>', methods=['POST'])
+@admin_required
+def admin_approve_redemption(redemption_id):
+    """Approve a reward redemption request."""
+    conn = get_db_connection()
+    
+    # Get redemption details including reward_id and quantity
+    redemption = conn.execute("""
+        SELECT rr.user_id, rr.reward_id, r.points_required, r.name, r.total_quantity, u.total_points
+        FROM reward_redemption rr
+        JOIN reward r ON rr.reward_id = r.reward_id
+        JOIN user u ON rr.user_id = u.user_id
+        WHERE rr.redemption_id = ?
+    """, (redemption_id,)).fetchone()
+    
+    if not redemption:
+        flash("Redemption not found.", "error")
+        conn.close()
+        return redirect(url_for('admin.admin_manage_rewards'))
+    
+    # Check if user still has enough points
+    if redemption['total_points'] < redemption['points_required']:
+        flash(f"User doesn't have enough points for {redemption['name']}.", "error")
+        conn.close()
+        return redirect(url_for('admin.admin_manage_rewards'))
+    
+    # Check if reward still has quantity available (if quantity is tracked)
+    if redemption['total_quantity'] is not None and redemption['total_quantity'] <= 0:
+        flash(f"'{redemption['name']}' is out of stock.", "error")
+        conn.close()
+        return redirect(url_for('admin.admin_manage_rewards'))
+    
+    # Deduct points from user
+    conn.execute("""
+        UPDATE user 
+        SET total_points = total_points - ? 
+        WHERE user_id = ?
+    """, (redemption['points_required'], redemption['user_id']))
+    
+    # Update redemption status to approved
+    conn.execute("""
+        UPDATE reward_redemption 
+        SET status = 'approved' 
+        WHERE redemption_id = ?
+    """, (redemption_id,))
+    
+    # Decrement reward quantity if it's tracked (not NULL)
+    if redemption['total_quantity'] is not None:
+        new_quantity = redemption['total_quantity'] - 1
+        
+        # If quantity reaches 0, also deactivate the reward
+        if new_quantity <= 0:
+            conn.execute("""
+                UPDATE reward 
+                SET total_quantity = 0, is_active = 0 
+                WHERE reward_id = ?
+            """, (redemption['reward_id'],))
+            flash(f"Reward redemption approved! '{redemption['name']}' is now out of stock and has been deactivated.", "success")
+        else:
+            conn.execute("""
+                UPDATE reward 
+                SET total_quantity = ? 
+                WHERE reward_id = ?
+            """, (new_quantity, redemption['reward_id']))
+            flash(f"Reward redemption approved! {redemption['points_required']} points deducted. {new_quantity} remaining.", "success")
+    else:
+        flash(f"Reward redemption approved! {redemption['points_required']} points deducted.", "success")
+    
+    conn.commit()
+    conn.close()
+    
+    return redirect(url_for('admin.admin_manage_rewards'))
+
+
+@admin_bp.route('/reject-redemption/<int:redemption_id>', methods=['POST'])
+@admin_required
+def admin_reject_redemption(redemption_id):
+    """Reject a reward redemption request."""
+    conn = get_db_connection()
+    
+    # Get redemption details for flash message
+    redemption = conn.execute("""
+        SELECT r.name
+        FROM reward_redemption rr
+        JOIN reward r ON rr.reward_id = r.reward_id
+        WHERE rr.redemption_id = ?
+    """, (redemption_id,)).fetchone()
+    
+    reward_name = redemption['name'] if redemption else 'Unknown'
+    
+    # Delete the redemption request (or could set status to 'rejected')
+    conn.execute("""
+        DELETE FROM reward_redemption 
+        WHERE redemption_id = ?
+    """, (redemption_id,))
+    
+    conn.commit()
+    conn.close()
+    
+    flash(f"Redemption for '{reward_name}' rejected.", "info")
     return redirect(url_for('admin.admin_manage_rewards'))
 
 
