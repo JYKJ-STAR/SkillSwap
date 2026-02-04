@@ -618,3 +618,10 @@
         font-size: var(--senior-font-base);
     }
 }
+/* Challenge Progress Bar */
+.challenge-progress-bar-senior {
+    width: var(--progress-width, 0%);
+    background: linear-gradient(90deg, #ed8936, #dd6b20);
+    height: 100%;
+    transition: width 0.5s ease;
+}

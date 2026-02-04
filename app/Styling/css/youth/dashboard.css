@@ -568,3 +568,18 @@
         grid-template-columns: 1fr;
     }
 }
+/* Challenge Status Colors */
+.status-text-completed {
+    color: #059669; /* Green-600 */
+}
+
+.status-text-active {
+    color: #2563eb; /* Blue-600 */
+}
+
+/* Challenge Progress Bar */
+.challenge-progress-bar {
+    width: var(--progress-width, 0%);
+    background: linear-gradient(90deg, #f59e0b, #d97706);
+    transition: width 0.5s ease;
+}

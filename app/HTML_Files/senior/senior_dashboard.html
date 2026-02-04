@@ -127,8 +127,9 @@
                         <span>{{ challenge.progress }} / {{ challenge.target_count }} events</span>
                     </div>
                     <div style="height: 16px; background: #cbd5e0; border-radius: 8px; overflow: hidden;">
-                        <div
-                            style="width: {{ (challenge.progress / challenge.target_count * 100)|round }}%; background: linear-gradient(90deg, #ed8936, #dd6b20); height: 100%;">
+                        {% set progress_pct = (challenge.progress / challenge.target_count * 100)|round|int if
+                        challenge.target_count > 0 else 0 %}
+                        <div class="challenge-progress-bar-senior" style="--progress-width: {{ progress_pct }}%;">
                         </div>
                     </div>
                 </div>

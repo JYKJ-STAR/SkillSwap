@@ -129,8 +129,9 @@
                     <h3 class="challenge-title" style="margin:0; font-size: 1.1em; font-weight: 700; color: #1f2937;">{{
                         challenge.title }}</h3>
                     <span class="badge"
-                        style="background: #fffbeb; color: #d97706; border: 1px solid #fcd34d; font-weight: 600;">+{{
-                        challenge.bonus_points }} pts</span>
+                        style="background: #fffbeb; color: #d97706; border: 1px solid #fcd34d; font-weight: 600;">
+                        +{{ challenge.bonus_points }} pts
+                    </span>
                 </div>
                 <p class="challenge-desc"
                     style="color: #6b7280; font-size: 0.9em; margin-bottom: 15px; line-height: 1.5;">
@@ -139,9 +140,9 @@
                 <div class="challenge-meta d-flex justify-content-between mb-3"
                     style="font-size: 0.85em; color: #4b5563; background: #f9fafb; padding: 8px; border-radius: 6px;">
                     <span><i class="bi bi-clock" style="margin-right: 4px;"></i> {{ challenge.time_left }}</span>
-                    <span
-                        style="font-weight: 600; color: {% if challenge.status == 'Completed' %}#059669{% else %}#2563eb{% endif %};">{{
-                        challenge.status }}</span>
+                    <span class="fw-bold {{ 'status-text-completed' if challenge.status == 'Completed' else 'status-text-active' }}">
+                        {{ challenge.status }}
+                    </span>
                 </div>
 
                 <!-- Progress -->
@@ -152,8 +153,10 @@
                     </div>
                     <div class="progress"
                         style="height: 8px; background: #e5e7eb; border-radius: 4px; overflow: hidden; box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);">
-                        <div class="progress-bar" role="progressbar"
-                            style="width: {{ (challenge.progress / challenge.target_count * 100)|round }}%; background: linear-gradient(90deg, #f59e0b, #d97706); transition: width 0.5s ease;"
+                        {% set progress_pct = (challenge.progress / challenge.target_count * 100)|round|int if
+                        challenge.target_count > 0 else 0 %}
+                        <div class="progress-bar challenge-progress-bar" role="progressbar"
+                            style="--progress-width: {{ progress_pct }}%;"
                             aria-valuenow="{{ challenge.progress }}" aria-valuemin="0"
                             aria-valuemax="{{ challenge.target_count }}"></div>
                     </div>
