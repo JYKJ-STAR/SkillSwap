@@ -29,7 +29,7 @@ def home():
     events = conn.execute('''
         SELECT title, start_datetime, location 
         FROM event 
-        WHERE status = 'open' 
+        WHERE status = 'published' 
         AND start_datetime >= date('now')
         ORDER BY start_datetime ASC 
         LIMIT 8
