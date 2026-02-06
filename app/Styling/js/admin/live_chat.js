@@ -8,7 +8,7 @@ let chatRefreshInterval = null;
 
 // Toggle view between Support Tickets and Live Chats
 function toggleView() {
-    window.location.href = '/admin/support-tickets';
+    window.location.href = window.location.origin + '/admin/support-tickets';
 }
 
 // Filter chats by status

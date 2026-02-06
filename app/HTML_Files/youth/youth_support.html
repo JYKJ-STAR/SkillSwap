@@ -362,6 +362,16 @@ ${descriptionText}`);
                             </div>
                         </div>
 
+                        {% if ticket.screenshot_path %}
+                        <div class="detail-section">
+                            <div class="detail-label">SCREENSHOT</div>
+                            <div class="detail-box" style="padding: 15px;">
+                                <img src="{{ ticket.screenshot_path }}" alt="Ticket screenshot"
+                                    style="max-width: 100%; max-height: 400px; border-radius: 8px; border: 2px solid #e0e0e0; display: block;">
+                            </div>
+                        </div>
+                        {% endif %}
+
                         {% if ticket.reply %}
                         <div class="agent-reply-title" style="margin-top: 2rem;">Agent Reply</div>
                         <div class="detail-box" style="background-color: #f0f7ff; border-color: #cce5ff;">

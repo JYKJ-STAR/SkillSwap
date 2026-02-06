@@ -1109,8 +1109,25 @@ def reject_verification(user_id):
 @admin_required
 def toggle_ticket_status(ticket_id):
     """Toggle ticket status between open/resolved."""
-    # (Existing function truncated in previous view, assuming it ends here or similar)
-    pass 
+    conn = get_db_connection()
+    
+    # Get current status
+    ticket = conn.execute("SELECT status FROM support_ticket WHERE ticket_id = ?", (ticket_id,)).fetchone()
+    
+    if not ticket:
+        flash("Ticket not found.", "error")
+        conn.close()
+        return redirect(url_for('admin.admin_support_tickets'))
+    
+    # Toggle status
+    new_status = 'resolved' if ticket['status'] == 'open' else 'open'
+    
+    conn.execute("UPDATE support_ticket SET status = ? WHERE ticket_id = ?", (new_status, ticket_id))
+    conn.commit()
+    conn.close()
+    
+    flash(f"Ticket #{ticket_id} marked as {new_status}.", "success")
+    return redirect(url_for('admin.admin_support_tickets')) 
 
 # =====================================================
 # CHALLENGE MANAGEMENT
@@ -1152,7 +1169,7 @@ def admin_support_tickets():
     conn = get_db_connection()
     
     # 2. Build the base query
-    query = """SELECT st.ticket_id, st.subject, st.description, st.status, st.created_at,
+    query = """SELECT st.ticket_id, st.subject, st.description, st.status, st.created_at, st.screenshot_path,
                       u.name as user_name, u.email as user_email
                FROM support_ticket st
                JOIN user u ON st.user_id = u.user_id"""
