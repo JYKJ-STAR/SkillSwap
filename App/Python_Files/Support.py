@@ -293,7 +293,7 @@ def get_messages(session_id):
     
     conn = get_db_connection()
     
-    # Verify user owns this chat session
+    # Verify user owns this chat session and get admin_connected status
     chat = conn.execute(
         "SELECT * FROM live_chat_session WHERE session_id = ? AND user_id = ?",
         (session_id, user_id)
@@ -302,6 +302,9 @@ def get_messages(session_id):
     if not chat:
         conn.close()
         return jsonify({'error': 'Unauthorized'}), 403
+    
+    # Get admin_connected status
+    admin_connected = bool(chat['admin_connected']) if chat else False
     
     # Fetch messages
     messages = conn.execute(
@@ -315,7 +318,11 @@ def get_messages(session_id):
     
     conn.close()
     
-    return jsonify({'messages': [dict(m) for m in messages]})
+    return jsonify({
+        'messages': [dict(m) for m in messages],
+        'admin_connected': admin_connected,
+        'status': chat['status']  # Add chat status (active/closed)
+    })
 
 @support_bp.route('/get-active-chat')
 def get_active_chat():

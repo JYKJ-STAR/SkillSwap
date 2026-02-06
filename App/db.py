@@ -90,6 +90,18 @@ def migrate_database():
             conn.commit()
             print("✅ Database migration complete for challenge table (target_count)!")
         
+        # Add admin_connected column to live_chat_session if it doesn't exist
+        try:
+            cursor.execute("PRAGMA table_info(live_chat_session)")
+            columns = [column[1] for column in cursor.fetchall()]
+            if 'admin_connected' not in columns:
+                print("🔄 Adding admin_connected column to live_chat_session...")
+                cursor.execute("ALTER TABLE live_chat_session ADD COLUMN admin_connected INTEGER DEFAULT 0")
+                conn.commit()
+                print("✅ admin_connected column added!")
+        except Exception as admin_conn_error:
+            print(f"⚠️ Admin connection migration note: {admin_conn_error}")
+        
         # Create live chat tables if they don't exist
         try:
             cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='live_chat_session'")
@@ -100,6 +112,7 @@ def migrate_database():
                         session_id INTEGER PRIMARY KEY AUTOINCREMENT,
                         user_id INTEGER NOT NULL,
                         status TEXT DEFAULT 'active' CHECK (status IN ('active', 'closed')),
+                        admin_connected INTEGER DEFAULT 0,
                         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                         last_message_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                         FOREIGN KEY (user_id) REFERENCES user (user_id) ON DELETE CASCADE

@@ -109,7 +109,7 @@
                     </svg>
                 </div>
                 <div class="stat-info">
-                    <div class="stat-label">Closed Today</div>
+                    <div class="stat-label">Chat Closed</div>
                     <div class="stat-value" id="closed-today">{{ closed_today }}</div>
                     <div class="stat-change {% if closed_today > 0 %}positive{% else %}neutral{% endif %}">
                         {% if closed_today > 0 %}Good Job!{% else %}No closures yet{% endif %}
@@ -145,6 +145,10 @@
                 <a href="javascript:void(0)" class="custom-tab" onclick="filterChats('closed')"
                     data-filter="closed">Closed</a>
             </div>
+
+            <a href="{{ url_for('admin.admin_live_chats') }}" class="btn-refresh">
+                Refresh
+            </a>
         </div>
 
         <!-- Chats Table -->

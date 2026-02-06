@@ -1711,13 +1711,16 @@ def admin_live_chats():
         total_chats = len(chats_list)
         active_chats = sum(1 for c in chats_list if c['status'] == 'active')
         
-        # Closed today
-        today = datetime.now().date()
+        # Closed today - use UTC+8 for comparison
+        today = (datetime.now() + timedelta(hours=8)).date()
         closed_today = 0
-        for chat in chats_list:
+        for chat in chats:  # Use original chats, not chats_list
             if chat['status'] == 'closed' and chat['last_message_at']:
                 try:
-                    chat_date = datetime.strptime(chat['last_message_at'], '%Y-%m-%d %H:%M:%S').date()
+                    # Parse UTC time and convert to UTC+8
+                    utc_time = datetime.strptime(chat['last_message_at'], '%Y-%m-%d %H:%M:%S')
+                    local_time = utc_time + timedelta(hours=8)
+                    chat_date = local_time.date()
                     if chat_date == today:
                         closed_today += 1
                 except:
@@ -1741,6 +1744,13 @@ def admin_live_chats():
 def get_chat_details(session_id):
     """Get details for a specific chat session"""
     conn = get_db_connection()
+    
+    # Mark admin as connected
+    conn.execute(
+        "UPDATE live_chat_session SET admin_connected = 1 WHERE session_id = ?",
+        (session_id,)
+    )
+    conn.commit()
     
     chat = conn.execute(
         """SELECT cs.*, u.name as user_name, u.email as user_email

@@ -84,6 +84,7 @@ function showTicketDetails(ticketId, element) {
 
 let currentChatSessionId = null;
 let chatRefreshInterval = null;
+let previousAdminConnected = false;
 
 // Initialize live chat page when it becomes active
 document.addEventListener('DOMContentLoaded', () => {
@@ -188,6 +189,45 @@ async function loadMessages(sessionId) {
         const container = document.querySelector('.chat-messages');
         container.innerHTML = '';
 
+        // Check if admin is connected
+        const adminConnected = data.admin_connected;
+        const chatStatus = data.status;
+
+        // Show notification if admin just connected (status changed from false to true)
+        if (adminConnected && !previousAdminConnected) {
+            showAdminConnectedNotification();
+        }
+        previousAdminConnected = adminConnected;
+
+        // Check if chat is closed
+        if (chatStatus === 'closed') {
+            const closedMessage = document.createElement('div');
+            closedMessage.className = 'system-message closed-message';
+            closedMessage.innerHTML = `
+                <div style="text-align: center; padding: 20px; color: #dc2626;">
+                    <div style="font-size: 16px; margin-bottom: 8px; font-weight: 600;">🔒 This chat has been closed</div>
+                    <div style="font-size: 14px; opacity: 0.8;">You can no longer send messages in this conversation.</div>
+                </div>
+            `;
+            container.appendChild(closedMessage);
+            disableChatInput();
+        } else if (!adminConnected) {
+            // Show waiting message if admin not connected
+            const waitingMessage = document.createElement('div');
+            waitingMessage.className = 'system-message waiting-message';
+            waitingMessage.innerHTML = `
+                <div style="text-align: center; padding: 20px; color: #64748b;">
+                    <div style="font-size: 16px; margin-bottom: 8px;">⏳ Please hold while we connect you to one of our admins...</div>
+                    <div style="font-size: 14px; opacity: 0.8;">You'll be able to chat once an admin joins the conversation.</div>
+                </div>
+            `;
+            container.appendChild(waitingMessage);
+            disableChatInput();
+        } else {
+            enableChatInput();
+        }
+
+        // Display messages
         data.messages.forEach(msg => {
             const bubble = document.createElement('div');
             bubble.className = `message-bubble message-${msg.sender_type}`;
@@ -315,12 +355,45 @@ function showChatConversation() {
     document.getElementById('chat-conversation-view').classList.add('active');
 }
 
+function disableChatInput() {
+    const input = document.querySelector('.chat-input');
+    const sendBtn = document.querySelector('.send-btn');
+    if (input) {
+        input.disabled = true;
+        input.placeholder = 'Waiting for admin to connect...';
+        input.style.opacity = '0.6';
+    }
+    if (sendBtn) {
+        sendBtn.disabled = true;
+        sendBtn.style.opacity = '0.6';
+        sendBtn.style.cursor = 'not-allowed';
+    }
+}
+
+function enableChatInput() {
+    const input = document.querySelector('.chat-input');
+    const sendBtn = document.querySelector('.send-btn');
+    if (input) {
+        input.disabled = false;
+        input.placeholder = 'Type your message...';
+        input.style.opacity = '1';
+    }
+    if (sendBtn) {
+        sendBtn.disabled = false;
+        sendBtn.style.opacity = '1';
+        sendBtn.style.cursor = 'pointer';
+    }
+}
+
 function formatChatTime(timestamp) {
     if (!timestamp) return '';
 
+    // Parse the UTC timestamp and add 8 hours for UTC+8
     const date = new Date(timestamp);
+    const utcPlus8 = new Date(date.getTime() + (8 * 60 * 60 * 1000));
+
     const now = new Date();
-    const diffMs = now - date;
+    const diffMs = now - utcPlus8;
     const diffMins = Math.floor(diffMs / 60000);
     const diffHours = Math.floor(diffMs / 3600000);
     const diffDays = Math.floor(diffMs / 86400000);
@@ -330,11 +403,81 @@ function formatChatTime(timestamp) {
     if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
     if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
 
-    return date.toLocaleDateString();
+    return utcPlus8.toLocaleDateString();
 }
 
 function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
+}
+
+function showAdminConnectedNotification() {
+    // Create notification container
+    const notification = document.createElement('div');
+    notification.className = 'admin-connected-notification';
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #fff;
+        color: #1a1a1a;
+        padding: 20px 24px;
+        border-radius: 12px;
+        border: 1.5px solid #1a1a1a;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        z-index: 10000;
+        min-width: 300px;
+        animation: slideIn 0.3s ease-out;
+        font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    `;
+
+    notification.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="font-size: 24px;">✅</div>
+            <div>
+                <div style="font-weight: 600; font-size: 16px; margin-bottom: 4px; color: #1a1a1a;">Admin Connected!</div>
+                <div style="font-size: 14px; color: #666;">A support agent has joined the chat</div>
+            </div>
+        </div>
+    `;
+
+    // Add animation keyframes
+    if (!document.getElementById('notification-styles')) {
+        const style = document.createElement('style');
+        style.id = 'notification-styles';
+        style.textContent = `
+            @keyframes slideIn {
+                from {
+                    transform: translateX(400px);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+            @keyframes slideOut {
+                from {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+                to {
+                    transform: translateX(400px);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    document.body.appendChild(notification);
+
+    // Auto-remove after 4 seconds
+    setTimeout(() => {
+        notification.style.animation = 'slideOut 0.3s ease-out';
+        setTimeout(() => {
+            notification.remove();
+        }, 300);
+    }, 4000);
 }

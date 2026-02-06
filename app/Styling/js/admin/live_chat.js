@@ -156,10 +156,6 @@ async function sendAdminMessage() {
 
 // Close chat session
 async function closeChat(sessionId) {
-    if (!confirm('Are you sure you want to close this chat session?')) {
-        return;
-    }
-
     try {
         const response = await fetch(`/admin/close-chat/${sessionId}`, {
             method: 'POST'
@@ -204,9 +200,12 @@ window.onclick = function (event) {
 function formatChatTime(timestamp) {
     if (!timestamp) return '';
 
+    // Parse the UTC timestamp and add 8 hours for UTC+8
     const date = new Date(timestamp);
+    const utcPlus8 = new Date(date.getTime() + (8 * 60 * 60 * 1000));
+
     const now = new Date();
-    const diffMs = now - date;
+    const diffMs = now - utcPlus8;
     const diffMins = Math.floor(diffMs / 60000);
     const diffHours = Math.floor(diffMs / 3600000);
     const diffDays = Math.floor(diffMs / 86400000);
@@ -216,7 +215,7 @@ function formatChatTime(timestamp) {
     if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
     if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
 
-    return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    return utcPlus8.toLocaleDateString() + ' ' + utcPlus8.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
 
 // Escape HTML to prevent XSS
