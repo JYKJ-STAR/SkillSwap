@@ -146,6 +146,9 @@ def admin_login_submit():
         flash("Incorrect password.", "error")
         return redirect(url_for('admin.admin_login_page'))
     
+    # Clear any existing session data (including user sessions) before setting admin session
+    session.clear()
+    
     # Set admin session (different keys from regular users)
     session['admin_id'] = admin['admin_id']
     session['admin_name'] = admin['name']
@@ -182,10 +185,7 @@ def inject_admin_data():
 @admin_bp.route('/logout')
 def admin_logout():
     """Clear admin session."""
-    session.pop('admin_id', None)
-    session.pop('admin_name', None)
-    session.pop('is_admin', None)
-    session.pop('user_name', None)
+    session.clear()  # Clear all session data to prevent persistent admin names
     flash("You have been logged out.", "info")
     return redirect(url_for('admin.admin_login_page'))
 
@@ -1339,11 +1339,30 @@ def admin_manage_rewards():
         ORDER BY rr.created_at ASC
     """).fetchall()
     
+    # Get Pending Challenge Completions (for Challenge Verification section)
+    pending_challenge_proofs = conn.execute("""
+        SELECT 
+            uc.user_challenge_id as completion_id,
+            uc.user_id,
+            uc.challenge_id,
+            uc.proof_file as proof_photo,
+            uc.created_at as submitted_at,
+            u.name as user_name,
+            c.title as challenge_title,
+            c.bonus_points
+        FROM user_challenge uc
+        JOIN user u ON uc.user_id = u.user_id
+        JOIN challenge c ON uc.challenge_id = c.challenge_id
+        WHERE uc.status = 'pending'
+        ORDER BY uc.created_at ASC
+    """).fetchall()
+    
     conn.close()
     
     return render_template('admin/admin_manage_rewards.html',
                            rewards=rewards,
                            pending_proofs=pending_proofs,
+                           pending_challenge_proofs=pending_challenge_proofs,
                            redeemed_rewards=redeemed_rewards,
                            pending_redemptions=pending_redemptions)
 
@@ -1405,6 +1424,110 @@ def admin_reject_proof(event_id, user_id):
     conn.close()
     
     flash("Proof rejected. User must resubmit.", "info")
+    return redirect(url_for('admin.admin_manage_rewards'))
+
+@admin_bp.route('/approve-challenge-proof/<int:completion_id>', methods=['POST'])
+@admin_required
+def admin_approve_challenge_proof(completion_id):
+    """Approve challenge proof and award points only when target is reached."""
+    conn = get_db_connection()
+    admin_id = session.get('admin_id')
+    
+    # Get completion details from user_challenge table
+    completion = conn.execute("""
+        SELECT uc.user_id, uc.challenge_id, c.bonus_points, c.title, c.target_count
+        FROM user_challenge uc
+        JOIN challenge c ON uc.challenge_id = c.challenge_id
+        WHERE uc.user_challenge_id = ?
+    """, (completion_id,)).fetchone()
+    
+    if not completion:
+        flash("Challenge completion not found.", "error")
+        conn.close()
+        return redirect(url_for('admin.admin_manage_rewards'))
+    
+    # Update completion status to approved
+    conn.execute("""
+        UPDATE user_challenge 
+        SET status = 'approved', 
+            admin_comment = 'Approved by admin'
+        WHERE user_challenge_id = ?
+    """, (completion_id,))
+    conn.commit()
+    
+    # Count total approved proofs for this user and challenge
+    approved_count = conn.execute("""
+        SELECT COUNT(*) as count
+        FROM user_challenge
+        WHERE user_id = ? AND challenge_id = ? AND status = 'approved'
+    """, (completion['user_id'], completion['challenge_id'])).fetchone()['count']
+    
+    target = completion['target_count'] or 1
+    points = completion['bonus_points'] if completion['bonus_points'] else 0
+    
+    # Only award points if target is reached
+    if approved_count >= target:
+        # Check if points were already awarded for this challenge
+        existing_transaction = conn.execute("""
+            SELECT transaction_id FROM points_transaction
+            WHERE user_id = ? AND remarks LIKE ?
+        """, (completion['user_id'], f"Challenge completed: {completion['title']}%")).fetchone()
+        
+        if not existing_transaction:
+            # Award points
+            conn.execute("""
+                UPDATE user 
+                SET total_points = total_points + ? 
+                WHERE user_id = ?
+            """, (points, completion['user_id']))
+            
+            # Log transaction
+            conn.execute("""
+                INSERT INTO points_transaction (user_id, points_change, remarks)
+                VALUES (?, ?, ?)
+            """, (completion['user_id'], points, f"Challenge completed: {completion['title']}"))
+            
+            conn.commit()
+            flash(f"Challenge proof approved! Target reached ({approved_count}/{target}). {points} points awarded!", "success")
+        else:
+            flash(f"Challenge proof approved! Progress: {approved_count}/{target}. Points already awarded.", "info")
+    else:
+        flash(f"Challenge proof approved! Progress: {approved_count}/{target}. Keep going!", "success")
+    
+    conn.close()
+    return redirect(url_for('admin.admin_manage_rewards'))
+
+@admin_bp.route('/reject-challenge-proof/<int:completion_id>', methods=['POST'])
+@admin_required
+def admin_reject_challenge_proof(completion_id):
+    """Reject challenge proof submission."""
+    conn = get_db_connection()
+    admin_id = session.get('admin_id')
+    reason = request.form.get('reason', 'Proof not acceptable')
+    
+    # Get proof photo to optionally delete
+    completion = conn.execute("""
+        SELECT proof_file FROM user_challenge WHERE user_challenge_id = ?
+    """, (completion_id,)).fetchone()
+    
+    if completion and completion['proof_file']:
+        # Optionally delete photo from filesystem
+        photo_path = os.path.join(current_app.static_folder, 'img', 'users', 'challenges_proof', completion['proof_file'])
+        if os.path.exists(photo_path):
+            os.remove(photo_path)
+    
+    # Update completion status
+    conn.execute("""
+        UPDATE user_challenge 
+        SET status = 'rejected',
+            admin_comment = ?
+        WHERE user_challenge_id = ?
+    """, (reason, completion_id))
+    
+    conn.commit()
+    conn.close()
+    
+    flash("Challenge proof rejected.", "info")
     return redirect(url_for('admin.admin_manage_rewards'))
 
 

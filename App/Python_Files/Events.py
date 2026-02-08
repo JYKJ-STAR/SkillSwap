@@ -421,6 +421,12 @@ def event_details(event_id):
     user_id = session.get('user_id')
     role = session.get('user_role')
     
+    # Get user verification status
+    db = get_db_connection()
+    user_cursor = db.execute('SELECT verification_status FROM user WHERE user_id = ?', (user_id,))
+    user_data = user_cursor.fetchone()
+    verification_status = user_data['verification_status'] if user_data else 'unverified'
+    
     # Get event details
     event = get_event_by_id(event_id)
     if not event:
@@ -465,7 +471,8 @@ def event_details(event_id):
                          user_signed_up_role=user_signed_up_role,
                          user_role=role,
                          can_mentor=can_mentor,
-                         has_started=has_started)
+                         has_started=has_started,
+                         verification_status=verification_status)
 
 
 @events_bp.route('/event/<int:event_id>/signup', methods=['POST'])
@@ -477,6 +484,19 @@ def event_signup(event_id):
     
     user_id = session.get('user_id')
     role_type = request.form.get('role_type')
+    
+    # Check user verification status
+    db = get_db_connection()
+    user_cursor = db.execute('SELECT verification_status FROM user WHERE user_id = ?', (user_id,))
+    user_data = user_cursor.fetchone()
+    
+    if not user_data:
+        flash("User not found.", "error")
+        return redirect(url_for('events.events'))
+    
+    if user_data['verification_status'] != 'verified':
+        flash("You must be verified to join events. Please complete verification in your settings.", "warning")
+        return redirect(url_for('events.event_details', event_id=event_id))
     
     if role_type not in ['teacher', 'participant']:
         flash("Invalid role selected.", "error")

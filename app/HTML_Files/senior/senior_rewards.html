@@ -11,161 +11,242 @@
     <i class="bi bi-arrow-left"></i> Back
 </a>
 
-<!-- Main Content -->
-<main class="rewards-content">
-    <h1 class="page-title" id="page-title">Redeem Rewards</h1>
-
-    <!-- Hidden element to store user points for JS -->
-    {% if user %}
-    <span id="user-points" data-points="{{ user.points if user else 0 }}" style="display: none;"></span>
-    {% endif %}
-
-    <!-- Rewards Table -->
-    <div class="rewards-table">
-        <!-- Tab Header -->
-        <div class="table-tabs">
-            <button class="table-tab active" data-tab="redeem">Redeem Rewards</button>
-            <button class="table-tab" data-tab="my-rewards">My Rewards</button>
+<!-- Main Container -->
+<div class="rewards-container">
+    <!-- Sidebar -->
+    <aside class="rewards-sidebar">
+        <div class="profile-avatar">
+            {% if user and user.profile_photo %}
+            <img src="{{ url_for('static', filename='img/users/profiles/' + user.profile_photo) }}" alt="Profile"
+                style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+            {% else %}
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
+            </svg>
+            {% endif %}
         </div>
+        <h2 class="profile-name">{{ user.name if user else 'User' }}</h2>
+        <p class="profile-age">{{ user.age if user and user.age else '' }} Years Old</p>
+        <p class="profile-points" id="user-points" data-points="{{ user.points if user else 0 }}">
+            {{ user.points if user else 0 }} Points
+        </p>
+        <button class="claim-rewards-btn" onclick="document.querySelector('[data-tab=my-rewards]').click()">
+            Claim Rewards
+        </button>
 
-        <!-- Redeem Rewards List -->
-        <div class="rewards-list active" id="redeem-list">
-            {% if rewards %}
-            {% for reward in rewards %}
-            <div class="reward-row">
-                <div class="reward-image"></div>
-                <div class="reward-details">
-                    <div class="reward-info">
-                        <h3>{{ reward.name }}</h3>
-                        <p class="vendor">{{ reward.vendor }}</p>
-                        <p class="points">{{ reward.points }} Points Needed</p>
-                    </div>
-                </div>
-                <button class="redeem-btn" data-name="{{ reward.name|e }}" data-vendor="{{ reward.vendor|e }}"
-                    data-points="{{ reward.points }}">Redeem Rewards</button>
-            </div>
+        <h3 class="sidebar-section-title">Skills</h3>
+        <div class="skill-tags">
+            {% if user and user.skills %}
+            {% for skill in user.skills %}
+            <span class="skill-tag">{{ skill }}</span>
             {% endfor %}
             {% else %}
-            <!-- Demo rewards when no data is passed -->
-            <div class="reward-row">
-                <div class="reward-image"></div>
-                <div class="reward-details">
-                    <div class="reward-info">
-                        <h3>$5 NTUC FairPrice Voucher</h3>
-                        <p class="vendor">NTUC Fair Price</p>
-                        <p class="points">5000 Points Needed</p>
-                    </div>
-                </div>
-                <button class="redeem-btn" data-name="$5 NTUC FairPrice Voucher" data-vendor="NTUC Fair Price"
-                    data-points="5000">Redeem Rewards</button>
-            </div>
-
-            <div class="reward-row">
-                <div class="reward-image"></div>
-                <div class="reward-details">
-                    <div class="reward-info">
-                        <h3>$10 Giant Voucher</h3>
-                        <p class="vendor">Giant</p>
-                        <p class="points">8000 Points Needed</p>
-                    </div>
-                </div>
-                <button class="redeem-btn" data-name="$10 Giant Voucher" data-vendor="Giant" data-points="8000">Redeem
-                    Rewards</button>
-            </div>
-
-            <div class="reward-row">
-                <div class="reward-image"></div>
-                <div class="reward-details">
-                    <div class="reward-info">
-                        <h3>$10 Cold Storage Voucher</h3>
-                        <p class="vendor">Cold Storage</p>
-                        <p class="points">8000 Points Needed</p>
-                    </div>
-                </div>
-                <button class="redeem-btn" data-name="$10 Cold Storage Voucher" data-vendor="Cold Storage"
-                    data-points="8000">Redeem Rewards</button>
-            </div>
-
-            <div class="reward-row">
-                <div class="reward-image"></div>
-                <div class="reward-details">
-                    <div class="reward-info">
-                        <h3>$20 Sheng Siong Voucher</h3>
-                        <p class="vendor">Sheng Siong</p>
-                        <p class="points">15000 Points Needed</p>
-                    </div>
-                </div>
-                <button class="redeem-btn" data-name="$20 Sheng Siong Voucher" data-vendor="Sheng Siong"
-                    data-points="15000">Redeem Rewards</button>
-            </div>
+            <span class="skill-tag">No skills added</span>
             {% endif %}
         </div>
 
-        <!-- My Rewards List -->
-        <div class="rewards-list" id="my-rewards-list">
-            {% if user_rewards %}
-            {% for reward in user_rewards %}
-            <div class="reward-row">
-                <div class="reward-image"></div>
-                <div class="reward-details">
-                    <div class="reward-info">
-                        <h3>{{ reward.name }}</h3>
-                        <p class="vendor">{{ reward.vendor }}</p>
-                    </div>
-                    <a href="#" class="show-voucher-link" data-name="{{ reward.name|e }}"
-                        data-vendor="{{ reward.vendor|e }}">Show voucher to Vendors</a>
-                </div>
-                <button class="redeem-btn" data-name="{{ reward.name|e }}" data-vendor="{{ reward.vendor|e }}"
-                    data-action="claim">Claim Rewards</button>
-            </div>
+        <h3 class="sidebar-section-title">Interests</h3>
+        <div class="skill-tags">
+            {% if user and user.interests %}
+            {% for interest in user.interests %}
+            <span class="skill-tag">{{ interest }}</span>
             {% endfor %}
             {% else %}
-            <!-- Demo user rewards -->
-            <div class="reward-row">
-                <div class="reward-image"></div>
-                <div class="reward-details">
-                    <div class="reward-info">
-                        <h3>$5 NTUC FairPrice Voucher</h3>
-                        <p class="vendor">NTUC Fair Price</p>
-                    </div>
-                    <a href="#" class="show-voucher-link" data-name="$5 NTUC FairPrice Voucher"
-                        data-vendor="NTUC Fair Price">Show voucher to Vendors</a>
-                </div>
-                <button class="redeem-btn" data-name="$5 NTUC FairPrice Voucher" data-vendor="NTUC Fair Price"
-                    data-action="claim">Claim Rewards</button>
-            </div>
-
-            <div class="reward-row">
-                <div class="reward-image"></div>
-                <div class="reward-details">
-                    <div class="reward-info">
-                        <h3>$10 Giant Voucher</h3>
-                        <p class="vendor">Giant</p>
-                    </div>
-                    <a href="#" class="show-voucher-link" data-name="$10 Giant Voucher" data-vendor="Giant">Show voucher
-                        to Vendors</a>
-                </div>
-                <button class="redeem-btn" data-name="$10 Giant Voucher" data-vendor="Giant" data-action="claim">Claim
-                    Rewards</button>
-            </div>
-
-            <div class="reward-row">
-                <div class="reward-image"></div>
-                <div class="reward-details">
-                    <div class="reward-info">
-                        <h3>$5 Kopitiam Voucher</h3>
-                        <p class="vendor">Kopitiam</p>
-                    </div>
-                    <a href="#" class="show-voucher-link" data-name="$5 Kopitiam Voucher" data-vendor="Kopitiam">Show
-                        voucher to Vendors</a>
-                </div>
-                <button class="redeem-btn" data-name="$5 Kopitiam Voucher" data-vendor="Kopitiam"
-                    data-action="claim">Claim Rewards</button>
-            </div>
+            <span class="skill-tag">No interests added</span>
             {% endif %}
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="rewards-content">
+        <h1 class="page-title">Redeem Rewards</h1>
+
+        <!-- Tabs -->
+        <div class="rewards-tabs">
+            <button class="rewards-tab active" data-tab="redeem">Redeem Rewards</button>
+            <button class="rewards-tab" data-tab="my-rewards">My Rewards</button>
+            <button class="rewards-tab" data-tab="history">History</button>
+        </div>
+
+        <!-- Redeem Rewards Tab Content -->
+        <div class="tab-content active" id="redeem-content">
+            <div class="rewards-grid">
+                {% if rewards %}
+                {% for reward in rewards %}
+                <div class="reward-card">
+                    <div class="reward-header">
+                        <div class="reward-image"></div>
+                        <div class="reward-info">
+                            <h3>{{ reward.name }}</h3>
+                            <p class="vendor">SkillSwap Reward</p>
+                            {% if reward.description %}
+                            <p class="description"
+                                style="color: #9ca3af; font-size: 0.9em; margin-top: 8px; line-height: 1.4;">{{
+                                reward.description }}</p>
+                            {% endif %}
+                            <p class="points">{{ reward.points_required }} Points</p>
+                        </div>
+                    </div>
+                    <button class="redeem-btn" data-name="{{ reward.name|e }}" data-vendor="SkillSwap Reward"
+                        data-points="{{ reward.points_required }}">
+                        Redeem Award
+                    </button>
+                </div>
+                {% endfor %}
+                {% else %}
+                <div class="no-rewards-message">
+                    <h3>No rewards available at the moment.</h3>
+                    <p>Check back later!</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- My Rewards Tab Content -->
+        <div class="tab-content" id="my-rewards-content">
+            <div class="rewards-grid">
+                {% if user_rewards %}
+                {% for reward in user_rewards %}
+                <div class="reward-card" data-redemption-id="{{ reward.redemption_id }}">
+                    <div class="reward-header">
+                        <div class="reward-image"></div>
+                        <div class="reward-info">
+                            <h3>{{ reward.name }}</h3>
+                            <p class="vendor">{{ reward.vendor }}</p>
+                        </div>
+                    </div>
+                    <button class="claim-btn" data-redemption-id="{{ reward.redemption_id }}"
+                        data-name="{{ reward.name|e }}" data-vendor="{{ reward.vendor|e }}">Claim</button>
+                </div>
+                {% endfor %}
+                {% else %}
+                <div class="no-rewards-message">
+                    <h3>No rewards to claim yet.</h3>
+                    <p>Redeem rewards from the "Redeem Rewards" tab and wait for admin approval!</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- History Tab Content -->
+        <div class="tab-content" id="history-content">
+            <div class="rewards-grid">
+                {% if history_rewards %}
+                {% for reward in history_rewards %}
+                <div class="reward-card" style="{% if reward.display_status == 'Expired' %}opacity: 0.7;{% endif %}">
+                    <div class="reward-header">
+                        <div class="reward-image"></div>
+                        <div class="reward-info">
+                            <h3>{{ reward.name }}</h3>
+                            <p class="vendor">SkillSwap Reward</p>
+                            {% if reward.expiry_date %}
+                            <p class="expiry-date" style="color: #9ca3af; font-size: 0.85em; margin-top: 5px;">
+                                {% if reward.display_status == 'Expired' %}
+                                Expired: {{ reward.expiry_date }}
+                                {% elif reward.display_status == 'Used' %}
+                                Used before: {{ reward.expiry_date }}
+                                {% else %}
+                                {{ reward.expiry_date }}
+                                {% endif %}
+                            </p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <span class="status-badge"
+                        style="background: {% if reward.display_status == 'Expired' %}#ef4444{% elif reward.display_status == 'Cancelled' %}#f59e0b{% else %}#6b7280{% endif %}; color: white; padding: 8px 16px; border-radius: 6px; font-size: 0.9em; font-weight: 600;">
+                        {{ reward.display_status }}
+                    </span>
+                </div>
+                {% endfor %}
+                {% else %}
+                <div class="no-rewards-message">
+                    <h3>No reward history yet.</h3>
+                    <p>Your expired and used rewards will appear here!</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- Error Snackbar -->
+<div class="snackbar" id="snackbar">
+    <span class="snackbar-message">Error: Insufficient points</span>
+    <button class="snackbar-dismiss">Dismiss</button>
+</div>
+
+<!-- Redeem Confirmation Modal -->
+<div class="modal-overlay" id="redeem-modal">
+    <div class="rewards-modal">
+        <h2 class="modal-title">Confirm Redemption?</h2>
+        <div class="modal-reward-card">
+            <div class="modal-reward-image"></div>
+            <div class="modal-reward-info">
+                <h3 id="redeem-modal-title">Reward Title</h3>
+                <p class="vendor" id="redeem-modal-vendor">Vendor</p>
+                <p class="points" id="redeem-modal-points">0 Points</p>
+            </div>
+        </div>
+        <div class="modal-buttons">
+            <button class="modal-btn secondary" onclick="hideRedeemModal()">Cancel</button>
+            <button class="modal-btn primary" onclick="confirmRedeem()">Confirm</button>
         </div>
     </div>
-</main>
+</div>
 
-<script src="{{ url_for('static', filename='js/senior_rewards.js') }}"></script>
+<!-- Claim Reward Modal (from My Rewards) -->
+<div class="modal-overlay" id="claim-modal">
+    <div class="rewards-modal">
+        <h2 class="modal-title">Claim Reward?</h2>
+        <div class="modal-reward-card">
+            <div class="modal-reward-image"></div>
+            <div class="modal-reward-info">
+                <h3 id="claim-modal-title">$5 NTUC FairPrice Voucher</h3>
+                <p class="vendor" id="claim-modal-vendor">NTUC Fair Price</p>
+            </div>
+        </div>
+        <div class="modal-buttons">
+            <button class="modal-btn secondary" onclick="hideClaimModal()">Change my mind</button>
+            <button class="modal-btn primary"
+                onclick="showVendorModal(document.getElementById('claim-modal-title').textContent, document.getElementById('claim-modal-vendor').textContent); hideClaimModal();">Claim
+                Rewards</button>
+        </div>
+    </div>
+</div>
+
+<!-- Submitted Modal -->
+<div class="modal-overlay submitted-modal" id="submitted-modal">
+    <div class="rewards-modal">
+        <h2 class="modal-title">Submitted</h2>
+        <p class="submitted-text">
+            Notify admin for rewards approval.<br>
+            Once approved, rewards will be sent to<br>
+            your My Rewards page.
+        </p>
+        <div class="modal-buttons">
+            <button class="modal-btn" onclick="hideSubmittedModal()">Return</button>
+        </div>
+    </div>
+</div>
+
+<!-- Show the Vendor Modal -->
+<div class="modal-overlay" id="vendor-modal">
+    <div class="rewards-modal">
+        <h2 class="modal-title">Show the Vendor</h2>
+        <div class="modal-reward-card">
+            <div class="modal-reward-image"></div>
+            <div class="modal-reward-info">
+                <h3 id="vendor-modal-title">$5 NTUC FairPrice Voucher</h3>
+                <p class="vendor" id="vendor-modal-vendor">NTUC Fair Price</p>
+            </div>
+        </div>
+        <div class="modal-buttons">
+            <button class="modal-btn secondary" onclick="hideVendorModal()">Change my mind</button>
+            <button class="modal-btn primary" onclick="dismissReward()">Dismiss Reward</button>
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/youth/youth_rewards.js') }}"></script>
 {% endblock %}

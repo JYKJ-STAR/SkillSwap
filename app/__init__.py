@@ -14,6 +14,10 @@ def create_app():
     app = Flask(__name__, template_folder='HTML_Files', static_folder='Styling', static_url_path='')
     app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "dev-secret")
     app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=31)
+    app.config['SESSION_COOKIE_NAME'] = 'skillswap_user_session'  # Unique cookie name for user app
+    app.config['SESSION_COOKIE_SECURE'] = False  # Set to True in production with HTTPS
+    app.config['SESSION_COOKIE_HTTPONLY'] = True
+    app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
     app.config['TEMPLATES_AUTO_RELOAD'] = True
     
     # OAuth Configuration
@@ -60,6 +64,10 @@ def create_admin_app():
     app = Flask(__name__, template_folder='HTML_Files', static_folder='Styling', static_url_path='')
     app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "admin-secret-key")
     app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)
+    app.config['SESSION_COOKIE_NAME'] = 'skillswap_admin_session'  # Unique cookie name for admin app
+    app.config['SESSION_COOKIE_SECURE'] = False  # Set to True in production with HTTPS
+    app.config['SESSION_COOKIE_HTTPONLY'] = True
+    app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
     app.config['TEMPLATES_AUTO_RELOAD'] = True
     
     # Run database migrations

@@ -103,11 +103,10 @@ def dashboard():
             c.target_count,
             c.status,
             (SELECT COUNT(*) 
-             FROM event_booking eb 
-             JOIN event e ON eb.event_id = e.event_id 
-             WHERE eb.user_id = ? 
-               AND eb.status = 'completed'
-               AND e.start_datetime BETWEEN c.start_date AND c.end_date
+             FROM user_challenge uc
+             WHERE uc.user_id = ? 
+               AND uc.challenge_id = c.challenge_id
+               AND uc.status = 'approved'
             ) as progress_count
         FROM challenge c
         WHERE c.status IN ('active', 'published')
@@ -243,9 +242,12 @@ def challenge_details(challenge_id):
         flash("Challenge not found.", "error")
         return redirect(url_for('dashboard.dashboard'))
 
-    # Check for existing submission
+    # Check for existing submissions
     submission = conn.execute(
-        "SELECT * FROM user_challenge WHERE user_id = ? AND challenge_id = ?",
+        """SELECT * FROM user_challenge 
+           WHERE user_id = ? AND challenge_id = ? 
+           ORDER BY created_at DESC 
+           LIMIT 1""",
         (user_id, challenge_id)
     ).fetchone()
 
@@ -254,7 +256,7 @@ def challenge_details(challenge_id):
         conn.close()
         return render_template('shared/challenge_cancelled.html', challenge=challenge, user_role=user_role)
 
-    # REDIRECT LOGIC: If rejected and not retrying, go to feedback page
+    # REDIRECT LOGIC: If the MOST RECENT submission is rejected and not retrying, go to feedback page
     if submission and submission['status'] == 'rejected' and not request.args.get('retry'):
         conn.close()
         return redirect(url_for('dashboard.challenge_rejection', challenge_id=challenge_id))
@@ -263,20 +265,32 @@ def challenge_details(challenge_id):
     if request.method == 'POST':
         description = request.form.get('proof_description')
         file = request.files.get('proof_file')
-        filename = file.filename if file else None
+        filename = None
         
-        # Insert or Update (Resubmit)
-        if submission:
-            conn.execute('''
-                UPDATE user_challenge 
-                SET proof_description = ?, proof_file = ?, status = 'pending', admin_comment = NULL, created_at = datetime('now')
-                WHERE user_challenge_id = ?
-            ''', (description, filename, submission['user_challenge_id']))
-        else:
-            conn.execute('''
-                INSERT INTO user_challenge (user_id, challenge_id, proof_description, proof_file, status)
-                VALUES (?, ?, ?, ?, 'pending')
-            ''', (user_id, challenge_id, description, filename))
+        # Save file to challenges_proof directory
+        if file and file.filename:
+            import os
+            from werkzeug.utils import secure_filename
+            from datetime import datetime
+            
+            # Generate unique filename
+            original_filename = secure_filename(file.filename)
+            timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+            filename = f"{user_id}_{challenge_id}_{timestamp}_{original_filename}"
+            
+            # Ensure directory exists
+            upload_folder = os.path.join('app', 'Styling', 'img', 'users', 'challenges_proof')
+            os.makedirs(upload_folder, exist_ok=True)
+            
+            # Save file
+            file_path = os.path.join(upload_folder, filename)
+            file.save(file_path)
+        
+        # Always insert a new proof submission (allow multiple proofs per challenge)
+        conn.execute('''
+            INSERT INTO user_challenge (user_id, challenge_id, proof_description, proof_file, status)
+            VALUES (?, ?, ?, ?, 'pending')
+        ''', (user_id, challenge_id, description, filename))
         
         conn.commit()
         conn.close()
@@ -292,8 +306,6 @@ def challenge_details(challenge_id):
           AND eb.status = 'completed'
           AND e.start_datetime BETWEEN ? AND ?
     ''', (user_id, challenge['start_date'], challenge['end_date'])).fetchone()['count']
-    
-    conn.close()
     
     # Determine challenge status
     from datetime import datetime
@@ -353,7 +365,25 @@ def challenge_details(challenge_id):
         except:
             pass
     
+    
     # Prepare challenge data
+    # Calculate user's progress based on approved proofs for THIS challenge
+    approved_proofs_count = conn.execute('''
+        SELECT COUNT(*) as count
+        FROM user_challenge
+        WHERE user_id = ? AND challenge_id = ? AND status = 'approved'
+    ''', (user_id, challenge_id)).fetchone()['count']
+    
+    # Check if there's a pending submission
+    pending_submission = conn.execute('''
+        SELECT * FROM user_challenge
+        WHERE user_id = ? AND challenge_id = ? AND status = 'pending'
+        ORDER BY created_at DESC
+        LIMIT 1
+    ''', (user_id, challenge_id)).fetchone()
+    
+    conn.close()
+    
     challenge_data = {
         'id': challenge['challenge_id'],
         'title': challenge['title'],
@@ -363,7 +393,7 @@ def challenge_details(challenge_id):
         'end_date': challenge['end_date'],
         'bonus_points': challenge['bonus_points'] or 0,
         'target_count': challenge['target_count'] or 1,
-        'user_progress': user_progress,
+        'user_progress': approved_proofs_count,  # Progress is now based on approved proofs
         'time_left': time_left,
         'is_new': is_new
     }
@@ -371,7 +401,7 @@ def challenge_details(challenge_id):
     return render_template('shared/challenge_details.html', 
                          challenge=challenge_data,
                          user_role=user_role,
-                         submission=submission)
+                         submission=pending_submission)  # Show pending submission if exists
 
 @dashboard_bp.route('/challenge/<int:challenge_id>/feedback')
 def challenge_rejection(challenge_id):
@@ -383,12 +413,18 @@ def challenge_rejection(challenge_id):
     conn = get_db_connection()
     
     challenge = conn.execute("SELECT * FROM challenge WHERE challenge_id = ?", (challenge_id,)).fetchone()
-    submission = conn.execute("SELECT * FROM user_challenge WHERE user_id = ? AND challenge_id = ?", (user_id, challenge_id)).fetchone()
+    # Get the most recent rejected submission
+    submission = conn.execute("""
+        SELECT * FROM user_challenge 
+        WHERE user_id = ? AND challenge_id = ? AND status = 'rejected'
+        ORDER BY created_at DESC
+        LIMIT 1
+    """, (user_id, challenge_id)).fetchone()
     
     conn.close()
     
-    # If no submission or not rejected, redirect back to details
-    if not submission or submission['status'] != 'rejected':
+    # If no rejected submission, redirect back to details
+    if not submission:
         return redirect(url_for('dashboard.challenge_details', challenge_id=challenge_id))
     
     return render_template('shared/challenge_rejection.html', challenge=challenge, submission=submission)

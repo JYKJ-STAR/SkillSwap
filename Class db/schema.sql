@@ -139,6 +139,7 @@ CREATE TABLE IF NOT EXISTS event_booking (
   status TEXT NOT NULL DEFAULT 'booked' CHECK (status IN ('booked','cancelled','completed','no_show')),
   booked_at TEXT NOT NULL DEFAULT (datetime('now')),
   proof_media_url TEXT,
+  proof_description TEXT,  -- User feedback/description for event proof
   hours_earned REAL,
   PRIMARY KEY (user_id, event_id),
   FOREIGN KEY (user_id) REFERENCES user(user_id) ON DELETE CASCADE,
@@ -303,4 +304,22 @@ CREATE TABLE IF NOT EXISTS challenge (
   ended_at TEXT,
   FOREIGN KEY (created_by) REFERENCES admin(admin_id) ON DELETE SET NULL
 );
+
+-- Track user challenge completions with proof submissions
+CREATE TABLE IF NOT EXISTS challenge_completion (
+  completion_id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id INTEGER NOT NULL,
+  challenge_id INTEGER NOT NULL,
+  proof_photo TEXT,  -- Stored in img/users/challenges_proof/
+  submitted_at TEXT NOT NULL DEFAULT (datetime('now')),
+  status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected')),
+  verified_at TEXT,
+  verified_by_admin_id INTEGER,
+  rejection_reason TEXT,
+  FOREIGN KEY (user_id) REFERENCES user(user_id) ON DELETE CASCADE,
+  FOREIGN KEY (challenge_id) REFERENCES challenge(challenge_id) ON DELETE CASCADE,
+  FOREIGN KEY (verified_by_admin_id) REFERENCES admin(admin_id) ON DELETE SET NULL,
+  UNIQUE(user_id, challenge_id)  -- One submission per user per challenge
+);
+
 
