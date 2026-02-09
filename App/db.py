@@ -173,6 +173,33 @@ def migrate_database():
             conn.commit()
             print("✅ Database migration complete for event_booking table!")
         
+        # Create challenge_completion table for challenge proof verification
+        try:
+            cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='challenge_completion'")
+            if not cursor.fetchone():
+                print("🔄 Creating challenge_completion table...")
+                cursor.execute("""
+                    CREATE TABLE IF NOT EXISTS challenge_completion (
+                        completion_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        user_id INTEGER NOT NULL,
+                        challenge_id INTEGER NOT NULL,
+                        proof_photo TEXT,
+                        submitted_at TEXT NOT NULL DEFAULT (datetime('now')),
+                        status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected')),
+                        verified_at TEXT,
+                        verified_by_admin_id INTEGER,
+                        rejection_reason TEXT,
+                        FOREIGN KEY (user_id) REFERENCES user(user_id) ON DELETE CASCADE,
+                        FOREIGN KEY (challenge_id) REFERENCES challenge(challenge_id) ON DELETE CASCADE,
+                        FOREIGN KEY (verified_by_admin_id) REFERENCES admin(admin_id) ON DELETE SET NULL,
+                        UNIQUE(user_id, challenge_id)
+                    )
+                """)
+                conn.commit()
+                print("✅ challenge_completion table created!")
+        except Exception as cc_error:
+            print(f"⚠️ Challenge completion migration note: {cc_error}")
+        
         # Add expiry_date column to reward_redemption table
         cursor.execute("PRAGMA table_info(reward_redemption)")
         columns = [row[1] for row in cursor.fetchall()]

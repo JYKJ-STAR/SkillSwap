@@ -44,7 +44,7 @@
 
                     <!-- Action Buttons -->
                     <div class="d-grid gap-2">
-                        <a href="{{ url_for('dashboard.challenge_details', challenge_id=challenge.challenge_id) }}"
+                        <a href="{{ url_for('dashboard.challenge_details', challenge_id=challenge.challenge_id, retry=1) }}"
                             class="btn btn-primary py-3 fw-bold" style="border-radius: 10px;">
                             <i class="bi bi-pencil-square me-2"></i> Resubmit Proof
                         </a>

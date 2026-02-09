@@ -69,13 +69,14 @@
         <!-- Main Section Tabs -->
         <div class="controls-row">
             <div class="filter-tabs" id="sectionTabs">
-                <button class="filter-tab active" data-section="verification">User Verification</button>
+                <button class="filter-tab active" data-section="events">Event Verification</button>
+                <button class="filter-tab" data-section="challenges">Challenge Verification</button>
                 <button class="filter-tab" data-section="rewards">Rewards</button>
             </div>
         </div>
 
-        <!-- USER VERIFICATION SECTION -->
-        <div class="section-content active" id="verification-section">
+        <!-- EVENT VERIFICATION SECTION -->
+        <div class="section-content active" id="events-section">
             <h2 style="color:white; margin-bottom:20px; font-size: 1.3em;">Pending Event Verifications</h2>
 
             {% if pending_proofs %}
@@ -135,6 +136,68 @@
             </div>
             {% else %}
             <p style="color:#9ca3af; background:#1f2937; padding:20px; border-radius:8px;">No pending verifications.</p>
+            {% endif %}
+        </div>
+
+        <!-- CHALLENGE VERIFICATION SECTION -->
+        <div class="section-content" id="challenges-section">
+            <h2 style="color:white; margin-bottom:20px; font-size: 1.3em;">Pending Challenge Verifications</h2>
+
+            {% if pending_challenge_proofs %}
+            <div class="table-container">
+                <table class="events-table">
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Challenge</th>
+                            <th>Proof Photo</th>
+                            <th>Submitted</th>
+                            <th>Points</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for proof in pending_challenge_proofs %}
+                        <tr>
+                            <td><strong>{{ proof.user_name }}</strong></td>
+                            <td>{{ proof.challenge_title }}</td>
+                            <td>
+                                {% if proof.proof_photo %}
+                                <a href="{{ url_for('static', filename='img/users/challenges_proof/' + proof.proof_photo) }}"
+                                    target="_blank">
+                                    <img src="{{ url_for('static', filename='img/users/challenges_proof/' + proof.proof_photo) }}"
+                                        style="height:50px; border-radius:4px; border:1px solid #4b5563;" alt="Proof">
+                                </a>
+                                {% else %}
+                                <span class="text-muted">No image</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ proof.submitted_at[:10] if proof.submitted_at else 'N/A' }}</td>
+                            <td><span class="status-badge published">+{{ proof.bonus_points or 0 }}</span></td>
+                            <td class="actions-cell">
+                                <form
+                                    action="{{ url_for('admin.admin_approve_challenge_proof', completion_id=proof.completion_id) }}"
+                                    method="POST" style="display:inline;">
+                                    <button type="submit" class="action-icon approve" title="Approve">
+                                        <i class="bi bi-check-circle"></i>
+                                    </button>
+                                </form>
+                                <form
+                                    action="{{ url_for('admin.admin_reject_challenge_proof', completion_id=proof.completion_id) }}"
+                                    method="POST" style="display:inline; margin-left:5px;">
+                                    <button type="submit" class="action-icon delete" title="Reject">
+                                        <i class="bi bi-x-circle"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p style="color:#9ca3af; background:#1f2937; padding:20px; border-radius:8px;">No pending challenge
+                verifications.</p>
             {% endif %}
         </div>
 
