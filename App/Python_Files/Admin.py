@@ -146,6 +146,9 @@ def admin_login_submit():
         flash("Incorrect password.", "error")
         return redirect(url_for('admin.admin_login_page'))
     
+    # Clear any existing session data (including user sessions) before setting admin session
+    session.clear()
+    
     # Set admin session (different keys from regular users)
     session['admin_id'] = admin['admin_id']
     session['admin_name'] = admin['name']
@@ -182,10 +185,7 @@ def inject_admin_data():
 @admin_bp.route('/logout')
 def admin_logout():
     """Clear admin session."""
-    session.pop('admin_id', None)
-    session.pop('admin_name', None)
-    session.pop('is_admin', None)
-    session.pop('user_name', None)
+    session.clear()  # Clear all session data to prevent persistent admin names
     flash("You have been logged out.", "info")
     return redirect(url_for('admin.admin_login_page'))
 
@@ -1109,8 +1109,25 @@ def reject_verification(user_id):
 @admin_required
 def toggle_ticket_status(ticket_id):
     """Toggle ticket status between open/resolved."""
-    # (Existing function truncated in previous view, assuming it ends here or similar)
-    pass 
+    conn = get_db_connection()
+    
+    # Get current status
+    ticket = conn.execute("SELECT status FROM support_ticket WHERE ticket_id = ?", (ticket_id,)).fetchone()
+    
+    if not ticket:
+        flash("Ticket not found.", "error")
+        conn.close()
+        return redirect(url_for('admin.admin_support_tickets'))
+    
+    # Toggle status
+    new_status = 'resolved' if ticket['status'] == 'open' else 'open'
+    
+    conn.execute("UPDATE support_ticket SET status = ? WHERE ticket_id = ?", (new_status, ticket_id))
+    conn.commit()
+    conn.close()
+    
+    flash(f"Ticket #{ticket_id} marked as {new_status}.", "success")
+    return redirect(url_for('admin.admin_support_tickets')) 
 
 # =====================================================
 # CHALLENGE MANAGEMENT
@@ -1152,7 +1169,7 @@ def admin_support_tickets():
     conn = get_db_connection()
     
     # 2. Build the base query
-    query = """SELECT st.ticket_id, st.subject, st.description, st.status, st.created_at,
+    query = """SELECT st.ticket_id, st.subject, st.description, st.status, st.created_at, st.screenshot_path,
                       u.name as user_name, u.email as user_email
                FROM support_ticket st
                JOIN user u ON st.user_id = u.user_id"""
@@ -1275,7 +1292,7 @@ def admin_manage_rewards():
     # Get Pending Proofs (for User Verification section)
     pending_proofs = conn.execute("""
         SELECT 
-            eb.user_id, eb.event_id, eb.proof_media_url, eb.role_type,
+            eb.user_id, eb.event_id, eb.proof_media_url, eb.role_type, eb.proof_description,
             u.name as user_name,
             e.title as event_title,
             e.base_points_participant
@@ -1303,12 +1320,51 @@ def admin_manage_rewards():
         ORDER BY rr.created_at DESC
     """).fetchall()
     
+    # Get Pending Redemptions (for Rewards Approval tab)
+    pending_redemptions = conn.execute("""
+        SELECT 
+            rr.redemption_id,
+            rr.created_at,
+            rr.user_id,
+            u.name as user_name,
+            u.email as user_email,
+            u.total_points as user_points,
+            r.reward_id,
+            r.name as reward_name,
+            r.points_required
+        FROM reward_redemption rr
+        JOIN user u ON rr.user_id = u.user_id
+        JOIN reward r ON rr.reward_id = r.reward_id
+        WHERE rr.status = 'requested'
+        ORDER BY rr.created_at ASC
+    """).fetchall()
+    
+    # Get Pending Challenge Completions (for Challenge Verification section)
+    pending_challenge_proofs = conn.execute("""
+        SELECT 
+            uc.user_challenge_id as completion_id,
+            uc.user_id,
+            uc.challenge_id,
+            uc.proof_file as proof_photo,
+            uc.created_at as submitted_at,
+            u.name as user_name,
+            c.title as challenge_title,
+            c.bonus_points
+        FROM user_challenge uc
+        JOIN user u ON uc.user_id = u.user_id
+        JOIN challenge c ON uc.challenge_id = c.challenge_id
+        WHERE uc.status = 'pending'
+        ORDER BY uc.created_at ASC
+    """).fetchall()
+    
     conn.close()
     
     return render_template('admin/admin_manage_rewards.html',
                            rewards=rewards,
                            pending_proofs=pending_proofs,
-                           redeemed_rewards=redeemed_rewards)
+                           pending_challenge_proofs=pending_challenge_proofs,
+                           redeemed_rewards=redeemed_rewards,
+                           pending_redemptions=pending_redemptions)
 
 @admin_bp.route('/verify-proof/<int:event_id>/<int:user_id>', methods=['POST'])
 @admin_required
@@ -1370,8 +1426,112 @@ def admin_reject_proof(event_id, user_id):
     flash("Proof rejected. User must resubmit.", "info")
     return redirect(url_for('admin.admin_manage_rewards'))
 
+@admin_bp.route('/approve-challenge-proof/<int:completion_id>', methods=['POST'])
+@admin_required
+def admin_approve_challenge_proof(completion_id):
+    """Approve challenge proof and award points only when target is reached."""
+    conn = get_db_connection()
+    admin_id = session.get('admin_id')
+    
+    # Get completion details from user_challenge table
+    completion = conn.execute("""
+        SELECT uc.user_id, uc.challenge_id, c.bonus_points, c.title, c.target_count
+        FROM user_challenge uc
+        JOIN challenge c ON uc.challenge_id = c.challenge_id
+        WHERE uc.user_challenge_id = ?
+    """, (completion_id,)).fetchone()
+    
+    if not completion:
+        flash("Challenge completion not found.", "error")
+        conn.close()
+        return redirect(url_for('admin.admin_manage_rewards'))
+    
+    # Update completion status to approved
+    conn.execute("""
+        UPDATE user_challenge 
+        SET status = 'approved', 
+            admin_comment = 'Approved by admin'
+        WHERE user_challenge_id = ?
+    """, (completion_id,))
+    conn.commit()
+    
+    # Count total approved proofs for this user and challenge
+    approved_count = conn.execute("""
+        SELECT COUNT(*) as count
+        FROM user_challenge
+        WHERE user_id = ? AND challenge_id = ? AND status = 'approved'
+    """, (completion['user_id'], completion['challenge_id'])).fetchone()['count']
+    
+    target = completion['target_count'] or 1
+    points = completion['bonus_points'] if completion['bonus_points'] else 0
+    
+    # Only award points if target is reached
+    if approved_count >= target:
+        # Check if points were already awarded for this challenge
+        existing_transaction = conn.execute("""
+            SELECT transaction_id FROM points_transaction
+            WHERE user_id = ? AND remarks LIKE ?
+        """, (completion['user_id'], f"Challenge completed: {completion['title']}%")).fetchone()
+        
+        if not existing_transaction:
+            # Award points
+            conn.execute("""
+                UPDATE user 
+                SET total_points = total_points + ? 
+                WHERE user_id = ?
+            """, (points, completion['user_id']))
+            
+            # Log transaction
+            conn.execute("""
+                INSERT INTO points_transaction (user_id, points_change, remarks)
+                VALUES (?, ?, ?)
+            """, (completion['user_id'], points, f"Challenge completed: {completion['title']}"))
+            
+            conn.commit()
+            flash(f"Challenge proof approved! Target reached ({approved_count}/{target}). {points} points awarded!", "success")
+        else:
+            flash(f"Challenge proof approved! Progress: {approved_count}/{target}. Points already awarded.", "info")
+    else:
+        flash(f"Challenge proof approved! Progress: {approved_count}/{target}. Keep going!", "success")
+    
+    conn.close()
+    return redirect(url_for('admin.admin_manage_rewards'))
 
-@admin_bp.route('/admin/add-reward', methods=['POST'])
+@admin_bp.route('/reject-challenge-proof/<int:completion_id>', methods=['POST'])
+@admin_required
+def admin_reject_challenge_proof(completion_id):
+    """Reject challenge proof submission."""
+    conn = get_db_connection()
+    admin_id = session.get('admin_id')
+    reason = request.form.get('reason', 'Proof not acceptable')
+    
+    # Get proof photo to optionally delete
+    completion = conn.execute("""
+        SELECT proof_file FROM user_challenge WHERE user_challenge_id = ?
+    """, (completion_id,)).fetchone()
+    
+    if completion and completion['proof_file']:
+        # Optionally delete photo from filesystem
+        photo_path = os.path.join(current_app.static_folder, 'img', 'users', 'challenges_proof', completion['proof_file'])
+        if os.path.exists(photo_path):
+            os.remove(photo_path)
+    
+    # Update completion status
+    conn.execute("""
+        UPDATE user_challenge 
+        SET status = 'rejected',
+            admin_comment = ?
+        WHERE user_challenge_id = ?
+    """, (reason, completion_id))
+    
+    conn.commit()
+    conn.close()
+    
+    flash("Challenge proof rejected.", "info")
+    return redirect(url_for('admin.admin_manage_rewards'))
+
+
+@admin_bp.route('/add-reward', methods=['POST'])
 @admin_required
 def admin_add_reward():
     """Add a new reward to the catalog."""
@@ -1396,10 +1556,14 @@ def admin_add_reward():
     return redirect(url_for('admin.admin_manage_rewards'))
 
 
-@admin_bp.route('/admin/delete-reward/<int:reward_id>', methods=['POST'])
+@admin_bp.route('/delete-reward/<int:reward_id>', methods=['GET', 'POST'])
 @admin_required
 def admin_delete_reward(reward_id):
     """Delete a reward from the catalog."""
+    # If method is GET, just redirect back
+    if request.method == 'GET':
+        return redirect(url_for('admin.admin_manage_rewards'))
+    
     conn = get_db_connection()
     
     # Get reward name for flash message
@@ -1414,10 +1578,14 @@ def admin_delete_reward(reward_id):
     return redirect(url_for('admin.admin_manage_rewards'))
 
 
-@admin_bp.route('/admin/edit-reward/<int:reward_id>', methods=['POST'])
+@admin_bp.route('/edit-reward/<int:reward_id>', methods=['GET', 'POST'])
 @admin_required
 def admin_edit_reward(reward_id):
     """Edit an existing reward."""
+    # If method is GET, just redirect back (shouldn't normally happen)
+    if request.method == 'GET':
+        return redirect(url_for('admin.admin_manage_rewards'))
+    
     name = request.form.get('name')
     description = request.form.get('description')
     points_required = request.form.get('points_required')
@@ -1439,6 +1607,112 @@ def admin_edit_reward(reward_id):
     conn.close()
     
     flash(f"Reward updated successfully!", "success")
+    return redirect(url_for('admin.admin_manage_rewards'))
+
+
+@admin_bp.route('/approve-redemption/<int:redemption_id>', methods=['POST'])
+@admin_required
+def admin_approve_redemption(redemption_id):
+    """Approve a reward redemption request."""
+    conn = get_db_connection()
+    
+    # Get redemption details including reward_id and quantity
+    redemption = conn.execute("""
+        SELECT rr.user_id, rr.reward_id, r.points_required, r.name, r.total_quantity, u.total_points
+        FROM reward_redemption rr
+        JOIN reward r ON rr.reward_id = r.reward_id
+        JOIN user u ON rr.user_id = u.user_id
+        WHERE rr.redemption_id = ?
+    """, (redemption_id,)).fetchone()
+    
+    if not redemption:
+        flash("Redemption not found.", "error")
+        conn.close()
+        return redirect(url_for('admin.admin_manage_rewards'))
+    
+    # Check if user still has enough points
+    if redemption['total_points'] < redemption['points_required']:
+        flash(f"User doesn't have enough points for {redemption['name']}.", "error")
+        conn.close()
+        return redirect(url_for('admin.admin_manage_rewards'))
+    
+    # Check if reward still has quantity available (if quantity is tracked)
+    if redemption['total_quantity'] is not None and redemption['total_quantity'] <= 0:
+        flash(f"'{redemption['name']}' is out of stock.", "error")
+        conn.close()
+        return redirect(url_for('admin.admin_manage_rewards'))
+    
+    # Deduct points from user
+    conn.execute("""
+        UPDATE user 
+        SET total_points = total_points - ? 
+        WHERE user_id = ?
+    """, (redemption['points_required'], redemption['user_id']))
+    
+    # Update redemption status to approved and set expiry date (30 days from now)
+    from datetime import datetime, timedelta
+    expiry_date = (datetime.now() + timedelta(days=30)).strftime('%Y-%m-%d')
+    
+    conn.execute("""
+        UPDATE reward_redemption 
+        SET status = 'approved', expiry_date = ?
+        WHERE redemption_id = ?
+    """, (expiry_date, redemption_id))
+    
+    # Decrement reward quantity if it's tracked (not NULL)
+    if redemption['total_quantity'] is not None:
+        new_quantity = redemption['total_quantity'] - 1
+        
+        # If quantity reaches 0, also deactivate the reward
+        if new_quantity <= 0:
+            conn.execute("""
+                UPDATE reward 
+                SET total_quantity = 0, is_active = 0 
+                WHERE reward_id = ?
+            """, (redemption['reward_id'],))
+            flash(f"Reward redemption approved! '{redemption['name']}' is now out of stock and has been deactivated.", "success")
+        else:
+            conn.execute("""
+                UPDATE reward 
+                SET total_quantity = ? 
+                WHERE reward_id = ?
+            """, (new_quantity, redemption['reward_id']))
+            flash(f"Reward redemption approved! {redemption['points_required']} points deducted. {new_quantity} remaining.", "success")
+    else:
+        flash(f"Reward redemption approved! {redemption['points_required']} points deducted.", "success")
+    
+    conn.commit()
+    conn.close()
+    
+    return redirect(url_for('admin.admin_manage_rewards'))
+
+
+@admin_bp.route('/reject-redemption/<int:redemption_id>', methods=['POST'])
+@admin_required
+def admin_reject_redemption(redemption_id):
+    """Reject a reward redemption request."""
+    conn = get_db_connection()
+    
+    # Get redemption details for flash message
+    redemption = conn.execute("""
+        SELECT r.name
+        FROM reward_redemption rr
+        JOIN reward r ON rr.reward_id = r.reward_id
+        WHERE rr.redemption_id = ?
+    """, (redemption_id,)).fetchone()
+    
+    reward_name = redemption['name'] if redemption else 'Unknown'
+    
+    # Delete the redemption request (or could set status to 'rejected')
+    conn.execute("""
+        DELETE FROM reward_redemption 
+        WHERE redemption_id = ?
+    """, (redemption_id,))
+    
+    conn.commit()
+    conn.close()
+    
+    flash(f"Redemption for '{reward_name}' rejected.", "info")
     return redirect(url_for('admin.admin_manage_rewards'))
 
 
@@ -1560,13 +1834,16 @@ def admin_live_chats():
         total_chats = len(chats_list)
         active_chats = sum(1 for c in chats_list if c['status'] == 'active')
         
-        # Closed today
-        today = datetime.now().date()
+        # Closed today - use UTC+8 for comparison
+        today = (datetime.now() + timedelta(hours=8)).date()
         closed_today = 0
-        for chat in chats_list:
+        for chat in chats:  # Use original chats, not chats_list
             if chat['status'] == 'closed' and chat['last_message_at']:
                 try:
-                    chat_date = datetime.strptime(chat['last_message_at'], '%Y-%m-%d %H:%M:%S').date()
+                    # Parse UTC time and convert to UTC+8
+                    utc_time = datetime.strptime(chat['last_message_at'], '%Y-%m-%d %H:%M:%S')
+                    local_time = utc_time + timedelta(hours=8)
+                    chat_date = local_time.date()
                     if chat_date == today:
                         closed_today += 1
                 except:
@@ -1590,6 +1867,13 @@ def admin_live_chats():
 def get_chat_details(session_id):
     """Get details for a specific chat session"""
     conn = get_db_connection()
+    
+    # Mark admin as connected
+    conn.execute(
+        "UPDATE live_chat_session SET admin_connected = 1 WHERE session_id = ?",
+        (session_id,)
+    )
+    conn.commit()
     
     chat = conn.execute(
         """SELECT cs.*, u.name as user_name, u.email as user_email
@@ -1640,6 +1924,20 @@ def send_chat_message():
     
     conn = get_db_connection()
     
+    # Check if chat is closed
+    chat = conn.execute(
+        "SELECT status FROM live_chat_session WHERE session_id = ?",
+        (session_id,)
+    ).fetchone()
+    
+    if not chat:
+        conn.close()
+        return jsonify({'error': 'Chat session not found'}), 404
+    
+    if chat['status'] == 'closed':
+        conn.close()
+        return jsonify({'error': 'Cannot send message to a closed chat'}), 400
+    
     # Insert admin message
     conn.execute(
         "INSERT INTO live_chat_message (session_id, sender_type, sender_id, message_text) VALUES (?, 'admin', ?, ?)",
@@ -1672,3 +1970,20 @@ def close_chat_session(session_id):
     conn.close()
     
     return jsonify({'status': 'closed'})
+
+@admin_bp.route('/reopen-chat/\u003cint:session_id\u003e', methods=['POST'])
+@admin_required
+def reopen_chat_session(session_id):
+    """Reopen a closed chat session"""
+    conn = get_db_connection()
+    
+    conn.execute(
+        "UPDATE live_chat_session SET status = 'active' WHERE session_id = ?",
+        (session_id,)
+    )
+    
+    conn.commit()
+    conn.close()
+    
+    return jsonify({'status': 'reopened'})
+

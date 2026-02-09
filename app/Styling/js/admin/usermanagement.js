@@ -7,6 +7,9 @@ document.addEventListener('DOMContentLoaded', function () {
     // Initialize filter functionality
     initializeFilters();
 
+    // Initialize name search functionality
+    initializeNameSearch();
+
     // Initialize all button handlers
     initializeVerificationButtons();
     initializeEditButtons();
@@ -69,6 +72,40 @@ function filterUsers(filter) {
         row.style.display = show ? '' : 'none';
     });
 }
+
+/**
+ * Initialize name search input handler
+ */
+function initializeNameSearch() {
+    const searchInput = document.getElementById('nameSearchInput');
+
+    if (searchInput) {
+        searchInput.addEventListener('input', function () {
+            const searchTerm = this.value.toLowerCase().trim();
+            const rows = document.querySelectorAll('#usersTableBody tr[data-role]');
+
+            rows.forEach(row => {
+                const nameCell = row.querySelector('td:first-child strong');
+                if (nameCell) {
+                    const userName = nameCell.textContent.toLowerCase();
+                    const matchesSearch = userName.includes(searchTerm);
+
+                    // Only hide if doesn't match search AND current row is visible
+                    if (row.style.display !== 'none') {
+                        row.style.display = matchesSearch ? '' : 'none';
+                    } else if (matchesSearch) {
+                        // If it matches search but was hidden by role filter, check role filter
+                        const activeFilter = document.querySelector('.filter-tab.active');
+                        if (activeFilter) {
+                            filterUsers(activeFilter.dataset.filter);
+                        }
+                    }
+                }
+            });
+        });
+    }
+}
+
 
 // =====================================================
 // VERIFICATION MODAL

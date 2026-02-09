@@ -165,11 +165,14 @@
                     <div class="select-wrapper">
                         <select class="form-select" id="event-name">
                             <option value="" disabled selected>Select an event</option>
-                            <option value="Workshop: Web Development">Workshop: Web Development</option>
-                            <option value="Seminar: AI Basics">Seminar: AI Basics</option>
-                            <option value="Meetup: Networking">Meetup: Networking</option>
-                            <option value="Workshop: Python Programming">Workshop: Python Programming</option>
-                            <option value="Other">Other / Not Event Related</option>
+                            {% if attended_events %}
+                            {% for event in attended_events %}
+                            <option value="{{ event.title }} ({{ event.formatted_date }})">
+                                {{ event.title }} - {{ event.formatted_date }}
+                            </option>
+                            {% endfor %}
+                            {% endif %}
+                            <option value="Other / Not Event Related">Other / Not Event Related</option>
                         </select>
                         <svg class="select-arrow" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -190,24 +193,21 @@
                         <input type="file" class="upload-input" id="screenshot-upload" accept="image/*"
                             onchange="handleScreenshotUpload(event)">
                     </div>
-                    <div id="screenshot-preview" style="display: none; margin-top: 10px; position: relative;">
-                        <img id="preview-image" src="" alt="Screenshot preview"
-                            style="max-width: 100%; max-height: 200px; border-radius: 8px; border: 2px solid #e0e0e0;">
-                        <button type="button" class="delete-screenshot-btn" onclick="deleteScreenshot()"
-                            style="position: absolute; top: 5px; right: 5px; background: #dc2626; color: white; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer; font-size: 18px; line-height: 1; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">×</button>
+                    <div id="screenshot-preview">
+                        <img id="preview-image" src="" alt="Screenshot preview">
+                        <button type="button" class="delete-screenshot-btn" onclick="deleteScreenshot()">×</button>
                     </div>
                 </div>
 
                 <button class="submit-btn" id="submit-report-btn" onclick="submitReport()">Submit Report</button>
 
-                <div class="form-success" id="form-success" style="display: none; margin-top: 15px; color: green;">
+                <div class="form-success" id="form-success">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
                         <polyline points="22 4 12 14.01 9 11.01" />
                     </svg>
-                    <p style="display:inline; margin-left: 10px;">Report submitted successfully! You can view it in My
-                        Tickets.</p>
+                    <p>Report submitted successfully! You can view it in My Tickets.</p>
                 </div>
             </div>
         </div>
@@ -236,6 +236,77 @@
                 document.getElementById('screenshot-upload').value = '';
                 document.getElementById('screenshot-preview').style.display = 'none';
                 document.getElementById('preview-image').src = '';
+            }
+
+            // Show ticket submitted notification
+            function showTicketSubmittedNotification() {
+                // Create notification container
+                const notification = document.createElement('div');
+                notification.className = 'ticket-submitted-notification';
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: #fff;
+                    color: #1a1a1a;
+                    padding: 20px 24px;
+                    border-radius: 12px;
+                    border: 1.5px solid #1a1a1a;
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+                    z-index: 10000;
+                    min-width: 300px;
+                    animation: slideIn 0.3s ease-out;
+                    font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                `;
+
+                notification.innerHTML = `
+                    <div class="notification-content">
+                        <div class="notification-icon">✅</div>
+                        <div>
+                            <div class="notification-title">Ticket Submitted!</div>
+                            <div class="notification-message">Your report has been sent successfully</div>
+                        </div>
+                    </div>
+                `;
+
+                // Add animation keyframes if not already added
+                if (!document.getElementById('notification-styles')) {
+                    const style = document.createElement('style');
+                    style.id = 'notification-styles';
+                    style.textContent = `
+                        @keyframes slideIn {
+                            from {
+                                transform: translateX(400px);
+                                opacity: 0;
+                            }
+                            to {
+                                transform: translateX(0);
+                                opacity: 1;
+                            }
+                        }
+                        @keyframes slideOut {
+                            from {
+                                transform: translateX(0);
+                                opacity: 1;
+                            }
+                            to {
+                                transform: translateX(400px);
+                                opacity: 0;
+                            }
+                        }
+                    `;
+                    document.head.appendChild(style);
+                }
+
+                document.body.appendChild(notification);
+
+                // Auto-remove after 1.5 seconds (before page reload)
+                setTimeout(() => {
+                    notification.style.animation = 'slideOut 0.3s ease-out';
+                    setTimeout(() => {
+                        notification.remove();
+                    }, 300);
+                }, 1200);
             }
 
             async function submitReport() {
@@ -272,7 +343,10 @@ ${descriptionText}`);
                     const result = await response.json();
 
                     if (response.ok) {
-                        // 4. Show success message
+                        // 4. Show success notification popup
+                        showTicketSubmittedNotification();
+
+                        // Show success message in form
                         document.getElementById('form-success').style.display = 'block';
 
                         // Clear the form
@@ -280,10 +354,12 @@ ${descriptionText}`);
                         document.getElementById('incident-description').value = '';
                         deleteScreenshot();  // Clear screenshot
 
-                        // Hide success message after 3 seconds
+                        // Auto-navigate to My Tickets tab after 1.5 seconds with page reload
                         setTimeout(() => {
-                            document.getElementById('form-success').style.display = 'none';
-                        }, 5000);
+                            // Set URL hash to open My Tickets tab after reload
+                            window.location.hash = 'my-tickets';
+                            window.location.reload();
+                        }, 1500);
                     } else {
                         alert("Error: " + result.message);
                     }
@@ -296,6 +372,20 @@ ${descriptionText}`);
                     btn.innerText = originalText;
                 }
             }
+        </script>
+
+        <script>
+            // Check URL hash on page load to auto-navigate to My Tickets tab
+            document.addEventListener('DOMContentLoaded', () => {
+                if (window.location.hash === '#my-tickets') {
+                    const myTicketsLink = document.querySelector('[data-page="my-tickets-page"]');
+                    if (myTicketsLink) {
+                        myTicketsLink.click();
+                        // Clear the hash after navigation
+                        history.replaceState(null, null, ' ');
+                    }
+                }
+            });
         </script>
 
         <!-- My Tickets Page -->
@@ -340,8 +430,8 @@ ${descriptionText}`);
                 <div class="ticket-detail-panel" id="ticket-detail-panel">
 
                     {% for ticket in tickets %}
-                    <div id="detail-{{ ticket.ticket_id }}" class="ticket-full-detail"
-                        style="display: {{ 'block' if loop.first else 'none' }};">
+                    <div id="detail-{{ ticket.ticket_id }}" class="ticket-full-detail" {% if loop.first
+                        %}style="display: block;" {% else %}style="display: none;" {% endif %}>
 
                         <h3 class="detail-id">ID: #{{ ticket.ticket_id }}</h3>
 
@@ -358,13 +448,22 @@ ${descriptionText}`);
                         <div class="detail-section">
                             <div class="detail-label">DESCRIPTION</div>
                             <div class="detail-box">
-                                <p style="white-space: pre-wrap;">{{ ticket.description }}</p>
+                                <p>{{ ticket.description }}</p>
                             </div>
                         </div>
 
+                        {% if ticket.screenshot_path %}
+                        <div class="detail-section">
+                            <div class="detail-label">SCREENSHOT</div>
+                            <div class="detail-box screenshot-box">
+                                <img src="{{ ticket.screenshot_path }}" alt="Ticket screenshot">
+                            </div>
+                        </div>
+                        {% endif %}
+
                         {% if ticket.reply %}
-                        <div class="agent-reply-title" style="margin-top: 2rem;">Agent Reply</div>
-                        <div class="detail-box" style="background-color: #f0f7ff; border-color: #cce5ff;">
+                        <div class="agent-reply-title">Agent Reply</div>
+                        <div class="detail-box agent-reply">
                             <p>{{ ticket.reply }}</p>
                         </div>
                         {% elif ticket.status == 'resolved' %}

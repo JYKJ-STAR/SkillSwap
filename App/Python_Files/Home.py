@@ -159,6 +159,9 @@ def login_submit():
     #     flash("Account verification required. Please check your email or wait for approval.", "warning")
     #     return redirect(url_for('home.login_page'))
     
+    # Clear any existing session data (including admin sessions) before setting user session
+    session.clear()
+    
     # Set User Session
     session['user_id'] = user['user_id']
     session['user_name'] = user['name']
@@ -361,6 +364,7 @@ def register():
         session['user_id'] = user_id
         session['user_name'] = name
         session['user_role'] = role
+        session.permanent = True  # Prevent logout on navigation
         
         return jsonify({'message': 'Registration successful', 'redirect': url_for('dashboard.dashboard')})
 

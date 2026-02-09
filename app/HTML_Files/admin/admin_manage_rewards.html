@@ -69,13 +69,14 @@
         <!-- Main Section Tabs -->
         <div class="controls-row">
             <div class="filter-tabs" id="sectionTabs">
-                <button class="filter-tab active" data-section="verification">User Verification</button>
+                <button class="filter-tab active" data-section="events">Event Verification</button>
+                <button class="filter-tab" data-section="challenges">Challenge Verification</button>
                 <button class="filter-tab" data-section="rewards">Rewards</button>
             </div>
         </div>
 
-        <!-- USER VERIFICATION SECTION -->
-        <div class="section-content active" id="verification-section">
+        <!-- EVENT VERIFICATION SECTION -->
+        <div class="section-content active" id="events-section">
             <h2 style="color:white; margin-bottom:20px; font-size: 1.3em;">Pending Event Verifications</h2>
 
             {% if pending_proofs %}
@@ -86,6 +87,7 @@
                             <th>User</th>
                             <th>Event</th>
                             <th>Proof</th>
+                            <th>Feedback</th>
                             <th>Points</th>
                             <th>Actions</th>
                         </tr>
@@ -101,6 +103,13 @@
                                     <img src="{{ url_for('static', filename='img/users/Upload_proof/' + proof.proof_media_url) }}"
                                         style="height:50px; border-radius:4px; border:1px solid #4b5563;" alt="Proof">
                                 </a>
+                            </td>
+                            <td>
+                                <span
+                                    style="color: #d1d5db; font-size: 0.9em; max-width: 200px; display: inline-block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+                                    title="{{ proof.proof_description or 'No feedback provided' }}">
+                                    {{ proof.proof_description or 'No feedback' }}
+                                </span>
                             </td>
                             <td><span class="status-badge published">+{{ proof.base_points_participant or 100 }}</span>
                             </td>
@@ -130,12 +139,75 @@
             {% endif %}
         </div>
 
+        <!-- CHALLENGE VERIFICATION SECTION -->
+        <div class="section-content" id="challenges-section">
+            <h2 style="color:white; margin-bottom:20px; font-size: 1.3em;">Pending Challenge Verifications</h2>
+
+            {% if pending_challenge_proofs %}
+            <div class="table-container">
+                <table class="events-table">
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Challenge</th>
+                            <th>Proof Photo</th>
+                            <th>Submitted</th>
+                            <th>Points</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for proof in pending_challenge_proofs %}
+                        <tr>
+                            <td><strong>{{ proof.user_name }}</strong></td>
+                            <td>{{ proof.challenge_title }}</td>
+                            <td>
+                                {% if proof.proof_photo %}
+                                <a href="{{ url_for('static', filename='img/users/challenges_proof/' + proof.proof_photo) }}"
+                                    target="_blank">
+                                    <img src="{{ url_for('static', filename='img/users/challenges_proof/' + proof.proof_photo) }}"
+                                        style="height:50px; border-radius:4px; border:1px solid #4b5563;" alt="Proof">
+                                </a>
+                                {% else %}
+                                <span class="text-muted">No image</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ proof.submitted_at[:10] if proof.submitted_at else 'N/A' }}</td>
+                            <td><span class="status-badge published">+{{ proof.bonus_points or 0 }}</span></td>
+                            <td class="actions-cell">
+                                <form
+                                    action="{{ url_for('admin.admin_approve_challenge_proof', completion_id=proof.completion_id) }}"
+                                    method="POST" style="display:inline;">
+                                    <button type="submit" class="action-icon approve" title="Approve">
+                                        <i class="bi bi-check-circle"></i>
+                                    </button>
+                                </form>
+                                <form
+                                    action="{{ url_for('admin.admin_reject_challenge_proof', completion_id=proof.completion_id) }}"
+                                    method="POST" style="display:inline; margin-left:5px;">
+                                    <button type="submit" class="action-icon delete" title="Reject">
+                                        <i class="bi bi-x-circle"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p style="color:#9ca3af; background:#1f2937; padding:20px; border-radius:8px;">No pending challenge
+                verifications.</p>
+            {% endif %}
+        </div>
+
         <!-- REWARDS SECTION -->
         <div class="section-content" id="rewards-section">
             <!-- Sub-tabs for Rewards -->
             <div class="controls-row" style="margin-bottom: 20px;">
                 <div class="filter-tabs" id="rewardsTabs">
                     <button class="filter-tab active" data-tab="manage">Manage Rewards</button>
+                    <button class="filter-tab" data-tab="approval">Rewards Approval</button>
                     <button class="filter-tab" data-tab="redeemed">Redeemed Rewards</button>
                 </div>
             </div>
@@ -201,9 +273,83 @@
                 {% endif %}
             </div>
 
+            <!-- Rewards Approval Tab -->
+            <div class="tab-content" id="approval-tab">
+                <h2 style="color:white; margin-bottom:20px; font-size: 1.3em;">Pending Reward Redemptions</h2>
+
+                {% if pending_redemptions %}
+                <div class="table-container">
+                    <table class="events-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>User</th>
+                                <th>Email</th>
+                                <th>Reward</th>
+                                <th>Points Required</th>
+                                <th>User Points</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for redemption in pending_redemptions %}
+                            <tr>
+                                <td>{{ redemption.created_at[:10] if redemption.created_at else 'N/A' }}</td>
+                                <td><strong>{{ redemption.user_name }}</strong></td>
+                                <td>{{ redemption.user_email }}</td>
+                                <td>{{ redemption.reward_name }}</td>
+                                <td><span class="status-badge published">{{ redemption.points_required }} pts</span>
+                                </td>
+                                <td>
+                                    {% if redemption.user_points >= redemption.points_required %}
+                                    <span class="status-badge published">{{ redemption.user_points }} pts</span>
+                                    {% else %}
+                                    <span class="status-badge voided">{{ redemption.user_points }} pts
+                                        (Insufficient)</span>
+                                    {% endif %}
+                                </td>
+                                <td class="actions-cell">
+                                    <form
+                                        action="{{ url_for('admin.admin_approve_redemption', redemption_id=redemption.redemption_id) }}"
+                                        method="POST" style="display:inline;">
+                                        <button type="submit" class="action-icon approve" title="Approve" {% if
+                                            redemption.user_points < redemption.points_required %}disabled{% endif %}>
+                                            <i class="bi bi-check-circle"></i>
+                                        </button>
+                                    </form>
+                                    <form
+                                        action="{{ url_for('admin.admin_reject_redemption', redemption_id=redemption.redemption_id) }}"
+                                        method="POST" style="display:inline; margin-left:5px;">
+                                        <button type="submit" class="action-icon delete" title="Reject">
+                                            <i class="bi bi-x-circle"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p style="color:#9ca3af; background:#1f2937; padding:20px; border-radius:8px;">No pending redemptions.
+                </p>
+                {% endif %}
+            </div>
+
             <!-- Redeemed Rewards Tab -->
             <div class="tab-content" id="redeemed-tab">
-                <h2 style="color:white; margin-bottom:20px; font-size: 1.3em;">Redeemed Rewards History</h2>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2 style="color:white; margin: 0; font-size: 1.3em;">Redeemed Rewards History</h2>
+                    <div class="filter-buttons" style="display: flex; gap: 10px;">
+                        <button class="status-filter-btn active" data-status="all"
+                            style="padding: 8px 16px; background: #3b82f6; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; transition: all 0.2s;">All</button>
+                        <button class="status-filter-btn" data-status="approved"
+                            style="padding: 8px 16px; background: #4b5563; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; transition: all 0.2s;">Pending
+                            Claim</button>
+                        <button class="status-filter-btn" data-status="redeemed"
+                            style="padding: 8px 16px; background: #4b5563; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; transition: all 0.2s;">Claimed</button>
+                    </div>
+                </div>
 
                 {% if redeemed_rewards %}
                 <div class="table-container">
@@ -220,7 +366,7 @@
                         </thead>
                         <tbody>
                             {% for redemption in redeemed_rewards %}
-                            <tr>
+                            <tr class="redeemed-row" data-status="{{ redemption.status }}">
                                 <td>{{ redemption.created_at[:10] if redemption.created_at else 'N/A' }}</td>
                                 <td><strong>{{ redemption.user_name }}</strong></td>
                                 <td>{{ redemption.user_email }}</td>
@@ -322,27 +468,83 @@
 
     <!-- Delete Reward Modal -->
     <div id="deleteRewardModal" class="modal-overlay">
-        <div class="modal-content" style="max-width: 420px;">
-            <div class="modal-header" style="border-bottom: none;">
-                <h2 style="color: #f87171;"><i class="bi bi-exclamation-triangle"></i> Delete Reward</h2>
-                <button class="modal-close" onclick="closeDeleteRewardModal()">&times;</button>
+        <div class="modal-content"
+            style="max-width: 480px; background: linear-gradient(135deg, #374151 0%, #1f2937 100%); border: 1px solid rgba(239, 68, 68, 0.3); box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6);">
+            <div class="modal-header" style="border-bottom: 1px solid rgba(239, 68, 68, 0.2); padding: 25px;">
+                <h2 style="color: #f87171; display: flex; align-items: center; gap: 10px; margin: 0; font-size: 1.4em;">
+                    <i class="bi bi-exclamation-triangle" style="animation: pulse 2s ease-in-out infinite;"></i>
+                    Delete Reward
+                </h2>
+                <button class="modal-close" onclick="closeDeleteRewardModal()"
+                    style="transition: all 0.3s ease;">&times;</button>
             </div>
-            <div style="padding: 0 25px 25px;">
+            <div style="padding: 25px;">
                 <div
-                    style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 8px; padding: 20px; text-align: center; margin-bottom: 20px;">
-                    <p style="color: #f3f4f6; margin: 0 0 5px; font-size: 1.05em;">Delete reward <strong
-                            id="deleteRewardName" style="color: #f87171;"></strong>?</p>
-                    <p style="color: #9ca3af; margin: 0; font-size: 0.9em;">This action cannot be undone.</p>
+                    style="background: linear-gradient(135deg, rgba(239, 68, 68, 0.2) 0%, rgba(239, 68, 68, 0.1) 100%); border: 2px solid rgba(239, 68, 68, 0.4); border-radius: 12px; padding: 24px; text-align: center; margin-bottom: 24px; position: relative; overflow: hidden;">
+                    <div
+                        style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, transparent, #f87171, transparent); animation: shimmer 2s infinite;">
+                    </div>
+                    <p style="color: #f3f4f6; margin: 0 0 8px; font-size: 1.1em; font-weight: 500;">
+                        Delete reward <strong id="deleteRewardName" style="color: #fca5a5; font-weight: 700;"></strong>?
+                    </p>
+                    <p style="color: #9ca3af; margin: 0; font-size: 0.95em; line-height: 1.5;">
+                        <i class="bi bi-shield-exclamation" style="color: #f87171; margin-right: 5px;"></i>
+                        This action cannot be undone.
+                    </p>
                 </div>
-                <div style="display: flex; gap: 12px; justify-content: flex-end;">
-                    <button type="button" class="btn-cancel" onclick="closeDeleteRewardModal()">Cancel</button>
-                    <form id="deleteRewardForm" action="" method="POST" style="margin: 0;">
-                        <button type="submit" class="btn-submit">Delete</button>
-                    </form>
-                </div>
+                <form id="deleteRewardForm" action="" method="POST" style="display: inline;">
+                    <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                        <button type="button" class="btn-cancel" onclick="closeDeleteRewardModal()"
+                            style="padding: 12px 20px !important; font-weight: 600; transition: all 0.2s ease; width: 120px !important; flex-shrink: 0; box-sizing: border-box !important;">Cancel</button>
+                        <button type="submit" class="btn-submit"
+                            style="padding: 12px 20px !important; font-weight: 700; background: linear-gradient(135deg, #ef4444, #dc2626) !important; transition: all 0.2s ease; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3); width: 120px !important; flex-shrink: 0; box-sizing: border-box !important;">Delete</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
+
+    <style>
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.7;
+                transform: scale(1.1);
+            }
+        }
+
+        @keyframes shimmer {
+            0% {
+                transform: translateX(-100%);
+            }
+
+            100% {
+                transform: translateX(100%);
+            }
+        }
+
+        #deleteRewardModal .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(239, 68, 68, 0.5);
+            background: linear-gradient(135deg, #fca5a5, #ef4444);
+        }
+
+        #deleteRewardModal .btn-cancel:hover {
+            transform: translateY(-1px);
+            background: #6b7280;
+        }
+
+        #deleteRewardModal .modal-close:hover {
+            transform: rotate(90deg);
+            color: #f87171;
+        }
+    </style>
 
     <script>
         // Section Tab Switching
@@ -387,23 +589,23 @@
 
         // Add Reward Modal
         function openAddRewardModal() {
-            document.getElementById('addRewardModal').classList.add('show');
+            document.getElementById('addRewardModal').classList.add('active');
         }
 
         function closeAddRewardModal() {
-            document.getElementById('addRewardModal').classList.remove('show');
+            document.getElementById('addRewardModal').classList.remove('active');
         }
 
-        // Edit Reward Modal
-        const editRewardButtons = document.querySelectorAll('.edit-reward-btn');
-        editRewardButtons.forEach(btn => {
-            btn.addEventListener('click', function () {
-                const rewardId = this.dataset.rewardId;
-                const name = this.dataset.name;
-                const description = this.dataset.description;
-                const points = this.dataset.points;
-                const quantity = this.dataset.quantity;
-                const active = this.dataset.active === '1' || this.dataset.active === 'True';
+        // Edit Reward Modal - Using Event Delegation
+        document.addEventListener('click', function (e) {
+            if (e.target.closest('.edit-reward-btn')) {
+                const btn = e.target.closest('.edit-reward-btn');
+                const rewardId = btn.dataset.rewardId;
+                const name = btn.dataset.name;
+                const description = btn.dataset.description;
+                const points = btn.dataset.points;
+                const quantity = btn.dataset.quantity;
+                const active = btn.dataset.active === '1' || btn.dataset.active === 'True';
 
                 document.getElementById('editRewardName').value = name;
                 document.getElementById('editRewardDescription').value = description;
@@ -412,37 +614,61 @@
                 document.getElementById('editRewardActive').checked = active;
 
                 document.getElementById('editRewardForm').action = `/admin/edit-reward/${rewardId}`;
-                document.getElementById('editRewardModal').classList.add('show');
-            });
+                document.getElementById('editRewardModal').classList.add('active');
+            }
         });
 
         function closeEditRewardModal() {
-            document.getElementById('editRewardModal').classList.remove('show');
+            document.getElementById('editRewardModal').classList.remove('active');
         }
 
-        // Delete Reward Modal
-        const deleteRewardButtons = document.querySelectorAll('.delete-reward-btn');
-        deleteRewardButtons.forEach(btn => {
-            btn.addEventListener('click', function () {
-                const rewardId = this.dataset.rewardId;
-                const rewardName = this.dataset.rewardName;
+        // Delete Reward Modal - Using Event Delegation
+        document.addEventListener('click', function (e) {
+            if (e.target.closest('.delete-reward-btn')) {
+                const btn = e.target.closest('.delete-reward-btn');
+                const rewardId = btn.dataset.rewardId;
+                const rewardName = btn.dataset.rewardName;
 
                 document.getElementById('deleteRewardName').textContent = rewardName;
                 document.getElementById('deleteRewardForm').action = `/admin/delete-reward/${rewardId}`;
-                document.getElementById('deleteRewardModal').classList.add('show');
-            });
+                document.getElementById('deleteRewardModal').classList.add('active');
+            }
         });
 
         function closeDeleteRewardModal() {
-            document.getElementById('deleteRewardModal').classList.remove('show');
+            document.getElementById('deleteRewardModal').classList.remove('active');
         }
 
         // Close Modals on Overlay Click
         document.querySelectorAll('.modal-overlay').forEach(overlay => {
             overlay.addEventListener('click', (e) => {
                 if (e.target === overlay) {
-                    overlay.classList.remove('show');
+                    overlay.classList.remove('active');
                 }
+            });
+        });
+
+        // Status Filter for Redeemed Rewards Tab
+        document.querySelectorAll('.status-filter-btn').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const filterStatus = this.dataset.status;
+
+                // Update active button style
+                document.querySelectorAll('.status-filter-btn').forEach(b => {
+                    b.classList.remove('active');
+                    b.style.background = '#4b5563';
+                });
+                this.classList.add('active');
+                this.style.background = '#3b82f6';
+
+                // Filter table rows
+                document.querySelectorAll('.redeemed-row').forEach(row => {
+                    if (filterStatus === 'all' || row.dataset.status === filterStatus) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
             });
         });
 

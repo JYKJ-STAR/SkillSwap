@@ -166,3 +166,110 @@
     </div>
 </div>
 {% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const verificationStatus = "{{ verification_status }}";
+
+        // Helper function to show verification required popup
+        const showVerificationPopup = () => {
+            Swal.fire({
+                title: 'Verification Required',
+                html: 'You must be verified to join events.<br><br>Please complete your verification in Settings.',
+                icon: 'warning',
+                confirmButtonColor: '#6200ea',
+                confirmButtonText: 'Go to Verification Settings',
+                showCancelButton: true,
+                cancelButtonText: 'Cancel',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Navigate to settings verification page
+                    window.location.href = "{{ url_for('settings.settings') }}#verification";
+                }
+            });
+        };
+
+        // Helper function for confirmation dialogs
+        const confirmAction = (form, title, text, confirmButtonText, confirmButtonColor = '#3085d6') => {
+            Swal.fire({
+                title: title,
+                text: text,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: confirmButtonColor,
+                cancelButtonColor: '#d33',
+                confirmButtonText: confirmButtonText,
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
+        };
+
+        // 1. Participant Signup
+        const participantBtn = document.querySelector('.btn-participant');
+        if (participantBtn) {
+            participantBtn.addEventListener('click', function (e) {
+                e.preventDefault();
+
+                // Check verification status first
+                if (verificationStatus !== 'verified') {
+                    showVerificationPopup();
+                    return;
+                }
+
+                const form = this.closest('form');
+                confirmAction(
+                    form,
+                    'Confirm Signup?',
+                    'You are signing up as a Participant.',
+                    'Yes, Count Me In!',
+                    '#4caf50' // Green
+                );
+            });
+        }
+
+        // 2. Mentor Signup
+        const mentorBtn = document.querySelector('.btn-mentor');
+        if (mentorBtn) {
+            mentorBtn.addEventListener('click', function (e) {
+                e.preventDefault();
+
+                // Check verification status first
+                if (verificationStatus !== 'verified') {
+                    showVerificationPopup();
+                    return;
+                }
+
+                const form = this.closest('form');
+                confirmAction(
+                    form,
+                    'Confirm Mentorship?',
+                    'Thank you for volunteering! You are signing up as a Mentor.',
+                    'Yes, I Will Mentor!',
+                    '#6200ea' // Purple
+                );
+            });
+        }
+
+        // 3. Withdraw
+        const withdrawBtn = document.querySelector('.btn-withdraw');
+        if (withdrawBtn) {
+            withdrawBtn.addEventListener('click', function (e) {
+                e.preventDefault();
+                const form = this.closest('form');
+                confirmAction(
+                    form,
+                    'Withdraw from Event?',
+                    'Are you sure you want to withdraw?',
+                    'Yes, Withdraw',
+                    '#d33' // Red
+                );
+            });
+        }
+    });
+</script>
+{% endblock %}

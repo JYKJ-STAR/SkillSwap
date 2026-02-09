@@ -25,6 +25,16 @@ def support():
             WHERE st.user_id = ?
             ORDER BY st.created_at DESC
         """, (user_id,)).fetchall()
+        
+        # Fetch events that the user has attended
+        attended_events = conn.execute("""
+            SELECT e.event_id, e.title, e.start_datetime
+            FROM event e
+            INNER JOIN event_booking eb ON e.event_id = eb.event_id
+            WHERE eb.user_id = ?
+            AND eb.status IN ('booked', 'completed')
+            ORDER BY e.start_datetime DESC
+        """, (user_id,)).fetchall()
     else:
         # Debug mode: fetch all tickets
         print("Warning: No user_id in session. Fetching all tickets for display.")
@@ -34,12 +44,47 @@ def support():
             LEFT JOIN user u ON st.user_id = u.user_id
             ORDER BY st.created_at DESC
         """).fetchall()
+        attended_events = []
+    
+    # Convert tickets to list of dicts and adjust timezone (UTC to UTC+8)
+    tickets_list = []
+    for ticket in tickets:
+        ticket_dict = dict(ticket)
+        # Convert created_at from UTC to UTC+8
+        if ticket_dict['created_at']:
+            try:
+                # Parse the datetime string
+                from datetime import datetime, timedelta
+                utc_time = datetime.strptime(ticket_dict['created_at'], '%Y-%m-%d %H:%M:%S')
+                # Add 8 hours for UTC+8
+                local_time = utc_time + timedelta(hours=8)
+                # Format back to string
+                ticket_dict['created_at'] = local_time.strftime('%Y-%m-%d %H:%M:%S')
+            except:
+                pass  # Keep original if conversion fails
+        tickets_list.append(ticket_dict)
+    
+    # Convert attended events to list of dicts and format dates
+    events_list = []
+    for event in attended_events:
+        event_dict = dict(event)
+        # Format the event date for display
+        if event_dict['start_datetime']:
+            try:
+                from datetime import datetime
+                event_date = datetime.strptime(event_dict['start_datetime'], '%Y-%m-%d %H:%M:%S')
+                event_dict['formatted_date'] = event_date.strftime('%d %b %Y')
+            except:
+                event_dict['formatted_date'] = 'Date unknown'
+        else:
+            event_dict['formatted_date'] = 'Date unknown'
+        events_list.append(event_dict)
     
     conn.close()
     
-    print(f"--- DEBUG: Loaded {len(tickets)} tickets for support page ---")
+    print(f"--- DEBUG: Loaded {len(tickets_list)} tickets and {len(events_list)} attended events for support page ---")
     
-    return render_template('youth/youth_support.html', tickets=tickets)
+    return render_template('youth/youth_support.html', tickets=tickets_list, attended_events=events_list)
 
 
 @support_bp.route('/submit-ticket', methods=['POST'])
@@ -293,7 +338,7 @@ def get_messages(session_id):
     
     conn = get_db_connection()
     
-    # Verify user owns this chat session
+    # Verify user owns this chat session and get admin_connected status
     chat = conn.execute(
         "SELECT * FROM live_chat_session WHERE session_id = ? AND user_id = ?",
         (session_id, user_id)
@@ -302,6 +347,9 @@ def get_messages(session_id):
     if not chat:
         conn.close()
         return jsonify({'error': 'Unauthorized'}), 403
+    
+    # Get admin_connected status
+    admin_connected = bool(chat['admin_connected']) if chat else False
     
     # Fetch messages
     messages = conn.execute(
@@ -315,7 +363,11 @@ def get_messages(session_id):
     
     conn.close()
     
-    return jsonify({'messages': [dict(m) for m in messages]})
+    return jsonify({
+        'messages': [dict(m) for m in messages],
+        'admin_connected': admin_connected,
+        'status': chat['status']  # Add chat status (active/closed)
+    })
 
 @support_bp.route('/get-active-chat')
 def get_active_chat():

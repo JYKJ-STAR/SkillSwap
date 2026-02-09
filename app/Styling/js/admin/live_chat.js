@@ -4,11 +4,12 @@
 
 let currentChatSessionId = null;
 let currentChatUserName = null;
+let currentChatStatus = null;
 let chatRefreshInterval = null;
 
 // Toggle view between Support Tickets and Live Chats
 function toggleView() {
-    window.location.href = '/admin/support-tickets';
+    window.location.href = window.location.origin + '/admin/support-tickets';
 }
 
 // Filter chats by status
@@ -50,11 +51,15 @@ async function openChatModal(sessionId) {
             return;
         }
 
-        // Update modal header
+        // Update modal header and store chat status
         document.getElementById('chatModalTitle').textContent = `Chat Session #${sessionId}`;
         document.getElementById('chatUserName').textContent = data.user_name;
         document.getElementById('chatSessionId').textContent = sessionId;
         currentChatUserName = data.user_name;
+        currentChatStatus = data.status;
+
+        // Update chat input state based on status
+        updateChatInputState();
 
         // Load messages
         await loadChatMessages(sessionId);
@@ -156,10 +161,6 @@ async function sendAdminMessage() {
 
 // Close chat session
 async function closeChat(sessionId) {
-    if (!confirm('Are you sure you want to close this chat session?')) {
-        return;
-    }
-
     try {
         const response = await fetch(`/admin/close-chat/${sessionId}`, {
             method: 'POST'
@@ -168,14 +169,88 @@ async function closeChat(sessionId) {
         const data = await response.json();
 
         if (data.status === 'closed') {
-            alert('Chat session closed successfully!');
-            location.reload();
+            currentChatStatus = 'closed';
+            updateChatInputState();
+            // Reload to update the table
+            setTimeout(() => location.reload(), 500);
         } else {
-            alert('Failed to close chat: ' + (data.error || 'Unknown error'));
+            console.error('Failed to close chat:', data.error || 'Unknown error');
         }
     } catch (error) {
         console.error('Error closing chat:', error);
-        alert('Failed to close chat. Please try again.');
+    }
+}
+
+// Reopen chat session
+async function reopenChat(sessionId) {
+    try {
+        const response = await fetch(`/admin/reopen-chat/${sessionId}`, {
+            method: 'POST'
+        });
+
+        const data = await response.json();
+
+        if (data.status === 'reopened') {
+            currentChatStatus = 'active';
+            updateChatInputState();
+            // Reload to update the table
+            setTimeout(() => location.reload(), 500);
+        } else {
+            console.error('Failed to reopen chat:', data.error || 'Unknown error');
+        }
+    } catch (error) {
+        console.error('Error reopening chat:', error);
+    }
+}
+
+// Update chat input state based on chat status
+function updateChatInputState() {
+    const input = document.getElementById('adminMessageInput');
+    const sendBtn = document.querySelector('.chat-input-section button');
+    const chatActions = document.getElementById('chatActions');
+
+    if (currentChatStatus === 'closed') {
+        // Disable input for closed chats
+        if (input) {
+            input.disabled = true;
+            input.placeholder = 'This chat is closed. Reopen to send messages.';
+            input.style.backgroundColor = '#2d3748';
+            input.style.cursor = 'not-allowed';
+        }
+        if (sendBtn) {
+            sendBtn.disabled = true;
+            sendBtn.style.opacity = '0.5';
+            sendBtn.style.cursor = 'not-allowed';
+        }
+        // Update action buttons
+        if (chatActions) {
+            chatActions.innerHTML = `
+                <button onclick="reopenChat(${currentChatSessionId})" class="btn btn-sm btn-outline-success">
+                    Reopen Chat
+                </button>
+            `;
+        }
+    } else {
+        // Enable input for active chats
+        if (input) {
+            input.disabled = false;
+            input.placeholder = 'Type your message...';
+            input.style.backgroundColor = '#374151';
+            input.style.cursor = 'text';
+        }
+        if (sendBtn) {
+            sendBtn.disabled = false;
+            sendBtn.style.opacity = '1';
+            sendBtn.style.cursor = 'pointer';
+        }
+        // Update action buttons
+        if (chatActions) {
+            chatActions.innerHTML = `
+                <button onclick="closeChat(${currentChatSessionId})" class="btn btn-sm btn-outline-danger">
+                    Close Chat
+                </button>
+            `;
+        }
     }
 }
 
@@ -184,6 +259,7 @@ function closeChatModal() {
     document.getElementById('chatModal').style.display = 'none';
     currentChatSessionId = null;
     currentChatUserName = null;
+    currentChatStatus = null;
 
     // Stop auto-refresh
     if (chatRefreshInterval) {
@@ -204,9 +280,12 @@ window.onclick = function (event) {
 function formatChatTime(timestamp) {
     if (!timestamp) return '';
 
+    // Parse the UTC timestamp and add 8 hours for UTC+8
     const date = new Date(timestamp);
+    const utcPlus8 = new Date(date.getTime() + (8 * 60 * 60 * 1000));
+
     const now = new Date();
-    const diffMs = now - date;
+    const diffMs = now - utcPlus8;
     const diffMins = Math.floor(diffMs / 60000);
     const diffHours = Math.floor(diffMs / 3600000);
     const diffDays = Math.floor(diffMs / 86400000);
@@ -216,7 +295,7 @@ function formatChatTime(timestamp) {
     if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
     if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
 
-    return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    return utcPlus8.toLocaleDateString() + ' ' + utcPlus8.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
 
 // Escape HTML to prevent XSS

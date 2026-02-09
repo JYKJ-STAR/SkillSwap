@@ -58,197 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Note: Ticket rendering is now handled server-side via Jinja2 templates
     // The submitReport() function in the HTML handles form submission to the database
 
-    // Live Chat Functionality
-    const chatInput = document.querySelector('.chat-input');
-    const sendBtn = document.querySelector('.send-btn');
-    const chatMessages = document.querySelector('.chat-messages');
-    const chatListView = document.getElementById('chat-list-view');
-    const chatConversationView = document.getElementById('chat-conversation-view');
-    const backToChatList = document.getElementById('back-to-chat-list');
-    const startNewChatBtn = document.getElementById('start-new-chat');
 
-    // Support admin names
-    const supportAdmins = ['Chan Yi Liang', 'Jayden Yip', 'Caius Chan', 'Dickson Lim'];
-
-    // Store conversation data for each chat
-    const chatConversations = {
-        1: {
-            agentName: 'Chan Yi Liang',
-            duration: 'Started today at 2:15 PM',
-            messages: [
-                { type: 'right', text: 'Hello, I require assistance with my account.' },
-                { type: 'left', text: 'Hi there! Welcome to SkillSwap Support. I\'m Chan Yi Liang. How can I help you today?' },
-                { type: 'right', text: 'I have a question about my reward points. They don\'t seem to be updating.' },
-                { type: 'left', text: 'I\'d be happy to help you with that. Can you tell me when you last earned points?' },
-                { type: 'right', text: 'I attended an event yesterday but my points are still showing the same.' },
-                { type: 'left', text: 'I\'ll look into the points issue for you right away.' }
-            ]
-        },
-        2: {
-            agentName: 'Jayden Yip',
-            duration: 'Conversation from yesterday',
-            messages: [
-                { type: 'right', text: 'Hi, I need help with event registration.' },
-                { type: 'left', text: 'Hello! I\'m Jayden Yip from SkillSwap Support. What seems to be the issue?' },
-                { type: 'right', text: 'I\'m trying to register for the Web Development Workshop but getting an error.' },
-                { type: 'left', text: 'I\'m sorry to hear that. What error message are you seeing?' },
-                { type: 'right', text: 'It says "Registration failed. Please try again later."' },
-                { type: 'left', text: 'Let me check the system for you. One moment please.' },
-                { type: 'left', text: 'I found the issue - there was a temporary glitch. I\'ve manually registered you for the event.' },
-                { type: 'right', text: 'Thank you so much! That was quick.' },
-                { type: 'left', text: 'Your event registration has been confirmed. See you there!' }
-            ]
-        },
-        3: {
-            agentName: 'Caius Chan',
-            duration: 'Conversation from Jan 15, 2025',
-            messages: [
-                { type: 'right', text: 'Hello, I need some help please.' },
-                { type: 'left', text: 'Hi! I\'m Caius Chan. Welcome to SkillSwap Support! How may I help you?' },
-                { type: 'right', text: 'I need to verify my account to access premium events.' },
-                { type: 'left', text: 'Sure, I can help with that. Could you please provide your student ID?' },
-                { type: 'right', text: 'My student ID is STU-2024-7823.' },
-                { type: 'left', text: 'Thank you. Let me verify that in our system.' },
-                { type: 'left', text: 'Your account has been verified successfully. You\'re all set!' }
-            ]
-        },
-        4: {
-            agentName: 'Dickson Lim',
-            duration: 'Started Jan 10, 2025',
-            messages: [
-                { type: 'right', text: 'Hi, I require assistance with a refund.' },
-                { type: 'left', text: 'Hello! I\'m Dickson Lim from SkillSwap Support. What can I do for you today?' },
-                { type: 'right', text: 'I accidentally registered for the wrong event and need a refund for my points.' },
-                { type: 'left', text: 'I understand. Which event did you register for by mistake?' },
-                { type: 'right', text: 'The Advanced Python Workshop. I meant to register for the Beginner one.' },
-                { type: 'left', text: 'We\'re still looking into your refund request. I\'ll update you shortly.' }
-            ]
-        }
-    };
-
-    let currentChatId = null;
-    let currentAgent = null;
-
-    // Chat List Item Click - Open Conversation
-    document.querySelectorAll('.chat-list-item').forEach(item => {
-        item.addEventListener('click', () => {
-            const chatId = item.getAttribute('data-chat');
-            currentChatId = chatId;
-            const chatData = chatConversations[chatId];
-
-            if (chatData) {
-                currentAgent = chatData.agentName;
-
-                // Update conversation header with agent name
-                document.querySelector('.chat-user-name').textContent = chatData.agentName;
-                document.querySelector('.chat-user-details .chat-duration').textContent = chatData.duration;
-
-                // Clear and load messages
-                chatMessages.innerHTML = '';
-                chatData.messages.forEach(msg => {
-                    const messageDiv = document.createElement('div');
-                    messageDiv.className = `message message-${msg.type}`;
-                    messageDiv.innerHTML = `<p>${msg.text}</p>`;
-                    chatMessages.appendChild(messageDiv);
-                });
-
-                // Scroll to bottom
-                chatMessages.scrollTop = chatMessages.scrollHeight;
-            }
-
-            // Switch to conversation view
-            chatListView.classList.remove('active');
-            chatConversationView.classList.add('active');
-        });
-    });
-
-    // Back to Chat List
-    backToChatList?.addEventListener('click', (e) => {
-        e.preventDefault();
-        chatConversationView.classList.remove('active');
-        chatListView.classList.add('active');
-        currentChatId = null;
-        currentAgent = null;
-    });
-
-    // Start New Chat
-    startNewChatBtn?.addEventListener('click', () => {
-        currentChatId = 'new';
-
-        // Randomly select an admin
-        currentAgent = supportAdmins[Math.floor(Math.random() * supportAdmins.length)];
-
-        // Clear previous messages
-        chatMessages.innerHTML = '';
-
-        // Update header for new chat with random admin
-        document.querySelector('.chat-user-name').textContent = currentAgent;
-        document.querySelector('.chat-user-details .chat-duration').textContent = 'New conversation';
-
-        // Add system message
-        const systemMessage = document.createElement('div');
-        systemMessage.className = 'system-message';
-        systemMessage.innerHTML = `<p>You are now connected with <strong>${currentAgent}</strong>. Type your message below to start the conversation.</p>`;
-        chatMessages.appendChild(systemMessage);
-
-        // Switch to conversation view
-        chatListView.classList.remove('active');
-        chatConversationView.classList.add('active');
-    });
-
-    function sendMessage() {
-        const messageText = chatInput.value.trim();
-        if (!messageText) return;
-
-        // Add user message
-        const userMessage = document.createElement('div');
-        userMessage.className = 'message message-right';
-        userMessage.innerHTML = `<p>${messageText}</p>`;
-        chatMessages.appendChild(userMessage);
-
-        // Clear input
-        chatInput.value = '';
-
-        // Scroll to bottom
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-
-        // Check for greeting/help messages and respond
-        const lowerMessage = messageText.toLowerCase();
-        if (lowerMessage.includes('hello') || lowerMessage.includes('help') || lowerMessage.includes('hi') || lowerMessage.includes('assistance')) {
-            // Show typing indicator
-            const typingIndicator = document.createElement('div');
-            typingIndicator.className = 'message message-left typing-indicator';
-            typingIndicator.innerHTML = `<p><span class="dot"></span><span class="dot"></span><span class="dot"></span></p>`;
-            chatMessages.appendChild(typingIndicator);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-
-            // Delay before bot response
-            setTimeout(() => {
-                // Remove typing indicator
-                typingIndicator.remove();
-
-                // Add bot response with agent name
-                const botMessage = document.createElement('div');
-                botMessage.className = 'message message-left';
-                botMessage.innerHTML = `<p>Hello! I'm ${currentAgent} from SkillSwap Support. How may I assist you today?</p>`;
-                chatMessages.appendChild(botMessage);
-
-                // Scroll to bottom
-                chatMessages.scrollTop = chatMessages.scrollHeight;
-            }, 1500); // 1.5 second delay
-        }
-    }
-
-    // Send on button click
-    sendBtn?.addEventListener('click', sendMessage);
-
-    // Send on Enter key
-    chatInput?.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            sendMessage();
-        }
-    });
 
 });
 
@@ -274,6 +84,7 @@ function showTicketDetails(ticketId, element) {
 
 let currentChatSessionId = null;
 let chatRefreshInterval = null;
+let previousAdminConnected = false;
 
 // Initialize live chat page when it becomes active
 document.addEventListener('DOMContentLoaded', () => {
@@ -378,6 +189,45 @@ async function loadMessages(sessionId) {
         const container = document.querySelector('.chat-messages');
         container.innerHTML = '';
 
+        // Check if admin is connected
+        const adminConnected = data.admin_connected;
+        const chatStatus = data.status;
+
+        // Show notification if admin just connected (status changed from false to true)
+        if (adminConnected && !previousAdminConnected) {
+            showAdminConnectedNotification();
+        }
+        previousAdminConnected = adminConnected;
+
+        // Check if chat is closed
+        if (chatStatus === 'closed') {
+            const closedMessage = document.createElement('div');
+            closedMessage.className = 'system-message closed-message';
+            closedMessage.innerHTML = `
+                <div style="text-align: center; padding: 20px; color: #dc2626;">
+                    <div style="font-size: 16px; margin-bottom: 8px; font-weight: 600;">🔒 This chat has been closed</div>
+                    <div style="font-size: 14px; opacity: 0.8;">You can no longer send messages in this conversation.</div>
+                </div>
+            `;
+            container.appendChild(closedMessage);
+            disableChatInput();
+        } else if (!adminConnected) {
+            // Show waiting message if admin not connected
+            const waitingMessage = document.createElement('div');
+            waitingMessage.className = 'system-message waiting-message';
+            waitingMessage.innerHTML = `
+                <div style="text-align: center; padding: 20px; color: #64748b;">
+                    <div style="font-size: 16px; margin-bottom: 8px;">⏳ Please hold while we connect you to one of our admins...</div>
+                    <div style="font-size: 14px; opacity: 0.8;">You'll be able to chat once an admin joins the conversation.</div>
+                </div>
+            `;
+            container.appendChild(waitingMessage);
+            disableChatInput();
+        } else {
+            enableChatInput();
+        }
+
+        // Display messages
         data.messages.forEach(msg => {
             const bubble = document.createElement('div');
             bubble.className = `message-bubble message-${msg.sender_type}`;
@@ -505,12 +355,45 @@ function showChatConversation() {
     document.getElementById('chat-conversation-view').classList.add('active');
 }
 
+function disableChatInput() {
+    const input = document.querySelector('.chat-input');
+    const sendBtn = document.querySelector('.send-btn');
+    if (input) {
+        input.disabled = true;
+        input.placeholder = 'Waiting for admin to connect...';
+        input.style.opacity = '0.6';
+    }
+    if (sendBtn) {
+        sendBtn.disabled = true;
+        sendBtn.style.opacity = '0.6';
+        sendBtn.style.cursor = 'not-allowed';
+    }
+}
+
+function enableChatInput() {
+    const input = document.querySelector('.chat-input');
+    const sendBtn = document.querySelector('.send-btn');
+    if (input) {
+        input.disabled = false;
+        input.placeholder = 'Type your message...';
+        input.style.opacity = '1';
+    }
+    if (sendBtn) {
+        sendBtn.disabled = false;
+        sendBtn.style.opacity = '1';
+        sendBtn.style.cursor = 'pointer';
+    }
+}
+
 function formatChatTime(timestamp) {
     if (!timestamp) return '';
 
+    // Parse the UTC timestamp and add 8 hours for UTC+8
     const date = new Date(timestamp);
+    const utcPlus8 = new Date(date.getTime() + (8 * 60 * 60 * 1000));
+
     const now = new Date();
-    const diffMs = now - date;
+    const diffMs = now - utcPlus8;
     const diffMins = Math.floor(diffMs / 60000);
     const diffHours = Math.floor(diffMs / 3600000);
     const diffDays = Math.floor(diffMs / 86400000);
@@ -520,11 +403,81 @@ function formatChatTime(timestamp) {
     if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
     if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
 
-    return date.toLocaleDateString();
+    return utcPlus8.toLocaleDateString();
 }
 
 function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
+}
+
+function showAdminConnectedNotification() {
+    // Create notification container
+    const notification = document.createElement('div');
+    notification.className = 'admin-connected-notification';
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #fff;
+        color: #1a1a1a;
+        padding: 20px 24px;
+        border-radius: 12px;
+        border: 1.5px solid #1a1a1a;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        z-index: 10000;
+        min-width: 300px;
+        animation: slideIn 0.3s ease-out;
+        font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    `;
+
+    notification.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="font-size: 24px;">✅</div>
+            <div>
+                <div style="font-weight: 600; font-size: 16px; margin-bottom: 4px; color: #1a1a1a;">Admin Connected!</div>
+                <div style="font-size: 14px; color: #666;">A support agent has joined the chat</div>
+            </div>
+        </div>
+    `;
+
+    // Add animation keyframes
+    if (!document.getElementById('notification-styles')) {
+        const style = document.createElement('style');
+        style.id = 'notification-styles';
+        style.textContent = `
+            @keyframes slideIn {
+                from {
+                    transform: translateX(400px);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+            @keyframes slideOut {
+                from {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+                to {
+                    transform: translateX(400px);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    document.body.appendChild(notification);
+
+    // Auto-remove after 4 seconds
+    setTimeout(() => {
+        notification.style.animation = 'slideOut 0.3s ease-out';
+        setTimeout(() => {
+            notification.remove();
+        }, 300);
+    }, 4000);
 }

@@ -18,10 +18,15 @@
     <!-- Sidebar -->
     <aside class="rewards-sidebar">
         <div class="profile-avatar">
+            {% if user and user.profile_photo %}
+            <img src="{{ url_for('static', filename='img/users/profiles/' + user.profile_photo) }}" alt="Profile"
+                style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+            {% else %}
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
                 <circle cx="12" cy="7" r="4" />
             </svg>
+            {% endif %}
         </div>
         <h2 class="profile-name">{{ user.name if user else 'User' }}</h2>
         <p class="profile-age">{{ user.age if user and user.age else '' }} Years Old</p>
@@ -68,8 +73,41 @@
             <button class="filter-tab completed">Completed</button>
         </div>
 
-        <!-- UPCOMING EVENTS -->
+        <!-- UPCOMING VIEW -->
         <div class="event-list" id="upcoming-view">
+
+            <!-- ONGOING EVENTS SECTION -->
+            {% if ongoing_events %}
+            <h3 style="color: var(--primary-teal); margin-bottom: 15px; font-weight:700;">Ongoing Events</h3>
+            {% for event in ongoing_events %}
+            <div class="event-card" style="border: 2px solid var(--primary-teal);">
+                <div class="event-thumbnail"></div>
+                <div class="event-details">
+                    <h3 class="event-title">{{ event.title }}
+                        <span
+                            style="font-size: 0.7em; background: var(--primary-teal); color: white; padding: 2px 6px; border-radius: 4px; margin-left: 8px;">HAPPENING
+                            NOW</span>
+                    </h3>
+                    <p class="event-meta">
+                        {{ event.display_date }} | {{ event.display_time }} | {{ event.location }}
+                    </p>
+                    <div class="event-actions">
+                        <span class="info-badge">{{ event.points }} Points</span>
+                        <span class="info-badge">{{ event.hours_earned or 2 }} Hours</span>
+                    </div>
+                </div>
+                <!-- <span class="status-badge upcoming">Happening Now</span> -->
+                <div class="event-icon-actions">
+                    <a href="{{ url_for('events.event_details', event_id=event.event_id) }}" class="icon-btn edit"
+                        title="View Event Details" style="text-decoration: none;">✏️</a>
+                </div>
+            </div>
+            {% endfor %}
+            <hr style="margin: 20px 0; border: 0; border-top: 1px solid #ddd;">
+            <h3 style="color: var(--text-dark); margin-bottom: 15px;">Upcoming Events</h3>
+            {% endif %}
+
+            <!-- UPCOMING EVENTS LIST -->
             {% if upcoming_events %}
             {% for event in upcoming_events %}
             <div class="event-card">
@@ -92,7 +130,9 @@
             </div>
             {% endfor %}
             {% else %}
+            {% if not ongoing_events %}
             <div class="text-muted text-center py-4">No upcoming events.</div>
+            {% endif %}
             {% endif %}
         </div>
 

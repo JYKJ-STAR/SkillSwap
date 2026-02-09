@@ -90,6 +90,18 @@ def migrate_database():
             conn.commit()
             print("✅ Database migration complete for challenge table (target_count)!")
         
+        # Add admin_connected column to live_chat_session if it doesn't exist
+        try:
+            cursor.execute("PRAGMA table_info(live_chat_session)")
+            columns = [column[1] for column in cursor.fetchall()]
+            if 'admin_connected' not in columns:
+                print("🔄 Adding admin_connected column to live_chat_session...")
+                cursor.execute("ALTER TABLE live_chat_session ADD COLUMN admin_connected INTEGER DEFAULT 0")
+                conn.commit()
+                print("✅ admin_connected column added!")
+        except Exception as admin_conn_error:
+            print(f"⚠️ Admin connection migration note: {admin_conn_error}")
+        
         # Create live chat tables if they don't exist
         try:
             cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='live_chat_session'")
@@ -100,6 +112,7 @@ def migrate_database():
                         session_id INTEGER PRIMARY KEY AUTOINCREMENT,
                         user_id INTEGER NOT NULL,
                         status TEXT DEFAULT 'active' CHECK (status IN ('active', 'closed')),
+                        admin_connected INTEGER DEFAULT 0,
                         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                         last_message_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                         FOREIGN KEY (user_id) REFERENCES user (user_id) ON DELETE CASCADE
@@ -149,6 +162,53 @@ def migrate_database():
                 print("✅ user_challenge table created!")
         except Exception as uc_error:
             print(f"⚠️ User challenge migration note: {uc_error}")
+        
+        # Add proof_description column to event_booking table
+        cursor.execute("PRAGMA table_info(event_booking)")
+        columns = [row[1] for row in cursor.fetchall()]
+        
+        if 'proof_description' not in columns:
+            print("🔄 Adding 'proof_description' column to event_booking table...")
+            cursor.execute("ALTER TABLE event_booking ADD COLUMN proof_description TEXT")
+            conn.commit()
+            print("✅ Database migration complete for event_booking table!")
+        
+        # Create challenge_completion table for challenge proof verification
+        try:
+            cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='challenge_completion'")
+            if not cursor.fetchone():
+                print("🔄 Creating challenge_completion table...")
+                cursor.execute("""
+                    CREATE TABLE IF NOT EXISTS challenge_completion (
+                        completion_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        user_id INTEGER NOT NULL,
+                        challenge_id INTEGER NOT NULL,
+                        proof_photo TEXT,
+                        submitted_at TEXT NOT NULL DEFAULT (datetime('now')),
+                        status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected')),
+                        verified_at TEXT,
+                        verified_by_admin_id INTEGER,
+                        rejection_reason TEXT,
+                        FOREIGN KEY (user_id) REFERENCES user(user_id) ON DELETE CASCADE,
+                        FOREIGN KEY (challenge_id) REFERENCES challenge(challenge_id) ON DELETE CASCADE,
+                        FOREIGN KEY (verified_by_admin_id) REFERENCES admin(admin_id) ON DELETE SET NULL,
+                        UNIQUE(user_id, challenge_id)
+                    )
+                """)
+                conn.commit()
+                print("✅ challenge_completion table created!")
+        except Exception as cc_error:
+            print(f"⚠️ Challenge completion migration note: {cc_error}")
+        
+        # Add expiry_date column to reward_redemption table
+        cursor.execute("PRAGMA table_info(reward_redemption)")
+        columns = [row[1] for row in cursor.fetchall()]
+        
+        if 'expiry_date' not in columns:
+            print("🔄 Adding 'expiry_date' column to reward_redemption table...")
+            cursor.execute("ALTER TABLE reward_redemption ADD COLUMN expiry_date TEXT")
+            conn.commit()
+            print("✅ Database migration complete for reward_redemption table!")
 
         conn.close()
     except Exception as e:
