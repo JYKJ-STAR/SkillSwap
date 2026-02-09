@@ -20,7 +20,7 @@
 
 <body>
     <!-- Sidebar -->
-    <div class="sidebar" style="display: flex; flex-direction: column;">
+    <div class="sidebar">
         <div class="logo">
             <i class="bi bi-shield-check"></i> SkillSwap Admin
         </div>
@@ -28,8 +28,7 @@
             {% if admin_photo %}
             <img src="{{ url_for('static', filename='img/admin/' + admin_photo) }}" class="sidebar-avatar" alt="Admin">
             {% else %}
-            <div class="sidebar-avatar"
-                style="display: flex; align-items: center; justify-content: center; font-size: 1.5em; color: #9ca3af;">
+            <div class="sidebar-avatar" class="logo-container">
                 <i class="bi bi-person-fill"></i>
             </div>
             {% endif %}
@@ -38,7 +37,7 @@
                 <div class="sidebar-user-email">{{ admin_email }}</div>
             </div>
         </div>
-        <nav style="flex: 1;">
+        <nav class="main-nav">
             <a href="{{ url_for('admin.admin_dashboard') }}" class="nav-item">
                 <i class="bi bi-speedometer2"></i> Dashboard
             </a>
@@ -134,10 +133,9 @@
         </div>
 
         <!-- Filter Section -->
-        <div
-            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: #1e2b3a; padding: 10px; border-radius: 8px;">
+        <div class="header-controls">
 
-            <div class="tab-group" style="display: flex; gap: 10px;">
+            <div class="tab-group">
                 <a href="{{ url_for('admin.admin_support_tickets', filter='all') }}"
                     class="custom-tab {{ 'active' if current_filter == 'all' else '' }}" data-filter="all">
                     All
@@ -219,8 +217,7 @@
                     </tr>
                     {% else %}
                     <tr>
-                        <td colspan="7" class="text-center py-4 text-muted"
-                            style="text-align: center; padding: 2rem; color: #9ca3af;">
+                        <td colspan="7" class="text-center py-4 text-muted" class="empty-state-cell">
                             No tickets found.</td>
                     </tr>
                     {% endfor %}
@@ -261,9 +258,9 @@
                             <div id="modalDescriptionContent" class="text-content"></div>
                         </div>
 
-                        <div class="info-group" id="screenshotGroup" style="display: none;">
+                        <div class="info-group screenshot-group" id="screenshotGroup">
                             <label>Screenshot:</label>
-                            <div style="margin-top: 8px;">
+                            <div class="screenshot-container">
                                 <img id="modalScreenshot" src="" alt="User submitted screenshot"
                                     style="max-width: 100%; max-height: 400px; border-radius: 8px; border: 2px solid #4b5563;">
                             </div>

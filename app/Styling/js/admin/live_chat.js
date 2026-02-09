@@ -4,6 +4,7 @@
 
 let currentChatSessionId = null;
 let currentChatUserName = null;
+let currentChatStatus = null;
 let chatRefreshInterval = null;
 
 // Toggle view between Support Tickets and Live Chats
@@ -50,11 +51,15 @@ async function openChatModal(sessionId) {
             return;
         }
 
-        // Update modal header
+        // Update modal header and store chat status
         document.getElementById('chatModalTitle').textContent = `Chat Session #${sessionId}`;
         document.getElementById('chatUserName').textContent = data.user_name;
         document.getElementById('chatSessionId').textContent = sessionId;
         currentChatUserName = data.user_name;
+        currentChatStatus = data.status;
+
+        // Update chat input state based on status
+        updateChatInputState();
 
         // Load messages
         await loadChatMessages(sessionId);
@@ -164,14 +169,88 @@ async function closeChat(sessionId) {
         const data = await response.json();
 
         if (data.status === 'closed') {
-            alert('Chat session closed successfully!');
-            location.reload();
+            currentChatStatus = 'closed';
+            updateChatInputState();
+            // Reload to update the table
+            setTimeout(() => location.reload(), 500);
         } else {
-            alert('Failed to close chat: ' + (data.error || 'Unknown error'));
+            console.error('Failed to close chat:', data.error || 'Unknown error');
         }
     } catch (error) {
         console.error('Error closing chat:', error);
-        alert('Failed to close chat. Please try again.');
+    }
+}
+
+// Reopen chat session
+async function reopenChat(sessionId) {
+    try {
+        const response = await fetch(`/admin/reopen-chat/${sessionId}`, {
+            method: 'POST'
+        });
+
+        const data = await response.json();
+
+        if (data.status === 'reopened') {
+            currentChatStatus = 'active';
+            updateChatInputState();
+            // Reload to update the table
+            setTimeout(() => location.reload(), 500);
+        } else {
+            console.error('Failed to reopen chat:', data.error || 'Unknown error');
+        }
+    } catch (error) {
+        console.error('Error reopening chat:', error);
+    }
+}
+
+// Update chat input state based on chat status
+function updateChatInputState() {
+    const input = document.getElementById('adminMessageInput');
+    const sendBtn = document.querySelector('.chat-input-section button');
+    const chatActions = document.getElementById('chatActions');
+
+    if (currentChatStatus === 'closed') {
+        // Disable input for closed chats
+        if (input) {
+            input.disabled = true;
+            input.placeholder = 'This chat is closed. Reopen to send messages.';
+            input.style.backgroundColor = '#2d3748';
+            input.style.cursor = 'not-allowed';
+        }
+        if (sendBtn) {
+            sendBtn.disabled = true;
+            sendBtn.style.opacity = '0.5';
+            sendBtn.style.cursor = 'not-allowed';
+        }
+        // Update action buttons
+        if (chatActions) {
+            chatActions.innerHTML = `
+                <button onclick="reopenChat(${currentChatSessionId})" class="btn btn-sm btn-outline-success">
+                    Reopen Chat
+                </button>
+            `;
+        }
+    } else {
+        // Enable input for active chats
+        if (input) {
+            input.disabled = false;
+            input.placeholder = 'Type your message...';
+            input.style.backgroundColor = '#374151';
+            input.style.cursor = 'text';
+        }
+        if (sendBtn) {
+            sendBtn.disabled = false;
+            sendBtn.style.opacity = '1';
+            sendBtn.style.cursor = 'pointer';
+        }
+        // Update action buttons
+        if (chatActions) {
+            chatActions.innerHTML = `
+                <button onclick="closeChat(${currentChatSessionId})" class="btn btn-sm btn-outline-danger">
+                    Close Chat
+                </button>
+            `;
+        }
     }
 }
 
@@ -180,6 +259,7 @@ function closeChatModal() {
     document.getElementById('chatModal').style.display = 'none';
     currentChatSessionId = null;
     currentChatUserName = null;
+    currentChatStatus = null;
 
     // Stop auto-refresh
     if (chatRefreshInterval) {

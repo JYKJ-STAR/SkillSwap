@@ -1801,6 +1801,20 @@ def send_chat_message():
     
     conn = get_db_connection()
     
+    # Check if chat is closed
+    chat = conn.execute(
+        "SELECT status FROM live_chat_session WHERE session_id = ?",
+        (session_id,)
+    ).fetchone()
+    
+    if not chat:
+        conn.close()
+        return jsonify({'error': 'Chat session not found'}), 404
+    
+    if chat['status'] == 'closed':
+        conn.close()
+        return jsonify({'error': 'Cannot send message to a closed chat'}), 400
+    
     # Insert admin message
     conn.execute(
         "INSERT INTO live_chat_message (session_id, sender_type, sender_id, message_text) VALUES (?, 'admin', ?, ?)",
@@ -1833,3 +1847,20 @@ def close_chat_session(session_id):
     conn.close()
     
     return jsonify({'status': 'closed'})
+
+@admin_bp.route('/reopen-chat/\u003cint:session_id\u003e', methods=['POST'])
+@admin_required
+def reopen_chat_session(session_id):
+    """Reopen a closed chat session"""
+    conn = get_db_connection()
+    
+    conn.execute(
+        "UPDATE live_chat_session SET status = 'active' WHERE session_id = ?",
+        (session_id,)
+    )
+    
+    conn.commit()
+    conn.close()
+    
+    return jsonify({'status': 'reopened'})
+

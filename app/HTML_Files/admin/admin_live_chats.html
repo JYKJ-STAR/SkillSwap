@@ -20,7 +20,7 @@
 
 <body>
     <!-- Sidebar -->
-    <div class="sidebar" style="display: flex; flex-direction: column;">
+    <div class="sidebar">
         <div class="logo">
             <i class="bi bi-shield-check"></i> SkillSwap Admin
         </div>
@@ -28,8 +28,7 @@
             {% if admin_photo %}
             <img src="{{ url_for('static', filename='img/admin/' + admin_photo) }}" class="sidebar-avatar" alt="Admin">
             {% else %}
-            <div class="sidebar-avatar"
-                style="display: flex; align-items: center; justify-content: center; font-size: 1.5em; color: #9ca3af;">
+            <div class="sidebar-avatar" class="logo-container">
                 <i class="bi bi-person-fill"></i>
             </div>
             {% endif %}
@@ -38,7 +37,7 @@
                 <div class="sidebar-user-email">{{ admin_email }}</div>
             </div>
         </div>
-        <nav style="flex: 1;">
+        <nav class="main-nav">
             <a href="{{ url_for('admin.admin_dashboard') }}" class="nav-item">
                 <i class="bi bi-speedometer2"></i> Dashboard
             </a>
@@ -134,10 +133,9 @@
         </div>
 
         <!-- Filter Section -->
-        <div
-            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: #1e2b3a; padding: 10px; border-radius: 8px;">
+        <div class="header-controls">
 
-            <div class="tab-group" style="display: flex; gap: 10px;">
+            <div class="tab-group">
                 <a href="javascript:void(0)" class="custom-tab active" onclick="filterChats('all')"
                     data-filter="all">All Chats</a>
                 <a href="javascript:void(0)" class="custom-tab" onclick="filterChats('active')"
@@ -168,7 +166,8 @@
                 <tbody id="chats-table-body">
                     {% if chats %}
                     {% for chat in chats %}
-                    <tr class="chat-row" data-status="{{ chat.status }}">
+                    <tr class="chat-row" data-status="{{ chat.status }}" onclick="openChatModal({{ chat.session_id }})"
+                        class="clickable-row">
                         <td>#{{ chat.session_id }}</td>
                         <td>{{ chat.user_name }}</td>
                         <td class="last-message">
@@ -185,21 +184,16 @@
                                 {{ chat.status|capitalize }}
                             </span>
                         </td>
-                        <td>
+                        <td onclick="event.stopPropagation();">
                             <button class="btn btn-sm btn-outline-info" onclick="openChatModal({{ chat.session_id }})">
-                                Join Chat
+                                View Chat
                             </button>
-                            {% if chat.status == 'active' %}
-                            <button class="btn btn-sm btn-outline-danger" onclick="closeChat({{ chat.session_id }})">
-                                Close
-                            </button>
-                            {% endif %}
                         </td>
                     </tr>
                     {% endfor %}
                     {% else %}
                     <tr>
-                        <td colspan="7" style="text-align: center; padding: 2rem; color: #9ca3af;">
+                        <td colspan="7" class="empty-state-cell">
                             No chat sessions found.
                         </td>
                     </tr>
@@ -210,18 +204,15 @@
     </div>
 
     <!-- Chat Modal -->
-    <div id="chatModal" class="modal" style="display: none;">
-        <div class="modal-content" style="max-width: 800px; background-color: #1f2937; border: 1px solid #374151;">
-            <div class="modal-header"
-                style="background-color: #111827; border-bottom: 1px solid #374151; padding: 1.5rem;">
-                <h2 id="chatModalTitle" style="color: white; margin: 0;">Chat Session</h2>
-                <span class="close" onclick="closeChatModal()"
-                    style="color: #9ca3af; font-size: 28px; font-weight: bold; cursor: pointer;">&times;</span>
+    <div id="chatModal" class="modal">
+        <div class="modal-content chat-modal">
+            <div class="modal-header" class="modal-header chat-header">
+                <h2 id="chatModalTitle">Chat Session</h2>
+                <span class="close" onclick="closeChatModal()" class="close-btn">&times;</span>
             </div>
-            <div class="modal-body" style="padding: 1.5rem;">
-                <div class="chat-info"
-                    style="margin-bottom: 1rem; padding: 1rem; background: #374151; border-radius: 8px;">
-                    <div style="display: flex; justify-content: space-between; color: white;">
+            <div class="modal-body chat-body">
+                <div class="chat-info" class="chat-info-box">
+                    <div class="chat-info-row">
                         <div>
                             <strong>User:</strong> <span id="chatUserName"></span>
                         </div>
@@ -231,16 +222,17 @@
                     </div>
                 </div>
 
-                <div class="chat-messages-container"
-                    style="max-height: 400px; overflow-y: auto; padding: 1rem; background: #111827; border: 1px solid #374151; border-radius: 8px; margin-bottom: 1rem;">
+                <div class="chat-messages-container" class="chat-messages-container">
                     <div id="chatMessagesContent"></div>
                 </div>
 
                 <div class="chat-input-section">
+                    <div id="chatActions" class="chat-actions-container">
+                        <!-- Dynamic action buttons will be inserted here by JavaScript -->
+                    </div>
                     <textarea id="adminMessageInput" placeholder="Type your message..."
-                        style="width: 100%; padding: 0.75rem; border: 1px solid #374151; background-color: #374151; color: white; border-radius: 8px; resize: vertical; min-height: 80px; font-family: inherit;"></textarea>
-                    <button onclick="sendAdminMessage()" class="btn-primary"
-                        style="margin-top: 0.5rem; width: 100%; background-color: #3b82f6; color: white; padding: 0.75rem; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                        class="admin-message-textarea"></textarea>
+                    <button onclick="sendAdminMessage()" class="btn-primary" class="send-message-btn">
                         <i class="bi bi-send"></i> Send Message
                     </button>
                 </div>
