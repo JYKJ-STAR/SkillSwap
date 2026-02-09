@@ -165,12 +165,15 @@
                     <div class="select-wrapper">
                         <select class="form-select" id="event-name">
                             <option value="" disabled selected>Select an event</option>
+                            <!-- DEBUG: attended_events count = {{ attended_events|length if attended_events else 0 }} -->
                             {% if attended_events %}
                             {% for event in attended_events %}
                             <option value="{{ event.title }} ({{ event.formatted_date }})">
                                 {{ event.title }} - {{ event.formatted_date }}
                             </option>
                             {% endfor %}
+                            {% else %}
+                            <!-- DEBUG: No attended_events available -->
                             {% endif %}
                             <option value="Other / Not Event Related">Other / Not Event Related</option>
                         </select>
@@ -194,7 +197,8 @@
                             onchange="handleScreenshotUpload(event)">
                     </div>
                     <div id="screenshot-preview">
-                        <img id="preview-image" src="" alt="Screenshot preview">
+                        <img id="preview-image" src="" alt="Screenshot preview" onclick="openImageLightbox()"
+                            style="cursor: pointer;">
                         <button type="button" class="delete-screenshot-btn" onclick="deleteScreenshot()">×</button>
                     </div>
                 </div>
@@ -224,7 +228,7 @@
                     const reader = new FileReader();
                     reader.onload = function (e) {
                         document.getElementById('preview-image').src = e.target.result;
-                        document.getElementById('screenshot-preview').style.display = 'block';
+                        document.getElementById('screenshot-preview').classList.add('show');
                     };
                     reader.readAsDataURL(file);
                 }
@@ -234,8 +238,99 @@
             function deleteScreenshot() {
                 selectedScreenshot = null;
                 document.getElementById('screenshot-upload').value = '';
-                document.getElementById('screenshot-preview').style.display = 'none';
+                document.getElementById('screenshot-preview').classList.remove('show');
                 document.getElementById('preview-image').src = '';
+            }
+
+            // Open image lightbox
+            function openImageLightbox() {
+                const previewImg = document.getElementById('preview-image');
+                const lightbox = document.getElementById('image-lightbox');
+                const lightboxImg = document.getElementById('lightbox-img');
+
+                if (previewImg.src) {
+                    lightboxImg.src = previewImg.src;
+                    lightbox.style.display = 'flex';
+                    document.body.style.overflow = 'hidden'; // Prevent background scrolling
+                }
+            }
+
+            // Close image lightbox
+            function closeImageLightbox() {
+                const lightbox = document.getElementById('image-lightbox');
+                lightbox.style.display = 'none';
+                document.body.style.overflow = 'auto'; // Restore scrolling
+            }
+
+            // Open ticket screenshot in lightbox
+            function openTicketImageLightbox(imageSrc) {
+                const lightbox = document.getElementById('image-lightbox');
+                const lightboxImg = document.getElementById('lightbox-img');
+
+                if (imageSrc) {
+                    lightboxImg.src = imageSrc;
+                    lightbox.style.display = 'flex';
+                    document.body.style.overflow = 'hidden';
+                }
+            }
+
+            // Toggle ticket details in grid card
+            // Open ticket modal with details
+            function openTicketModal(card) {
+                // Get data from data attributes
+                const ticketId = card.getAttribute('data-id');
+                const subject = card.getAttribute('data-subject');
+                const eventName = card.getAttribute('data-event');
+                const personInvolved = card.getAttribute('data-user');
+                const description = card.getAttribute('data-description');
+                const screenshotPath = card.getAttribute('data-screenshot');
+                const reply = card.getAttribute('data-reply');
+                const status = card.getAttribute('data-status');
+                const createdAt = card.getAttribute('data-created');
+
+                // Populate modal content
+                document.getElementById('modal-ticket-id').textContent = 'ID: #' + ticketId;
+                document.getElementById('modal-issue-type').textContent = subject || 'N/A';
+                document.getElementById('modal-event').textContent = eventName || 'N/A';
+                document.getElementById('modal-person').textContent = personInvolved || 'You';
+                document.getElementById('modal-description').textContent = description || 'No description provided';
+
+                // Handle screenshot
+                const screenshotSection = document.getElementById('modal-screenshot-section');
+                if (screenshotPath && screenshotPath !== 'None') {
+                    document.getElementById('modal-screenshot').src = screenshotPath;
+                    screenshotSection.style.display = 'block';
+                } else {
+                    screenshotSection.style.display = 'none';
+                }
+
+                // Handle reply/status
+                const replySection = document.getElementById('modal-reply-section');
+                const resolvedSection = document.getElementById('modal-resolved-section');
+                const pendingSection = document.getElementById('modal-pending-section');
+
+                replySection.style.display = 'none';
+                resolvedSection.style.display = 'none';
+                pendingSection.style.display = 'none';
+
+                if (reply && reply !== 'None') {
+                    document.getElementById('modal-reply').textContent = reply;
+                    replySection.style.display = 'block';
+                } else if (status === 'resolved') {
+                    resolvedSection.style.display = 'block';
+                } else {
+                    pendingSection.style.display = 'block';
+                }
+
+                // Show modal
+                document.getElementById('ticket-modal').style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+            }
+
+            // Close ticket modal
+            function closeTicketModal() {
+                document.getElementById('ticket-modal').style.display = 'none';
+                document.body.style.overflow = 'auto';
             }
 
             // Show ticket submitted notification
@@ -390,110 +485,101 @@ ${descriptionText}`);
 
         <!-- My Tickets Page -->
         <div id="my-tickets-page" class="page">
-            <div class="tickets-layout">
+            <h2 class="content-title">My Tickets</h2>
+            <p class="page-subtitle">View all tickets submitted here</p>
+            <div class="divider"></div>
 
-                <div class="tickets-list-section">
-                    <h2 class="content-title">My Tickets</h2>
-                    <p class="page-subtitle">View all tickets submitted here</p>
-                    <div class="divider"></div>
-
-                    <div class="tickets-list" id="tickets-list">
-                        {% for ticket in tickets %}
-                        <div class="ticket-card {% if loop.first %}active{% endif %}"
-                            onclick="showTicketDetails('{{ ticket.ticket_id }}', this)">
-
-                            <div class="ticket-title">{{ ticket.subject }}</div>
-
-                            <p class="ticket-description">
-                                {{ ticket.description[:80] }}...
-                            </p>
-
-                            <div class="ticket-meta">
-                                <span class="ticket-id">ID: #{{ ticket.ticket_id }}</span>
-                                <span class="ticket-date">Submitted: {{ ticket.created_at }}</span>
-
-                                {% if ticket.status == 'resolved' %}
-                                <span class="ticket-status status-resolved">Resolved</span>
-                                {% else %}
-                                <span class="ticket-status status-progress">In Progress</span>
-                                {% endif %}
-                            </div>
+            <div class="tickets-grid">
+                {% for ticket in tickets %}
+                <div class="ticket-grid-card" data-id="{{ ticket.ticket_id }}" data-subject="{{ ticket.subject }}"
+                    data-event="{{ ticket.event_name if ticket.event_name else '' }}"
+                    data-user="{{ ticket.user_name if ticket.user_name else '' }}"
+                    data-description="{{ ticket.description }}"
+                    data-screenshot="{{ ticket.screenshot_path if ticket.screenshot_path else '' }}"
+                    data-reply="{{ ticket.reply if ticket.reply else '' }}" data-status="{{ ticket.status }}"
+                    data-created="{{ ticket.created_at }}" onclick="openTicketModal(this)">
+                    <div class="ticket-card-header">
+                        <div class="ticket-title">{{ ticket.subject }}</div>
+                        <div class="ticket-meta">
+                            <span class="ticket-id">ID: #{{ ticket.ticket_id }}</span>
+                            <span class="ticket-date">{{ ticket.created_at }}</span>
+                            {% if ticket.status == 'resolved' %}
+                            <span class="ticket-status status-resolved">Resolved</span>
+                            {% else %}
+                            <span class="ticket-status status-progress">In Progress</span>
+                            {% endif %}
                         </div>
-                        {% else %}
-                        <div class="empty-tickets">
-                            <p>No tickets found. Submit a report in the Safety Center to create a ticket.</p>
-                        </div>
-                        {% endfor %}
+                    </div>
+                </div>
+                {% else %}
+                <div class="empty-tickets">
+                    <p>No tickets found. Submit a report in the Safety Center to create a ticket.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Ticket Details Modal -->
+        <div id="ticket-modal" class="ticket-modal" onclick="closeTicketModal()">
+            <div class="ticket-modal-content" onclick="event.stopPropagation()">
+                <span class="ticket-modal-close" onclick="closeTicketModal()">&times;</span>
+                <h3 class="detail-id" id="modal-ticket-id"></h3>
+
+                <div class="detail-section">
+                    <div class="detail-label">ISSUE TYPE</div>
+                    <div class="detail-value" id="modal-issue-type"></div>
+                </div>
+
+                <div class="detail-section">
+                    <div class="detail-label">EVENT</div>
+                    <div class="detail-value" id="modal-event"></div>
+                </div>
+
+                <div class="detail-section">
+                    <div class="detail-label">PERSON INVOLVED</div>
+                    <div class="detail-value" id="modal-person"></div>
+                </div>
+
+                <div class="detail-section">
+                    <div class="detail-label">DESCRIPTION</div>
+                    <div class="detail-box" id="modal-description"></div>
+                </div>
+
+                <div class="detail-section" id="modal-screenshot-section" style="display: none;">
+                    <div class="detail-label">SCREENSHOT</div>
+                    <div class="detail-box screenshot-box">
+                        <img id="modal-screenshot" src="" alt="Ticket screenshot"
+                            onclick="event.stopPropagation(); openTicketImageLightbox(this.src)"
+                            style="cursor: pointer; max-width: 150px; max-height: 200px; object-fit: contain;">
                     </div>
                 </div>
 
-                <div class="ticket-detail-panel" id="ticket-detail-panel">
+                <div id="modal-reply-section" style="display: none;">
+                    <div class="agent-reply-title">Agent Reply</div>
+                    <div class="detail-box agent-reply" id="modal-reply"></div>
+                </div>
 
-                    {% for ticket in tickets %}
-                    <div id="detail-{{ ticket.ticket_id }}" class="ticket-full-detail" {% if loop.first
-                        %}style="display: block;" {% else %}style="display: none;" {% endif %}>
-
-                        <h3 class="detail-id">ID: #{{ ticket.ticket_id }}</h3>
-
-                        <div class="detail-section">
-                            <div class="detail-label">ISSUE TYPE</div>
-                            <div class="detail-value">{{ ticket.subject }}</div>
-                        </div>
-
-                        <div class="detail-section">
-                            <div class="detail-label">PERSON INVOLVED</div>
-                            <div class="detail-value">{{ ticket.user_name if ticket.user_name else 'You' }}</div>
-                        </div>
-
-                        <div class="detail-section">
-                            <div class="detail-label">DESCRIPTION</div>
-                            <div class="detail-box">
-                                <p>{{ ticket.description }}</p>
-                            </div>
-                        </div>
-
-                        {% if ticket.screenshot_path %}
-                        <div class="detail-section">
-                            <div class="detail-label">SCREENSHOT</div>
-                            <div class="detail-box screenshot-box">
-                                <img src="{{ ticket.screenshot_path }}" alt="Ticket screenshot">
-                            </div>
-                        </div>
-                        {% endif %}
-
-                        {% if ticket.reply %}
-                        <div class="agent-reply-title">Agent Reply</div>
-                        <div class="detail-box agent-reply">
-                            <p>{{ ticket.reply }}</p>
-                        </div>
-                        {% elif ticket.status == 'resolved' %}
-                        <div class="form-success">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M5 13l4 4L19 7" />
-                            </svg>
-                            <p>This ticket has been marked as resolved.</p>
-                        </div>
-                        {% else %}
-                        <div class="pending-notice">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            <p>Your report is being reviewed.<br>An agent will respond shortly.</p>
-                        </div>
-                        {% endif %}
+                <div id="modal-resolved-section" style="display: none;">
+                    <div class="form-success">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        <p>This ticket has been marked as resolved.</p>
                     </div>
-                    {% else %}
-                    <div id="ticket-detail-content">
-                        <p class="select-ticket-msg">No tickets selected.</p>
+                </div>
+
+                <div id="modal-pending-section" style="display: none;">
+                    <div class="pending-notice">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <p>Waiting for agent response...</p>
                     </div>
-                    {% endfor %}
                 </div>
             </div>
         </div>
+
 
         <!-- Live Chats Page -->
         <div id="live-chats-page" class="page">
@@ -656,6 +742,13 @@ ${descriptionText}`);
             </div>
         </div>
     </main>
+</div>
+
+
+<!-- Image Lightbox Modal -->
+<div id="image-lightbox" class="image-lightbox" onclick="closeImageLightbox()">
+    <span class="lightbox-close">&times;</span>
+    <img class="lightbox-content" id="lightbox-img">
 </div>
 
 <script src="{{ url_for('static', filename='js/youth/support.js') }}"></script>

@@ -463,6 +463,7 @@
          height: 100%;
          opacity: 0;
          cursor: pointer;
+         font-size: 0;
      }
 
      .submit-btn {
@@ -1182,5 +1183,249 @@
      .chat-messages {
          display: flex;
          flex-direction: column;
-     } 
- 
+     }
+
+     /* Fix for elements that should be hidden by default */
+     #screenshot-preview {
+         display: none !important;
+     }
+
+     #form-success {
+         display: none !important;
+     }
+
+     #screenshot-preview.show {
+         display: block !important;
+     }
+
+     #form-success.show {
+         display: flex !important;
+     }
+
+
+     /* Override to hide elements by default */
+     #screenshot-preview {
+         display: none !important;
+     }
+
+     #form-success {
+         display: none !important;
+     }
+
+     /* Screenshot Preview Styling */
+     #preview-image {
+         max-width: 150px;
+         max-height: 200px;
+         border-radius: 8px;
+         border: 2px solid #e0e0e0;
+         object-fit: contain;
+     }
+
+     .delete-screenshot-btn {
+         position: absolute;
+         top: -8px;
+         right: -8px;
+         background: #dc2626;
+         color: white;
+         border: 2px solid white;
+         border-radius: 50%;
+         width: 28px;
+         height: 28px;
+         cursor: pointer;
+         font-size: 16px;
+         line-height: 1;
+         display: flex;
+         align-items: center;
+         justify-content: center;
+         box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+         transition: all 0.2s ease;
+     }
+
+     .delete-screenshot-btn:hover {
+         background: #b91c1c;
+         transform: scale(1.1);
+     }
+
+     #screenshot-preview {
+         margin-top: 10px;
+         position: relative;
+         display: inline-block;
+     }
+/* Image Lightbox Modal */
+.image-lightbox {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.9);
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+
+.lightbox-content {
+    max-width: 90%;
+    max-height: 90%;
+    object-fit: contain;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+.lightbox-close {
+    position: absolute;
+    top: 20px;
+    right: 35px;
+    color: #fff;
+    font-size: 40px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.lightbox-close:hover {
+    color: #bbb;
+}
+
+/* Hide ticket details by default - show only when clicked */
+.ticket-full-detail {
+    display: none !important;
+}
+
+.ticket-full-detail[style*="display: block"] {
+    display: block !important;
+}
+
+/* Ensure detail sections display as blocks */
+.detail-section {
+    display: block !important;
+    clear: both;
+}
+
+.detail-label,
+.detail-value {
+    display: block !important;
+}
+
+/* Tickets Grid Layout */
+.tickets-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.ticket-grid-card {
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    padding: 1.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.ticket-grid-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
+
+.ticket-grid-card.expanded {
+    border-color: #4CAF50;
+}
+
+.ticket-card-header {
+    position: relative;
+}
+
+.ticket-card-header .ticket-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin-bottom: 0.75rem;
+}
+
+.ticket-card-header .ticket-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    color: #666;
+}
+
+.expand-icon {
+    position: absolute;
+    top: 0;
+    right: 0;
+    font-size: 1.2rem;
+    color: #4CAF50;
+    transition: transform 0.3s ease;
+}
+
+.ticket-card-details {
+    display: none;
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e0e0e0;
+}
+
+/* Responsive grid */
+@media (max-width: 1200px) {
+    .tickets-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .tickets-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Ticket Modal Popup */
+.ticket-modal {
+    display: none;
+    position: fixed;
+    z-index: 10000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    justify-content: center;
+    align-items: center;
+    overflow-y: auto;
+}
+
+.ticket-modal-content {
+    background: white;
+    border-radius: 16px;
+    padding: 2rem;
+    max-width: 600px;
+    width: 90%;
+    max-height: 85vh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+.ticket-modal-close {
+    position: absolute;
+    top: 1rem;
+    right: 1.5rem;
+    font-size: 2rem;
+    font-weight: bold;
+    color: #666;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.ticket-modal-close:hover {
+    color: #1a1a1a;
+}
+
+/* Update grid card to remove expanded state */
+.ticket-grid-card.expanded {
+    border-color: #e0e0e0;
+}

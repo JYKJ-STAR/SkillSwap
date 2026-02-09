@@ -33,7 +33,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+
     // --- 3. Upload Area File Name Display ---
+    // Commented out to keep label as "Upload Screenshot (Optional)" instead of showing filename
+    /*
     const uploadInput = document.querySelector('.upload-input');
     if (uploadInput) {
         uploadInput.addEventListener('change', function () {
@@ -44,6 +47,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+    */
+
 
     // --- 4. Form Select Placeholder Styling ---
     document.querySelectorAll('.form-select').forEach(select => {

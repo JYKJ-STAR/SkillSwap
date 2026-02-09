@@ -179,10 +179,16 @@ def submit_ticket():
         except:
             pass  # Column already exists
 
+        # Add event_name column if it doesn't exist
+        try:
+            conn.execute("ALTER TABLE support_ticket ADD COLUMN event_name TEXT")
+        except:
+            pass  # Column already exists
+
         # 3. INSERT the ticket into the database
         conn.execute(
-            "INSERT INTO support_ticket (user_id, subject, description, status, screenshot_path) VALUES (?, ?, ?, 'open', ?)",
-            (user_id, issue_type, full_description, screenshot_path)
+            "INSERT INTO support_ticket (user_id, subject, description, status, screenshot_path, event_name) VALUES (?, ?, ?, 'open', ?, ?)",
+            (user_id, issue_type, full_description, screenshot_path, event_name)
         )
         conn.commit()
         print("--> SUCCESS: Saved to SQLite Database 'support_ticket' table.")
