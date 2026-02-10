@@ -274,7 +274,7 @@ body {
 .navbar {
     padding: 1rem 0;
     background: white;
-    box-shadow: var(--shadow-sm);
+    /* box-shadow removed for cleaner look */
 }
 
 .navbar-brand {

@@ -10,9 +10,34 @@
 <!-- Hero Section -->
 <section class="hero-section" id="home">
     <div class="container">
-        <h1>Welcome to SkillSwap</h1>
-        <p>Connect across generations, share knowledge, and build meaningful relationships through skill exchange
-            and collaborative learning experiences.</p>
+        <div class="hero-badge">
+            <i class="bi bi-stars"></i> Connecting Generations Through Learning
+        </div>
+        <h1>Welcome to <span class="highlight">SkillSwap</span></h1>
+        <p class="hero-subtitle">Connect across generations, share knowledge, and build meaningful relationships
+            through skill exchange and collaborative learning experiences.</p>
+        <div class="hero-cta">
+            <a href="{{ url_for('home.signup_page') }}" class="btn-primary-hero">
+                Get Started <i class="bi bi-arrow-right"></i>
+            </a>
+            <a href="{{ url_for('home.login_page') }}" class="btn-outline-hero">
+                <i class="bi bi-play-circle"></i> Learn More
+            </a>
+        </div>
+        <div class="hero-stats">
+            <div class="hero-stat">
+                <span class="stat-number">500+</span>
+                <span class="stat-label">Active Members</span>
+            </div>
+            <div class="hero-stat">
+                <span class="stat-number">120+</span>
+                <span class="stat-label">Skills Shared</span>
+            </div>
+            <div class="hero-stat">
+                <span class="stat-number">50+</span>
+                <span class="stat-label">Events Hosted</span>
+            </div>
+        </div>
     </div>
 </section>
 
@@ -21,10 +46,11 @@
     <div class="container">
         <div class="row align-items-center">
             <div class="col-lg-6">
-                <h2 class="section-title">Our Mission</h2>
-                <p class="text-muted">At SkillShare, we believe in the power of intergenerational learning. Our
+                <span class="section-label">Our Mission</span>
+                <h2 class="section-title">Empowering Intergenerational Learning</h2>
+                <p class="text-muted">At SkillSwap, we believe in the power of intergenerational learning. Our
                     platform connects people of all ages to share their unique skills, experiences, and
-                    perspectives. Whether you're a retiree looking to mentor or a student eager to learn, SkillShare
+                    perspectives. Whether you're a retiree looking to mentor or a student eager to learn, SkillSwap
                     provides the space where knowledge flows freely and relationships flourish.</p>
                 <p class="text-muted">We're building a community where wisdom meets innovation, where traditional
                     skills are preserved, and where everyone has something valuable to teach and learn.</p>
@@ -33,13 +59,15 @@
                 <div class="row">
                     <div class="col-6 mb-3">
                         <div class="mission-image" style="padding: 0; overflow: hidden;">
-                            <img src="{{ url_for('static', filename='img/guest/Mission 1.png') }}" alt="Mission Image 1"
+                            <img src="{{ url_for('static', filename='img/guest/Mission 1.png') }}"
+                                alt="Youth and Senior learning together"
                                 style="width: 100%; height: 100%; object-fit: cover;">
                         </div>
                     </div>
                     <div class="col-6 mb-3">
                         <div class="mission-image" style="padding: 0; overflow: hidden;">
-                            <img src="{{ url_for('static', filename='img/guest/Mission 2.png') }}" alt="Mission Image 2"
+                            <img src="{{ url_for('static', filename='img/guest/Mission 2.png') }}"
+                                alt="Intergenerational cooking together"
                                 style="width: 100%; height: 100%; object-fit: cover;">
                         </div>
                     </div>
@@ -53,7 +81,8 @@
 <section class="team-section">
     <div class="container">
         <div class="text-center mb-5">
-            <h2 class="section-title">Meet Our Team</h2>
+            <span class="section-label">Our Team</span>
+            <h2 class="section-title">Meet the People Behind SkillSwap</h2>
             <p class="section-subtitle">Dedicated individuals working together to bridge generations through
                 learning</p>
         </div>
@@ -61,7 +90,7 @@
             <div class="col-lg-3 col-md-6 mb-4">
                 <div class="team-card">
                     <div class="team-avatar">
-                        <i class="bi bi-person"></i>
+                        <i class="bi bi-person-fill"></i>
                     </div>
                     <h4 class="team-name">Yang</h4>
                     <p class="team-role">Profile Management</p>
@@ -74,7 +103,7 @@
             <div class="col-lg-3 col-md-6 mb-4">
                 <div class="team-card">
                     <div class="team-avatar">
-                        <i class="bi bi-person"></i>
+                        <i class="bi bi-person-fill"></i>
                     </div>
                     <h4 class="team-name">Jayden Yip Kai Jun</h4>
                     <p class="team-role">Dashboard Management</p>
@@ -87,7 +116,7 @@
             <div class="col-lg-3 col-md-6 mb-4">
                 <div class="team-card">
                     <div class="team-avatar">
-                        <i class="bi bi-person"></i>
+                        <i class="bi bi-person-fill"></i>
                     </div>
                     <h4 class="team-name">Chan Caius</h4>
                     <p class="team-role">Activities Management</p>
@@ -100,7 +129,7 @@
             <div class="col-lg-3 col-md-6 mb-4">
                 <div class="team-card">
                     <div class="team-avatar">
-                        <i class="bi bi-person"></i>
+                        <i class="bi bi-person-fill"></i>
                     </div>
                     <h4 class="team-name">Dickson</h4>
                     <p class="team-role">Customer Support Management</p>
@@ -119,9 +148,10 @@
     <div class="container">
         <div class="row align-items-center">
             <div class="col-lg-6 mb-4 mb-lg-0">
+                <span class="section-label">Why SkillSwap</span>
                 <h2 class="section-title">Bridging the Gap between Generations</h2>
                 <p class="text-muted mb-4">In today's fast-paced world, the wisdom of experience and the energy of
-                    youth often exist in separate spheres. SkillShare breaks down these barriers by creating
+                    youth often exist in separate spheres. SkillSwap breaks down these barriers by creating
                     meaningful connections between generations. From traditional crafts to cutting-edge technology,
                     from life lessons to career advice, our platform enables the exchange of knowledge that enriches
                     both teachers and learners.</p>
@@ -144,6 +174,7 @@
 <section class="events-section" id="events">
     <div class="container">
         <div class="text-center mb-5">
+            <span class="section-label">Upcoming</span>
             <h2 class="section-title">Our Upcoming Events</h2>
             <p class="section-subtitle">Join us for exciting learning opportunities and community gatherings</p>
         </div>
