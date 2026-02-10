@@ -1,273 +1,326 @@
 /* =====================================================
-   MANAGE EVENTS PAGE STYLES
+   MANAGE EVENTS PAGE — PREMIUM DARK-MODE STYLES
    ===================================================== */
 
 body {
-    background-color: #1f2937;
-    /* Match main background to hide gaps */
+    background-color: var(--admin-bg, #0f172a);
     margin: 0;
     padding: 0;
     overflow-x: hidden;
-    /* Prevent horizontal scrollbars from layout quirks */
 }
 
-/* Page Title */
+/* ── Page Title ────────────────────────────────────── */
 .page-title {
     font-size: 2em;
     font-weight: 700;
     color: white;
-    margin-bottom: 25px;
+    margin-bottom: 28px;
+    letter-spacing: -0.3px;
 }
 
-
-
-/* Controls Row */
+/* ── Controls Row ──────────────────────────────────── */
 .controls-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 25px;
+    margin-bottom: 28px;
+    gap: 16px;
+    flex-wrap: wrap;
 }
 
-/* Filter Tabs */
+/* ── Filter Tabs ───────────────────────────────────── */
 .filter-tabs {
     display: flex;
-    gap: 10px;
+    gap: 8px;
+    flex-wrap: wrap;
 }
 
 .filter-tab {
-    padding: 10px 25px;
-    border: 1px solid #4b5563;
-    border-radius: 25px;
-    background: #1f2937;
-    color: #9ca3af;
+    padding: 9px 22px;
+    border: 1px solid var(--admin-border, rgba(148, 163, 184, 0.12));
+    border-radius: 24px;
+    background: transparent;
+    color: var(--admin-text-m, #94a3b8);
     text-decoration: none;
-    font-size: 0.9em;
+    font-size: 0.88em;
     font-weight: 500;
-    transition: all 0.2s;
+    transition: all 0.25s ease;
+    cursor: pointer;
 }
 
 .filter-tab:hover {
-    background: #374151;
+    background: rgba(248, 113, 113, 0.08);
     color: white;
+    border-color: rgba(248, 113, 113, 0.3);
 }
 
 .filter-tab.active {
-    background: #ef4444;
-    /* Red accent matching logo/buttons */
+    background: var(--admin-accent-g, linear-gradient(135deg, #f87171, #ef4444));
     color: white;
-    border-color: #ef4444;
+    border-color: transparent;
+    box-shadow: 0 4px 16px rgba(248, 113, 113, 0.3);
+    font-weight: 600;
 }
 
-/* New Event Button */
+/* ── Action Buttons ────────────────────────────────── */
 .btn-new-event {
-    padding: 10px 25px;
-    background: #dc2626;
+    padding: 10px 24px;
+    background: var(--admin-accent-g, linear-gradient(135deg, #f87171, #ef4444));
     color: white;
     border: none;
-    border-radius: 8px;
+    border-radius: 10px;
     font-size: 0.9em;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-new-event::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+    transition: left 0.5s ease;
 }
 
 .btn-new-event:hover {
-    background: #b91c1c;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(248, 113, 113, 0.35);
 }
 
-/* New Challenge Button - Decoupled for custom styling */
+.btn-new-event:hover::before {
+    left: 100%;
+}
+
 .btn-new-challenge {
-    padding: 10px 25px;
-    background: #dc2626;
+    padding: 10px 24px;
+    background: var(--admin-accent-g, linear-gradient(135deg, #f87171, #ef4444));
     color: white;
     border: none;
-    border-radius: 8px;
+    border-radius: 10px;
     font-size: 0.9em;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.2s;
-    /* Specific layout styles moved from inline */
+    transition: all 0.3s ease;
     width: 200px;
     display: flex;
     justify-content: center;
     align-items: center;
     gap: 5px;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-new-challenge::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+    transition: left 0.5s ease;
 }
 
 .btn-new-challenge:hover {
-    background: #b91c1c;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(248, 113, 113, 0.35);
 }
 
-/* Table Container */
+.btn-new-challenge:hover::before {
+    left: 100%;
+}
+
+/* ── Table Container ───────────────────────────────── */
 .table-container {
-    background: #374151;
-    /* Matching .section in dashboard */
-    border-radius: 12px;
+    background: var(--admin-bg-card, #1e293b);
+    border-radius: var(--admin-radius, 16px);
     overflow: hidden;
     overflow-x: auto;
-    /* Enable horizontal scrolling */
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--admin-border, rgba(148, 163, 184, 0.12));
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+    animation: fadeInUp 0.5s ease-out both;
 }
 
-/* Events Table */
+/* ── Events Table ──────────────────────────────────── */
 .events-table {
     width: 100%;
     border-collapse: collapse;
 }
 
 .events-table thead {
-    background: #1f2937;
-    border-bottom: 2px solid #4b5563;
+    background: var(--admin-bg, #0f172a);
+    border-bottom: 2px solid var(--admin-border, rgba(148, 163, 184, 0.12));
 }
 
 .events-table th {
-    padding: 15px 20px;
+    padding: 14px 20px;
     text-align: left;
-    color: #9ca3af;
+    color: var(--admin-text-m, #94a3b8);
     font-weight: 500;
-    font-size: 0.85em;
+    font-size: 0.82em;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.6px;
 }
 
 .events-table td {
-    padding: 15px 20px;
-    border-bottom: 1px solid #4b5563;
-    color: #f3f4f6;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--admin-border, rgba(148, 163, 184, 0.12));
+    color: #e2e8f0;
     font-size: 0.9em;
 }
 
-.events-table tbody tr:hover {
-    background: rgba(255, 255, 255, 0.05);
+.events-table tbody tr {
+    transition: all 0.2s ease;
 }
 
-/* Status Badges */
+.events-table tbody tr:hover {
+    background: rgba(248, 113, 113, 0.04);
+}
+
+/* ── Status Badges ─────────────────────────────────── */
 .status-badge {
-    padding: 5px 12px;
+    padding: 5px 14px;
     border-radius: 20px;
-    font-size: 0.8em;
-    font-weight: 500;
+    font-size: 0.78em;
+    font-weight: 600;
     display: inline-block;
+    letter-spacing: 0.2px;
 }
 
 .status-badge.approved {
-    background-color: rgba(16, 185, 129, 0.2);
+    background: rgba(16, 185, 129, 0.12);
     color: #34d399;
-    border: 1px solid rgba(16, 185, 129, 0.3);
+    border: 1px solid rgba(16, 185, 129, 0.25);
 }
 
 .status-badge.published {
-    background-color: rgba(59, 130, 246, 0.2);
+    background: rgba(59, 130, 246, 0.12);
     color: #60a5fa;
-    border: 1px solid rgba(59, 130, 246, 0.3);
+    border: 1px solid rgba(59, 130, 246, 0.25);
 }
 
 .status-badge.pending {
-    background-color: rgba(245, 158, 11, 0.2);
+    background: rgba(245, 158, 11, 0.12);
     color: #fbbf24;
-    border: 1px solid rgba(245, 158, 11, 0.3);
+    border: 1px solid rgba(245, 158, 11, 0.25);
 }
 
 .status-badge.finished {
-    background-color: rgba(239, 68, 68, 0.2);
-    color: #f87171;
-    border: 1px solid rgba(239, 68, 68, 0.3);
+    background: rgba(148, 163, 184, 0.12);
+    color: #94a3b8;
+    border: 1px solid rgba(148, 163, 184, 0.25);
 }
 
 .status-badge.voided {
-    background-color: rgba(239, 68, 68, 0.2);
+    background: rgba(239, 68, 68, 0.12);
     color: #f87171;
-    border: 1px solid rgba(239, 68, 68, 0.3);
+    border: 1px solid rgba(239, 68, 68, 0.25);
 }
 
 .new-badge {
-    background-color: #ef4444;
+    background: var(--admin-accent-g, linear-gradient(135deg, #f87171, #ef4444));
     color: white;
     font-size: 0.7rem;
-    padding: 2px 6px;
-    border-radius: 4px;
-    margin-right: 5px;
-    font-weight: bold;
+    padding: 2px 8px;
+    border-radius: 6px;
+    margin-right: 6px;
+    font-weight: 700;
     vertical-align: middle;
+    letter-spacing: 0.3px;
 }
 
-/* Action Icons */
+/* ── Action Icons ──────────────────────────────────── */
 .actions-cell {
     display: flex;
-    gap: 8px;
+    gap: 6px;
 }
 
 .action-icon {
-    width: 32px;
-    height: 32px;
-    border: 1px solid #4b5563;
-    border-radius: 6px;
-    background: #1f2937;
-    color: #9ca3af;
+    width: 34px;
+    height: 34px;
+    border: 1px solid var(--admin-border, rgba(148, 163, 184, 0.12));
+    border-radius: 8px;
+    background: var(--admin-bg, #0f172a);
+    color: var(--admin-text-m, #94a3b8);
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.25s ease;
+    font-size: 0.85em;
 }
 
 .action-icon:hover {
-    background: #4b5563;
+    background: rgba(148, 163, 184, 0.1);
     color: white;
+    transform: translateY(-2px);
 }
 
 .action-icon.edit:hover {
-    background: #3b82f6;
-    color: white;
-    border-color: #3b82f6;
+    background: rgba(59, 130, 246, 0.2);
+    color: #60a5fa;
+    border-color: rgba(59, 130, 246, 0.4);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
 }
 
 .action-icon.delete:hover {
-    background: #ef4444;
-    color: white;
-    border-color: #ef4444;
+    background: rgba(239, 68, 68, 0.2);
+    color: #f87171;
+    border-color: rgba(239, 68, 68, 0.4);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
 }
 
 .action-icon.approve:hover {
-    background: #10b981;
-    color: white;
-    border-color: #10b981;
+    background: rgba(16, 185, 129, 0.2);
+    color: #34d399;
+    border-color: rgba(16, 185, 129, 0.4);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
 }
 
 .action-icon.publish:hover {
-    background: #8b5cf6;
-    color: white;
-    border-color: #8b5cf6;
+    background: rgba(139, 92, 246, 0.2);
+    color: #a78bfa;
+    border-color: rgba(139, 92, 246, 0.4);
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.2);
 }
 
 .action-icon.void:hover {
-    background: #f59e0b;
-    color: white;
-    border-color: #f59e0b;
+    background: rgba(245, 158, 11, 0.2);
+    color: #fbbf24;
+    border-color: rgba(245, 158, 11, 0.4);
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2);
 }
 
 .action-icon.end:hover {
-    background: #6b7280;
-    color: white;
-    border-color: #6b7280;
+    background: rgba(107, 114, 128, 0.2);
+    color: #9ca3af;
+    border-color: rgba(107, 114, 128, 0.4);
+    box-shadow: 0 4px 12px rgba(107, 114, 128, 0.2);
 }
 
 .action-icon.unpublish:hover {
-    background: #f59e0b;
-    color: white;
-    border-color: #f59e0b;
+    background: rgba(245, 158, 11, 0.2);
+    color: #fbbf24;
+    border-color: rgba(245, 158, 11, 0.4);
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2);
 }
 
-/* Modal Overlay */
+/* =====================================================
+   MODALS
+   ===================================================== */
 .modal-overlay {
     display: none;
     position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
     z-index: 1000;
     align-items: center;
     justify-content: center;
@@ -277,28 +330,41 @@ body {
     display: flex;
 }
 
-/* Modal Content */
 .modal-content {
-    background: #374151;
+    background: var(--admin-bg-card, #1e293b);
     color: white;
-    border-radius: 16px;
+    border-radius: 20px;
     width: 100%;
     max-width: 600px;
     max-height: 90vh;
     overflow-y: auto;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+    border: 1px solid var(--admin-border, rgba(148, 163, 184, 0.12));
+    box-shadow: 0 24px 48px rgba(0, 0, 0, 0.4);
+    animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-16px) scale(0.97);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
 }
 
 .modal-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 20px 25px;
-    border-bottom: 1px solid #4b5563;
+    padding: 22px 28px;
+    border-bottom: 1px solid var(--admin-border, rgba(148, 163, 184, 0.12));
 }
 
 .modal-header h2 {
-    font-size: 1.3em;
+    font-size: 1.25em;
     font-weight: 600;
     color: white;
     margin: 0;
@@ -308,25 +374,27 @@ body {
     width: 36px;
     height: 36px;
     border: none;
-    background: #1f2937;
+    background: rgba(148, 163, 184, 0.1);
     border-radius: 50%;
-    font-size: 1.5em;
-    color: #9ca3af;
+    font-size: 1.4em;
+    color: var(--admin-text-m, #94a3b8);
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     line-height: 1;
+    transition: all 0.25s ease;
 }
 
 .modal-close:hover {
-    background: #e5e7eb;
-    color: #374151;
+    background: rgba(248, 113, 113, 0.15);
+    color: var(--admin-accent, #f87171);
+    transform: rotate(90deg);
 }
 
 /* Modal Form */
 .modal-content form {
-    padding: 25px;
+    padding: 28px;
 }
 
 .form-grid {
@@ -336,31 +404,32 @@ body {
 }
 
 .modal-content .form-group {
-    margin-bottom: 15px;
+    margin-bottom: 16px;
 }
 
 .modal-content .form-label {
     display: block;
-    font-size: 0.85em;
+    font-size: 0.84em;
     font-weight: 500;
-    color: #9ca3af;
+    color: var(--admin-text-m, #94a3b8);
     margin-bottom: 8px;
 }
 
 .modal-content .form-input {
     width: 100%;
-    padding: 12px 15px;
-    border: 1px solid #4b5563;
-    border-radius: 8px;
+    padding: 12px 16px;
+    border: 1px solid var(--admin-border, rgba(148, 163, 184, 0.12));
+    border-radius: 10px;
     font-size: 0.95em;
     color: white;
-    background: #1f2937;
-    transition: border-color 0.2s;
+    background: var(--admin-bg, #0f172a);
+    transition: all 0.25s ease;
 }
 
 .modal-content .form-input:focus {
     outline: none;
-    border-color: #dc2626;
+    border-color: var(--admin-accent, #f87171);
+    box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.12);
 }
 
 /* Modal Actions */
@@ -368,86 +437,71 @@ body {
     display: flex;
     justify-content: flex-end;
     gap: 12px;
-    margin-top: 25px;
+    margin-top: 24px;
     padding-top: 20px;
-    border-top: 1px solid #e5e7eb;
+    border-top: 1px solid var(--admin-border, rgba(148, 163, 184, 0.12));
 }
 
 .btn-cancel {
-    padding: 12px 25px;
-    background: #4b5563;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-size: 0.95em;
+    padding: 11px 24px;
+    background: rgba(148, 163, 184, 0.1);
+    color: var(--admin-text-m, #94a3b8);
+    border: 1px solid var(--admin-border, rgba(148, 163, 184, 0.12));
+    border-radius: 10px;
+    font-size: 0.92em;
     font-weight: 500;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.25s ease;
 }
 
 .btn-cancel:hover {
-    background: #6b7280;
+    background: rgba(148, 163, 184, 0.18);
+    color: white;
 }
 
 .btn-submit {
-    padding: 12px 25px;
-    background: #dc2626;
+    padding: 11px 24px;
+    background: var(--admin-accent-g, linear-gradient(135deg, #f87171, #ef4444));
     color: white;
     border: none;
-    border-radius: 8px;
-    font-size: 0.95em;
+    border-radius: 10px;
+    font-size: 0.92em;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.25s ease;
 }
 
 .btn-submit:hover {
-    background: #b91c1c;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(248, 113, 113, 0.3);
 }
 
-
-
 .main {
-    background: #1f2937;
+    background: var(--admin-bg, #0f172a);
     color: white;
     min-height: 100vh;
-    padding: 40px;
+    padding: 36px 40px;
 }
 
 /* =====================================================
-   ENHANCED VOID/REMOVE EVENT MODAL STYLES
+   ENHANCED VOID MODAL
    ===================================================== */
-
-/* Void Modal Specific Enhancements */
 #voidModal .modal-content {
-    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6);
-    animation: modalFadeIn 0.3s ease-out;
-    border-top: 4px solid #ef4444;
-    /* Red accent border */
-    background: linear-gradient(135deg, #4b5563 0%, #374151 100%);
+    box-shadow: 0 24px 48px rgba(0, 0, 0, 0.5);
+    animation: modalSlideIn 0.3s ease-out;
+    border-top: 3px solid #ef4444;
+    background: linear-gradient(180deg, rgba(30, 41, 59, 0.98) 0%, var(--admin-bg-card, #1e293b) 100%);
 }
 
-@keyframes modalFadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(-20px) scale(0.95);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
-}
-
-/* Custom Checkbox Styling */
+/* Custom Checkbox */
 #voidModal input[type="checkbox"] {
     appearance: none;
     -webkit-appearance: none;
     width: 18px;
     height: 18px;
-    border: 2px solid #4a4a4a;
-    border-radius: 4px;
-    background: #6b6b6b;
+    border: 2px solid var(--admin-border, rgba(148, 163, 184, 0.2));
+    border-radius: 5px;
+    background: var(--admin-bg, #0f172a);
     cursor: pointer;
     position: relative;
     transition: all 0.2s ease;
@@ -455,14 +509,13 @@ body {
 }
 
 #voidModal input[type="checkbox"]:hover {
-    border-color: #60a5fa;
-    background: #5a5a5a;
+    border-color: var(--admin-accent, #f87171);
 }
 
 #voidModal input[type="checkbox"]:checked {
-    background: linear-gradient(135deg, #f87171, #ef4444);
+    background: var(--admin-accent-g, linear-gradient(135deg, #f87171, #ef4444));
     border-color: #ef4444;
-    box-shadow: 0 0 8px rgba(239, 68, 68, 0.4);
+    box-shadow: 0 0 8px rgba(239, 68, 68, 0.3);
 }
 
 #voidModal input[type="checkbox"]:checked::after {
@@ -472,11 +525,10 @@ body {
     left: 50%;
     transform: translate(-50%, -50%);
     color: white;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: bold;
 }
 
-/* Enhanced Checkbox Label */
 #voidModal .form-label {
     cursor: pointer;
     transition: color 0.2s ease;
@@ -486,43 +538,28 @@ body {
     color: #f3f4f6 !important;
 }
 
-/* Textarea Enhancement */
 #voidModal textarea.form-input {
     resize: vertical;
     min-height: 80px;
-    transition: all 0.2s ease;
 }
 
 #voidModal textarea.form-input:focus {
-    background: #1f2937;
     border-color: #f87171;
-    box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.2);
-}
-
-/* Enhanced Button Styling */
-#voidModal .btn-cancel {
-    transition: all 0.2s ease;
-    font-weight: 500;
+    box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.15);
 }
 
 #voidModal .btn-cancel:hover {
-    background: #d1d1d1;
     transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 #voidModal .btn-submit {
-    transition: all 0.2s ease;
-    font-weight: 600;
-    background: linear-gradient(135deg, #f87171, #dc2626) !important;
+    background: var(--admin-accent-g, linear-gradient(135deg, #f87171, #ef4444)) !important;
     color: white !important;
     border: none;
 }
 
 #voidModal .btn-submit:hover {
-    background: linear-gradient(135deg, #fca5a5, #ef4444) !important;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+    box-shadow: 0 6px 20px rgba(239, 68, 68, 0.35);
 }
 
 #voidModal .btn-submit:active,
@@ -530,21 +567,17 @@ body {
     transform: translateY(0);
 }
 
-/* Close Button Enhancement */
 #voidModal .modal-close {
-    transition: all 0.2s ease;
-    background: rgba(239, 68, 68, 0.2);
-    border: 1px solid rgba(239, 68, 68, 0.3);
+    background: rgba(239, 68, 68, 0.12);
+    border: 1px solid rgba(239, 68, 68, 0.25);
 }
 
 #voidModal .modal-close:hover {
     background: #ef4444;
     color: white !important;
-    transform: rotate(90deg);
-    box-shadow: 0 0 12px rgba(239, 68, 68, 0.5);
+    box-shadow: 0 0 12px rgba(239, 68, 68, 0.4);
 }
 
-/* Modal Actions Responsive */
 @media (max-width: 500px) {
     #voidModal .modal-actions {
         flex-direction: column;

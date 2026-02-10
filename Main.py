@@ -8,17 +8,21 @@ import multiprocessing
 from app import create_app, create_admin_app
 
 
+import logging
+import sys
+import os
+
 def run_main():
     """Run main app on port 5000"""
+    # Simply run the app without suppression hacks to ensure stability
     app = create_app()
-    print(" * Main App running on http://localhost:5000")
     app.run(debug=False, port=5000, threaded=True)
 
     
 def run_admin():
     """Run admin app on port 5001"""
+    # Simply run the app without suppression hacks to ensure stability
     app = create_admin_app()
-    print(" * Admin App running on http://localhost:5001")
     app.run(debug=False, port=5001, threaded=True)
 
 
@@ -41,6 +45,7 @@ if __name__ == "__main__":
         main_process.join()
         admin_process.join()
     except KeyboardInterrupt:
-        print("\nShutting down...") 
+        pass
+        # Terminate processes silently
         main_process.terminate()
         admin_process.terminate()

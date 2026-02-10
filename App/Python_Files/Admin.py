@@ -1167,6 +1167,19 @@ def admin_support_tickets():
     filter_status = request.args.get('filter', 'all')
     
     conn = get_db_connection()
+
+    # --- SELF-REPAIR: Ensure columns exist ---
+    try:
+        conn.execute("ALTER TABLE support_ticket ADD COLUMN screenshot_path TEXT")
+        conn.commit()
+    except:
+        pass # Column likely exists
+
+    try:
+        conn.execute("ALTER TABLE support_ticket ADD COLUMN event_name TEXT")
+        conn.commit()
+    except:
+        pass # Column likely exists
     
     # 2. Build the base query
     query = """SELECT st.ticket_id, st.subject, st.description, st.status, st.created_at, st.screenshot_path,
@@ -1254,6 +1267,9 @@ def save_ticket_reply(ticket_id):
     
     flash("Reply sent and ticket marked as resolved.", "success")
     return redirect(url_for('admin.admin_support_tickets'))
+
+
+
 @admin_bp.route('/clear-tickets')
 @admin_required
 def clear_tickets():
