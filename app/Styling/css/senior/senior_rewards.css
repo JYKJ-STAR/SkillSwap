@@ -1,20 +1,21 @@
 /* ================================================
-   Senior Rewards Page Styles
+   Youth Rewards Page Styles
    Using global.css design tokens for consistency
-   Unique table-based layout for seniors
    ================================================ */
 
 /* =========================
    Back Button
    ========================= */
 .back-btn {
-    display: inline-flex;
+    display: flex;
     align-items: center;
     gap: 0.5rem;
     color: var(--text-secondary);
     font-size: 0.9rem;
     text-decoration: none;
     padding: var(--spacing-md) var(--spacing-xl);
+    background: white;
+    border-bottom: 1px solid var(--border-light);
     transition: color 0.3s ease;
 }
 
@@ -23,12 +24,114 @@
 }
 
 /* =========================
+   Main Layout
+   ========================= */
+.rewards-container {
+    display: flex;
+    min-height: calc(100vh - 70px);
+}
+
+/* =========================
+   Sidebar Profile
+   ========================= */
+.rewards-sidebar {
+    width: 300px;
+    background: white;
+    padding: var(--spacing-xl);
+    border-right: 1px solid var(--border-light);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.profile-avatar {
+    width: 160px;
+    height: 160px;
+    background: var(--dark-slate);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: var(--spacing-lg);
+}
+
+.profile-avatar svg {
+    width: 80px;
+    height: 80px;
+    color: white;
+}
+
+.profile-name {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+    color: var(--text-dark);
+}
+
+.profile-age {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.25rem;
+}
+
+.profile-points {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--primary-teal);
+    margin-bottom: var(--spacing-md);
+}
+
+.claim-rewards-btn {
+    background: var(--primary-gradient);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-bottom: var(--spacing-xl);
+}
+
+.claim-rewards-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(13, 148, 136, 0.3);
+}
+
+.sidebar-section-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    text-align: center;
+    color: var(--text-dark);
+}
+
+.skill-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: center;
+    margin-bottom: var(--spacing-lg);
+}
+
+.skill-tag {
+    background: var(--primary-teal);
+    color: white;
+    padding: 0.4rem 0.9rem;
+    border-radius: var(--radius-full);
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+/* =========================
    Main Content
    ========================= */
 .rewards-content {
-    padding: 0 var(--spacing-xl) 3rem;
-    max-width: 1400px;
-    margin: 0 auto;
+    flex: 1;
+    padding: var(--spacing-xl) 3rem;
+    background: var(--page-bg-light);
 }
 
 .page-title {
@@ -40,153 +143,323 @@
 }
 
 /* =========================
-   Rewards Table Container
+   Tabs
    ========================= */
-.rewards-table {
-    background: white;
-    border-radius: var(--radius-xl);
-    overflow: hidden;
-    box-shadow: var(--shadow-md);
-}
-
-/* =========================
-   Tab Header (Senior Style)
-   ========================= */
-.table-tabs {
+.rewards-tabs {
     display: flex;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-xl);
 }
 
-.table-tab {
-    flex: 1;
-    padding: 1.25rem 2rem;
-    text-align: center;
-    font-weight: 600;
-    font-size: 1.1rem;
+.rewards-tab {
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--radius-md);
+    font-weight: 500;
+    font-size: 0.95rem;
     cursor: pointer;
-    transition: background 0.3s ease, color 0.3s ease;
+    transition: all 0.3s ease;
     border: none;
-    background: var(--text-muted);
+}
+
+.rewards-tab.active {
+    background: var(--primary-gradient);
     color: white;
-    font-family: var(--font-primary);
 }
 
-.table-tab:first-child {
-    border-radius: var(--radius-xl) 0 0 0;
+.rewards-tab:not(.active) {
+    background: var(--gray-section);
+    color: var(--text-secondary);
 }
 
-.table-tab:last-child {
-    border-radius: 0 var(--radius-xl) 0 0;
-}
-
-.table-tab.active {
-    background: var(--dark-slate);
-}
-
-.table-tab:hover:not(.active) {
-    background: var(--text-secondary);
+.rewards-tab:hover:not(.active) {
+    background: var(--border-light);
+    color: var(--text-dark);
 }
 
 /* =========================
-   Rewards List
+   Rewards Grid
    ========================= */
-.rewards-list {
-    display: none;
-}
-
-.rewards-list.active {
-    display: block;
-}
-
-/* =========================
-   Reward Row (Table Style)
-   ========================= */
-.reward-row {
-    display: flex;
-    align-items: center;
-    padding: var(--spacing-lg) var(--spacing-xl);
-    border-bottom: 1px solid var(--border-light);
+.rewards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: var(--spacing-lg);
 }
 
-.reward-row:last-child {
-    border-bottom: none;
+.reward-card {
+    background: white;
+    border-radius: var(--radius-lg);
+    padding: 1.25rem;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.3s ease;
+}
+
+.reward-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lg);
+}
+
+.reward-header {
+    display: flex;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-md);
 }
 
 .reward-image {
-    width: 80px;
-    height: 80px;
+    width: 60px;
+    height: 60px;
     background: linear-gradient(135deg, var(--gray-section) 0%, var(--border-light) 100%);
     border-radius: var(--radius-md);
     flex-shrink: 0;
 }
 
-.reward-details {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    gap: 2rem;
-}
-
-.reward-info {
-    min-width: 200px;
-}
-
 .reward-info h3 {
-    font-size: 1.1rem;
-    font-weight: 700;
+    font-size: 1rem;
+    font-weight: 600;
     margin-bottom: 0.25rem;
     color: var(--text-dark);
 }
 
 .reward-info .vendor {
-    font-size: 0.95rem;
+    font-size: 0.85rem;
     color: var(--text-secondary);
     margin-bottom: 0.25rem;
 }
 
 .reward-info .points {
-    font-size: 0.95rem;
-    color: var(--text-secondary);
+    font-size: 0.9rem;
+    color: var(--primary-teal);
+    font-weight: 600;
+}
+
+.redeem-btn,
+.claim-btn {
+    width: 100%;
+    padding: 0.75rem;
+    background: var(--primary-teal);
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-weight: 500;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.redeem-btn:hover,
+.claim-btn:hover {
+    background: var(--primary-teal-light);
+    transform: translateY(-1px);
 }
 
 /* =========================
-   Show Voucher Link
+   Error Snackbar
    ========================= */
-.show-voucher-link {
-    color: var(--primary-teal);
-    font-size: 0.95rem;
-    text-decoration: none;
-    white-space: nowrap;
+.snackbar {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    background: white;
+    border: 3px solid var(--danger-color);
+    border-radius: var(--radius-full);
+    padding: var(--spacing-md) var(--spacing-xl);
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    box-shadow: var(--shadow-xl);
+    z-index: 200;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s, visibility 0.3s;
+}
+
+.snackbar.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.snackbar-message {
+    font-size: 1rem;
+    color: var(--text-dark);
+}
+
+.snackbar-dismiss {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    cursor: pointer;
+    font-weight: 500;
     transition: color 0.3s ease;
 }
 
-.show-voucher-link:hover {
-    text-decoration: underline;
-    color: var(--primary-teal-light);
+.snackbar-dismiss:hover {
+    color: var(--text-dark);
 }
 
 /* =========================
-   Senior Action Button
-   (Uses warm senior gradient)
+   Modal Overlay
    ========================= */
-.redeem-btn {
-    padding: 1rem 2.5rem;
-    background: var(--senior-gradient);
-    color: white;
-    border: none;
-    border-radius: var(--radius-md);
-    font-weight: 600;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    white-space: nowrap;
-    min-width: 200px;
-    font-family: var(--font-primary);
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(30, 41, 59, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s, visibility 0.3s;
 }
 
-.redeem-btn:hover {
+.modal-overlay.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* =========================
+   Modal Content
+   ========================= */
+.rewards-modal {
+    background: white;
+    border-radius: var(--radius-xl);
+    padding: 2.5rem 3rem;
+    max-width: 500px;
+    width: 90%;
+    text-align: center;
+    transform: scale(0.9);
+    transition: transform 0.3s ease;
+}
+
+.modal-overlay.show .rewards-modal {
+    transform: scale(1);
+}
+
+.modal-title {
+    font-family: var(--font-display);
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: var(--spacing-lg);
+    color: var(--text-dark);
+}
+
+.modal-reward-card {
+    background: var(--card-bg-light);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-xl);
+    text-align: left;
+}
+
+.modal-reward-image {
+    width: 70px;
+    height: 70px;
+    background: linear-gradient(135deg, var(--gray-section) 0%, var(--border-light) 100%);
+    border-radius: var(--radius-md);
+    flex-shrink: 0;
+}
+
+.modal-reward-info h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+    color: var(--text-dark);
+}
+
+.modal-reward-info .vendor {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.25rem;
+}
+
+.modal-reward-info .points {
+    font-size: 0.95rem;
+    color: var(--primary-teal);
+    font-weight: 600;
+}
+
+.modal-buttons {
+    display: flex;
+    gap: var(--spacing-md);
+    justify-content: center;
+}
+
+.modal-btn {
+    padding: 1rem 2rem;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    border: none;
+    min-width: 160px;
+    transition: all 0.3s ease;
+}
+
+.modal-btn.secondary {
+    background: var(--gray-section);
+    color: var(--text-secondary);
+}
+
+.modal-btn.secondary:hover {
+    background: var(--border-light);
+    color: var(--text-dark);
+}
+
+.modal-btn.primary {
+    background: var(--primary-gradient);
+    color: white;
+}
+
+.modal-btn.primary:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(245, 158, 11, 0.3);
+    box-shadow: 0 8px 25px rgba(13, 148, 136, 0.3);
+}
+
+/* =========================
+   Submitted Modal (Dark Theme)
+   ========================= */
+.submitted-modal .rewards-modal {
+    background: rgba(30, 41, 59, 0.95);
+    color: white;
+}
+
+.submitted-modal .modal-title {
+    color: white;
+}
+
+.submitted-text {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-bottom: var(--spacing-xl);
+}
+
+.submitted-modal .modal-btn {
+    background: var(--gray-section);
+    color: var(--text-secondary);
+}
+
+.submitted-modal .modal-btn:hover {
+    background: white;
+    color: var(--text-dark);
+}
+
+/* =========================
+   Tab Content Visibility
+   ========================= */
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
 }
 
 /* =========================
@@ -194,43 +467,55 @@
    ========================= */
 @media (max-width: 1024px) {
     .rewards-content {
-        padding: 0 var(--spacing-lg) 2rem;
+        padding: var(--spacing-xl);
     }
 }
 
 @media (max-width: 900px) {
-    .reward-row {
-        flex-wrap: wrap;
-        gap: var(--spacing-md);
-    }
-
-    .reward-details {
+    .rewards-container {
         flex-direction: column;
-        align-items: flex-start;
-        gap: var(--spacing-sm);
     }
 
-    .redeem-btn {
+    .rewards-sidebar {
         width: 100%;
+        border-right: none;
+        border-bottom: 1px solid var(--border-light);
+        padding: var(--spacing-lg);
+    }
+
+    .profile-avatar {
+        width: 120px;
+        height: 120px;
+    }
+
+    .profile-avatar svg {
+        width: 60px;
+        height: 60px;
     }
 }
 
 @media (max-width: 600px) {
-    .table-tab {
-        font-size: 0.95rem;
-        padding: var(--spacing-md);
-    }
-
     .rewards-content {
-        padding: 0 var(--spacing-md) 2rem;
-    }
-
-    .reward-row {
         padding: var(--spacing-md);
     }
 
-    .reward-image {
-        width: 60px;
-        height: 60px;
+    .rewards-modal {
+        padding: var(--spacing-lg);
+    }
+
+    .modal-buttons {
+        flex-direction: column;
+    }
+
+    .modal-btn {
+        width: 100%;
+    }
+
+    .rewards-tabs {
+        flex-direction: column;
+    }
+
+    .rewards-grid {
+        grid-template-columns: 1fr;
     }
 }
