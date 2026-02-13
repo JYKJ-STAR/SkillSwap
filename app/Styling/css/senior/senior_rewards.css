@@ -252,6 +252,42 @@
 }
 
 /* =========================
+   Expired Reward State
+   ========================= */
+.expired-reward {
+    opacity: 0.7;
+}
+
+/* =========================
+   Status Badges
+   ========================= */
+.status-badge {
+    color: white;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 0.9em;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.status-badge.status-expired {
+    background: #ef4444;
+}
+
+.status-badge.status-cancelled {
+    background: #f59e0b;
+}
+
+.status-badge.status-used {
+    background: #6b7280;
+}
+
+.status-badge.status-dismissed {
+    background: #6b7280;
+}
+
+
+/* =========================
    Error Snackbar
    ========================= */
 .snackbar {

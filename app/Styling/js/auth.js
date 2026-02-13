@@ -215,7 +215,7 @@ async function validateStep(step) {
                 return false;
             }
         } catch (e) {
-            console.error("Email check failed", e);
+
             showToast('Unable to verify email availability. Please try again.', 'error');
             return false;
         }
@@ -268,7 +268,7 @@ async function validateStep(step) {
                 return false;
             }
         } catch (e) {
-            console.error("Phone check failed", e);
+
             showToast('Unable to verify phone availability. Please try again.', 'error');
             return false;
         }
@@ -426,7 +426,7 @@ async function submitForm(hasVerification) {
             }
         }
     } catch (error) {
-        console.error('Error:', error);
+
         showToast('An error occurred during registration. Please try again.', 'error');
     }
 }
@@ -481,7 +481,7 @@ async function verifyResetEmail() {
             showToast(data.error || 'Email not found.', 'error');
         }
     } catch (e) {
-        console.error("Verification failed", e);
+
         showToast('An error occurred. Please try again.', 'error');
     }
 }
@@ -517,7 +517,7 @@ async function submitResetPassword() {
             showToast(data.error || 'Failed to reset password.', 'error');
         }
     } catch (e) {
-        console.error("Reset failed", e);
+
         showToast('An error occurred. Please try again.', 'error');
     }
 }

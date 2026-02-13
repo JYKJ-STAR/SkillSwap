@@ -78,7 +78,7 @@ async function openChatModal(sessionId) {
         }, 3000); // Refresh every 3 seconds
 
     } catch (error) {
-        console.error('Error opening chat:', error);
+
         alert('Failed to load chat. Please try again.');
     }
 }
@@ -90,7 +90,7 @@ async function loadChatMessages(sessionId) {
         const data = await response.json();
 
         if (data.error) {
-            console.error('Error loading messages:', data.error);
+
             return;
         }
 
@@ -124,7 +124,7 @@ async function loadChatMessages(sessionId) {
         // Scroll to bottom
         container.scrollTop = container.scrollHeight;
     } catch (error) {
-        console.error('Error loading messages:', error);
+
     }
 }
 
@@ -154,7 +154,7 @@ async function sendAdminMessage() {
             alert('Failed to send message: ' + (data.error || 'Unknown error'));
         }
     } catch (error) {
-        console.error('Error sending message:', error);
+
         alert('Failed to send message. Please try again.');
     }
 }
@@ -174,10 +174,10 @@ async function closeChat(sessionId) {
             // Reload to update the table
             setTimeout(() => location.reload(), 500);
         } else {
-            console.error('Failed to close chat:', data.error || 'Unknown error');
+
         }
     } catch (error) {
-        console.error('Error closing chat:', error);
+
     }
 }
 
@@ -196,10 +196,10 @@ async function reopenChat(sessionId) {
             // Reload to update the table
             setTimeout(() => location.reload(), 500);
         } else {
-            console.error('Failed to reopen chat:', data.error || 'Unknown error');
+
         }
     } catch (error) {
-        console.error('Error reopening chat:', error);
+
     }
 }
 

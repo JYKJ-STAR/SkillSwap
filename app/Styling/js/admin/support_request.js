@@ -298,6 +298,3 @@ function toggleView() {
     window.location.href = window.location.origin + '/admin/live-chats';
 }
 
-
-
-

@@ -106,7 +106,6 @@ function initializeNameSearch() {
     }
 }
 
-
 // =====================================================
 // VERIFICATION MODAL
 // =====================================================
@@ -158,7 +157,7 @@ function openVerifyModal(userId, userName, joinDate, photo) {
         // Photo exists
         photoContainer.style.display = 'flex';
         noPhotoMessage.style.display = 'none';
-        photoLink.href = `/Styling/img/users/verification/${photo}`;
+        photoLink.href = `/img/users/verification/${photo}`;
     } else {
         // No photo
         photoContainer.style.display = 'none';

@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', function () {
         languageSelector.addEventListener('change', function () {
             // Store language preference
             localStorage.setItem('preferredLanguage', this.value);
-            console.log('Language changed to:', this.value);
+
         });
 
         // Load saved language preference

@@ -67,7 +67,6 @@ document.addEventListener('DOMContentLoaded', function () {
         navPrivacy.addEventListener('click', () => switchSection('privacy'));
     }
 
-
     // --- Profile Logic ---
     const form = document.getElementById('settingsForm');
     const editBtn = document.getElementById('editBtn');
@@ -273,7 +272,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             })
             .catch(error => {
-                console.error('Error:', error);
+
                 showToast('An error occurred while saving.', 'error');
             })
             .finally(() => {
@@ -356,7 +355,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             })
             .catch(err => {
-                console.error(err);
+
                 showToast('An error occurred.', 'error');
             })
             .finally(() => {
@@ -377,7 +376,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-
     // --- Skills Logic ---
     function getJsonData(id) {
         const el = document.getElementById(id);
@@ -385,7 +383,7 @@ document.addEventListener('DOMContentLoaded', function () {
             try {
                 return JSON.parse(el.textContent);
             } catch (e) {
-                console.error('Error parsing JSON for ' + id, e);
+
                 return [];
             }
         }
@@ -587,7 +585,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             })
             .catch(err => {
-                console.error(err);
+
                 showToast('An error occurred.', 'error');
             })
             .finally(() => {
@@ -669,7 +667,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     try {
                         verificationFile.files = e.dataTransfer.files;
                     } catch (err) {
-                        console.log("Browser doesn't support setting input files via JS, using variable fallback");
+
                     }
                     handleVerificationFile(file);
                 } else {
@@ -712,7 +710,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     }
                 })
                 .catch(err => {
-                    console.error(err);
+
                     showToast('An error occurred.', 'error');
                     this.innerText = originalText;
                     this.disabled = false;

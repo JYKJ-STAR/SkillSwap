@@ -17,7 +17,7 @@ venv\Scripts\python.exe "Class db/reset_database.py" --admins
 
 ## Reset Events (Restore Seed Data as Published)
 
-**🎯 Use this to restore default event cards that appear in the Approved admin page and show to users!**
+**Use this to restore default event cards that appear in the Approved admin page and show to users!**
 
 ```
 venv\Scripts\python.exe "Class db/reset_database.py" --events

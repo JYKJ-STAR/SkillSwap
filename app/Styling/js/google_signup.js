@@ -236,7 +236,7 @@ async function submitGoogleSignup() {
             showToast('Signup failed: ' + (resData.error || 'Unknown error'), 'error');
         }
     } catch (error) {
-        console.error('Error:', error);
+
         showToast('An error occurred. Please try again.', 'error');
     }
 }

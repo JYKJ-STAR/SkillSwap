@@ -134,7 +134,7 @@
             <div class="rewards-grid">
                 {% if history_rewards %}
                 {% for reward in history_rewards %}
-                <div class="reward-card" style="{% if reward.display_status == 'Expired' %}opacity: 0.7;{% endif %}">
+                <div class="reward-card {% if reward.display_status == 'Expired' %}expired-reward{% endif %}">
                     <div class="reward-header">
                         <div class="reward-image"></div>
                         <div class="reward-info">
@@ -153,8 +153,7 @@
                             {% endif %}
                         </div>
                     </div>
-                    <span class="status-badge"
-                        style="background: {% if reward.display_status == 'Expired' %}#ef4444{% elif reward.display_status == 'Cancelled' %}#f59e0b{% else %}#6b7280{% endif %}; color: white; padding: 8px 16px; border-radius: 6px; font-size: 0.9em; font-weight: 600;">
+                    <span class="status-badge status-{{ reward.display_status|lower }}">
                         {{ reward.display_status }}
                     </span>
                 </div>

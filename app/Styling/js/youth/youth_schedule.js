@@ -7,18 +7,15 @@
 // GLOBAL MODAL HELPERS (Internal use)
 // ========================================
 function openModal(modalId) {
-    console.log('openModal called with:', modalId);
+
     const modal = document.getElementById(modalId);
-    console.log('Modal element found:', modal);
+
     if (modal) {
-        console.log('Adding show class...');
+
         modal.classList.add('show');
-        console.log('Modal classList after:', modal.classList.toString());
-        console.log('Modal display:', window.getComputedStyle(modal).display);
-        console.log('Modal opacity:', window.getComputedStyle(modal).opacity);
-        console.log('Modal visibility:', window.getComputedStyle(modal).visibility);
+
     } else {
-        console.error("Modal not found:", modalId);
+
     }
 }
 
@@ -29,9 +26,7 @@ function closeModal(modalId) {
     }
 }
 
-
 document.addEventListener('DOMContentLoaded', function () {
-    console.log('Schedule JS loaded');
 
     // ========================================
     // TAB SWITCHING
@@ -42,7 +37,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const completedView = document.getElementById('completed-view');
 
     function updateView(filter) {
-        console.log('Switching to view:', filter);
+
         // Reset all to hidden
         if (upcomingView) upcomingView.style.display = 'none';
         if (waitingView) waitingView.style.display = 'none';
@@ -74,18 +69,14 @@ document.addEventListener('DOMContentLoaded', function () {
     // ========================================
     // BUTTON LISTENERS (Upload Only)
     // ========================================
-    console.log('Attaching button listeners...');
-    const uploadBtns = document.querySelectorAll('.js-open-upload');
 
-    console.log('Found upload buttons:', uploadBtns.length);
+    const uploadBtns = document.querySelectorAll('.js-open-upload');
 
     uploadBtns.forEach(btn => {
         btn.addEventListener('click', () => {
-            console.log('Upload button clicked!');
+
             const eventId = btn.dataset.id;
             const title = btn.dataset.title;
-
-            console.log('Event ID:', eventId, 'Title:', title);
 
             document.getElementById('upload_event_id').value = eventId;
             const titleEl = document.getElementById('upload-event-title');

@@ -146,7 +146,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             })
             .catch(error => {
-                console.error('Error redeeming reward:', error);
+
                 showSnackbar('Network error, please try again');
                 setTimeout(hideSnackbar, 5000);
             });
@@ -195,7 +195,7 @@ document.addEventListener('DOMContentLoaded', function () {
         hideVendorModal();
 
         if (!currentRedemptionId) {
-            console.error('No redemption ID found');
+
             return;
         }
 
@@ -212,15 +212,15 @@ document.addEventListener('DOMContentLoaded', function () {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    console.log('Reward dismissed successfully');
+
                     // Reload page to update History tab with dismissed reward
                     window.location.reload();
                 } else {
-                    console.error('Failed to dismiss reward:', data.error);
+
                 }
             })
             .catch(error => {
-                console.error('Error dismissing reward:', error);
+
             });
 
         currentRedemptionId = null;

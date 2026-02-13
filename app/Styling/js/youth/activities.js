@@ -130,7 +130,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-
     const confirmWithdrawBtn = document.querySelector('.confirm-withdraw');
     if (confirmWithdrawBtn && withdrawModal) {
         confirmWithdrawBtn.addEventListener('click', () => {
@@ -141,7 +140,6 @@ document.addEventListener('DOMContentLoaded', () => {
             closeModal(withdrawModal);
         });
     }
-
 
     // --- Upload Photo Logic ---
     const uploadArea = document.getElementById('uploadArea');

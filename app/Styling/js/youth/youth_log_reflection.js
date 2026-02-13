@@ -4,7 +4,6 @@
  */
 
 document.addEventListener('DOMContentLoaded', function () {
-    console.log('Log Reflection JS loaded');
 
     // ========================================
     // STAR RATING LOGIC

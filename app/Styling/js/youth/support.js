@@ -33,7 +33,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-
     // --- 3. Upload Area File Name Display ---
     // Commented out to keep label as "Upload Screenshot (Optional)" instead of showing filename
     /*
@@ -49,7 +48,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     */
 
-
     // --- 4. Form Select Placeholder Styling ---
     document.querySelectorAll('.form-select').forEach(select => {
         select.addEventListener('change', function () {
@@ -59,11 +57,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-
     // Note: Ticket rendering is now handled server-side via Jinja2 templates
     // The submitReport() function in the HTML handles form submission to the database
-
-
 
 });
 
@@ -149,13 +144,13 @@ async function startNewChat() {
             showChatConversation();
 
             if (data.status === 'created') {
-                console.log('New chat session created:', data.session_id);
+
             } else {
-                console.log('Resumed existing chat session:', data.session_id);
+
             }
         }
     } catch (error) {
-        console.error('Error starting chat:', error);
+
         alert('Failed to start chat. Please try again.');
     }
 }
@@ -181,7 +176,7 @@ async function sendUserMessage() {
             await loadMessages(currentChatSessionId);
         }
     } catch (error) {
-        console.error('Error sending message:', error);
+
         alert('Failed to send message. Please try again.');
     }
 }
@@ -254,7 +249,7 @@ async function loadMessages(sessionId) {
 
         container.scrollTop = container.scrollHeight;
     } catch (error) {
-        console.error('Error loading messages:', error);
+
     }
 }
 
@@ -283,7 +278,7 @@ async function checkActiveChat() {
             currentChatSessionId = data.session_id;
         }
     } catch (error) {
-        console.error('Error checking active chat:', error);
+
     }
 }
 
@@ -338,7 +333,7 @@ async function loadChatHistory() {
             chatList.appendChild(chatItem);
         });
     } catch (error) {
-        console.error('Error loading chat history:', error);
+
     }
 }
 
