@@ -60,10 +60,7 @@ SETUP INSTRUCTIONS
 3. ENVIRONMENT CONFIGURATION
    - Create a .env file in the root directory
    - Add required environment variables:
-     SECRET_KEY=your-secret-key
-     GOOGLE_CLIENT_ID=117252640556-qgkubar77jfg5dpq4ctopb7kc1pp7t6k.apps.googleusercontent.com
-     GOOGLE_CLIENT_SECRET=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
-     (This is unsafe practice to display google client but for the sake of the project)
+     (can refer to the extra file I send)
 
 4. DATABASE SETUP
    - Database file: Class db/skillswap.db
