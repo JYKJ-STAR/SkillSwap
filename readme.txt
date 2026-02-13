@@ -305,11 +305,15 @@ Dickson Lim
 
     Admin Support Ticket
     - View all support tickets progress
+    - Show number of tickets that have been resolved, pending and total
     - Filter by status (Open/In Progress/Resolved)
     - Reply user tickets
 
     Admin Live Chat
     - View all ongoing Live chat with users
+    - Show number of chats that have been resolved, pending and total
+    - Filter by status (All Chat/Active/Closed)
+    - Reply user chat
 
 
 -------------------------------
