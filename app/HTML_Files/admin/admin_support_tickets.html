@@ -28,7 +28,8 @@
             {% if admin_photo %}
             <img src="{{ url_for('static', filename='img/admin/' + admin_photo) }}" class="sidebar-avatar" alt="Admin">
             {% else %}
-            <div class="sidebar-avatar" class="logo-container">
+            <div class="sidebar-avatar"
+                style="display: flex; align-items: center; justify-content: center; font-size: 1.5em; color: #9ca3af;">
                 <i class="bi bi-person-fill"></i>
             </div>
             {% endif %}

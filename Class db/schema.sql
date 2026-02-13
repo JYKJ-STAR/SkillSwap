@@ -223,16 +223,17 @@ CREATE TABLE IF NOT EXISTS support_ticket (
     subject TEXT NOT NULL,       -- This will store the "Issue Type"
     description TEXT NOT NULL,   -- This stores "Description" + "Event Name"
     status TEXT DEFAULT 'open',  -- 'open', 'resolved', 'voided'
+    reply TEXT,                  -- Admin reply to the ticket
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES user (user_id)
 );
 
-ALTER TABLE support_ticket ADD COLUMN reply TEXT;
 
 -- Live Chat Tables
 CREATE TABLE IF NOT EXISTS live_chat_session (
     session_id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER NOT NULL,
+    admin_connected INTEGER DEFAULT 0 CHECK (admin_connected IN (0, 1)),
     status TEXT DEFAULT 'active' CHECK (status IN ('active', 'closed')),
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     last_message_at DATETIME DEFAULT CURRENT_TIMESTAMP,

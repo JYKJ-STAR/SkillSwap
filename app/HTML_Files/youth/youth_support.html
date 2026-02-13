@@ -291,9 +291,15 @@
                 // Populate modal content
                 document.getElementById('modal-ticket-id').textContent = 'ID: #' + ticketId;
                 document.getElementById('modal-issue-type').textContent = subject || 'N/A';
-                document.getElementById('modal-event').textContent = eventName || 'N/A';
+                document.getElementById('modal-event').textContent = eventName || 'Other / Not Event Related';
                 document.getElementById('modal-person').textContent = personInvolved || 'You';
-                document.getElementById('modal-description').textContent = description || 'No description provided';
+
+                // Clean description - remove "Event:" prefix if it exists
+                let cleanDescription = description || 'No description provided';
+                if (cleanDescription.startsWith('Event:')) {
+                    cleanDescription = cleanDescription.replace(/^Event:.*?Details:/, '').trim();
+                }
+                document.getElementById('modal-description').textContent = cleanDescription;
 
                 // Handle screenshot
                 const screenshotSection = document.getElementById('modal-screenshot-section');
@@ -316,6 +322,9 @@
                 if (reply && reply !== 'None') {
                     document.getElementById('modal-reply').textContent = reply;
                     replySection.style.display = 'block';
+
+                    // Show admin reply notification (similar to agent connect)
+                    showAdminReplyNotification();
                 } else if (status === 'resolved') {
                     resolvedSection.style.display = 'block';
                 } else {
@@ -326,6 +335,52 @@
                 document.getElementById('ticket-modal').style.display = 'flex';
                 document.body.style.overflow = 'hidden';
             }
+
+            // Show admin reply notification
+            function showAdminReplyNotification() {
+                // Check if notification already exists
+                if (document.querySelector('.admin-reply-notification')) {
+                    return;
+                }
+
+                const notification = document.createElement('div');
+                notification.className = 'admin-reply-notification';
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+                    color: white;
+                    padding: 16px 20px;
+                    border-radius: 12px;
+                    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+                    z-index: 10000;
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                    font-family: 'DM Sans', sans-serif;
+                    font-size: 0.95em;
+                    font-weight: 500;
+                    animation: slideInRight 0.4s ease-out;
+                `;
+
+                notification.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                    </svg>
+                    <span>Admin has replied to your ticket!</span>
+                `;
+
+                document.body.appendChild(notification);
+
+                // Auto-remove after 4 seconds
+                setTimeout(() => {
+                    notification.style.animation = 'slideOutRight 0.4s ease-out';
+                    setTimeout(() => notification.remove(), 400);
+                }, 4000);
+            }
+
 
             // Close ticket modal
             function closeTicketModal() {
@@ -602,90 +657,8 @@ ${descriptionText}`);
                 <div class="divider"></div>
 
                 <div class="chat-list">
-                    <div class="chat-list-item" data-chat="1">
-                        <div class="chat-list-avatar">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-                                stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                                <circle cx="12" cy="7" r="4" />
-                            </svg>
-                        </div>
-                        <div class="chat-list-info">
-                            <div class="chat-list-top">
-                                <h4 class="chat-list-name">Chan Yi Liang</h4>
-                                <span class="chat-list-time">Today, 2:30 PM</span>
-                            </div>
-                            <p class="chat-list-preview">I'll look into the points issue for you right away.</p>
-                            <div class="chat-list-meta">
-                                <span class="chat-status status-ongoing">Ongoing</span>
-                                <span class="chat-duration">5 messages</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="chat-list-item" data-chat="2">
-                        <div class="chat-list-avatar">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-                                stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                                <circle cx="12" cy="7" r="4" />
-                            </svg>
-                        </div>
-                        <div class="chat-list-info">
-                            <div class="chat-list-top">
-                                <h4 class="chat-list-name">Jayden Yip</h4>
-                                <span class="chat-list-time">Yesterday, 10:15 AM</span>
-                            </div>
-                            <p class="chat-list-preview">Your event registration has been confirmed. See you there!</p>
-                            <div class="chat-list-meta">
-                                <span class="chat-status status-resolved">Resolved</span>
-                                <span class="chat-duration">8 messages</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="chat-list-item" data-chat="3">
-                        <div class="chat-list-avatar">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-                                stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                                <circle cx="12" cy="7" r="4" />
-                            </svg>
-                        </div>
-                        <div class="chat-list-info">
-                            <div class="chat-list-top">
-                                <h4 class="chat-list-name">Caius Chan</h4>
-                                <span class="chat-list-time">Jan 15, 2025</span>
-                            </div>
-                            <p class="chat-list-preview">Your account has been verified successfully. You're all set!
-                            </p>
-                            <div class="chat-list-meta">
-                                <span class="chat-status status-resolved">Resolved</span>
-                                <span class="chat-duration">6 messages</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="chat-list-item" data-chat="4">
-                        <div class="chat-list-avatar">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-                                stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                                <circle cx="12" cy="7" r="4" />
-                            </svg>
-                        </div>
-                        <div class="chat-list-info">
-                            <div class="chat-list-top">
-                                <h4 class="chat-list-name">Dickson Lim</h4>
-                                <span class="chat-list-time">Jan 10, 2025</span>
-                            </div>
-                            <p class="chat-list-preview">We're still looking into your refund request. I'll update you
-                                shortly.</p>
-                            <div class="chat-list-meta">
-                                <span class="chat-status status-ongoing">Ongoing</span>
-                                <span class="chat-duration">4 messages</span>
-                            </div>
-                        </div>
+                    <div class="empty-state">
+                        <p>Loading your chat history...</p>
                     </div>
                 </div>
             </div>

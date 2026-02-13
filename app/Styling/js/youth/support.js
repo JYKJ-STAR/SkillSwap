@@ -150,7 +150,7 @@ async function startNewChat() {
             }
         }
     } catch (error) {
-
+        console.error('Error starting chat:', error);
         alert('Failed to start chat. Please try again.');
     }
 }

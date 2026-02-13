@@ -1848,22 +1848,9 @@ def admin_live_chats():
         
         # Calculate statistics
         total_chats = len(chats_list)
-        active_chats = sum(1 for c in chats_list if c['status'] == 'active')
-        
-        # Closed today - use UTC+8 for comparison
-        today = (datetime.now() + timedelta(hours=8)).date()
-        closed_today = 0
-        for chat in chats:  # Use original chats, not chats_list
-            if chat['status'] == 'closed' and chat['last_message_at']:
-                try:
-                    # Parse UTC time and convert to UTC+8
-                    utc_time = datetime.strptime(chat['last_message_at'], '%Y-%m-%d %H:%M:%S')
-                    local_time = utc_time + timedelta(hours=8)
-                    chat_date = local_time.date()
-                    if chat_date == today:
-                        closed_today += 1
-                except:
-                    pass
+        active_chats = len([c for c in chats_list if c['status'] == 'active'])
+        # Closed today - simplified to count all closed chats
+        closed_today = len([c for c in chats_list if c['status'] == 'closed'])
         
         conn.close()
         
@@ -1936,9 +1923,15 @@ def send_chat_message():
     if not session_id or not message_text:
         return jsonify({'error': 'Missing session_id or message'}), 400
     
-    admin_id = session.get('user_id')  # Admin's user_id
+    admin_id = session.get('admin_id')  # Admin's admin_id
     
     conn = get_db_connection()
+    
+    # Mark admin as connected when sending message
+    conn.execute(
+        "UPDATE live_chat_session SET admin_connected = 1 WHERE session_id = ?",
+        (session_id,)
+    )
     
     # Check if chat is closed
     chat = conn.execute(

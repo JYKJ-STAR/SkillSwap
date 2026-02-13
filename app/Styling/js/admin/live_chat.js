@@ -7,10 +7,34 @@ let currentChatUserName = null;
 let currentChatStatus = null;
 let chatRefreshInterval = null;
 
+// Close chat modal function
+function closeChatModal() {
+    const modal = document.getElementById('chatModal');
+    modal.style.display = 'none';
+    if (chatRefreshInterval) {
+        clearInterval(chatRefreshInterval);
+        chatRefreshInterval = null;
+    }
+    currentChatSessionId = null;
+}
+
+// Click outside modal to close
+document.addEventListener('DOMContentLoaded', () => {
+    const modal = document.getElementById('chatModal');
+    if (modal) {
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                closeChatModal();
+            }
+        });
+    }
+});
+
 // Toggle view between Support Tickets and Live Chats
 function toggleView() {
     window.location.href = window.location.origin + '/admin/support-tickets';
 }
+
 
 // Filter chats by status
 function filterChats(status) {
@@ -64,8 +88,9 @@ async function openChatModal(sessionId) {
         // Load messages
         await loadChatMessages(sessionId);
 
-        // Show modal
-        document.getElementById('chatModal').style.display = 'block';
+        // Show modal with flex display for centering
+        document.getElementById('chatModal').style.display = 'flex';
+
 
         // Start auto-refresh
         if (chatRefreshInterval) {
