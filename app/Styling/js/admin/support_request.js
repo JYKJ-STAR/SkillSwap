@@ -231,41 +231,6 @@ document.getElementById('manage-modal').addEventListener('click', (e) => {
 
 // Initialize
 renderTickets();
-function openTicketModal(ticketId, descriptionText, screenshotPath) {
-    // Store the current ticket ID for form submission
-    currentTicketId = ticketId;
-
-    // 1. Put the text inside the modal
-    document.getElementById('modalDescriptionContent').innerText = descriptionText;
-
-    // 2. Handle screenshot display
-    const screenshotGroup = document.getElementById('screenshotGroup');
-    const screenshotImg = document.getElementById('modalScreenshot');
-
-    if (screenshotPath && screenshotPath.trim() !== '') {
-        // Show screenshot if path exists
-        screenshotImg.src = screenshotPath;
-        screenshotGroup.style.display = 'block';
-    } else {
-        // Hide screenshot section if no screenshot
-        screenshotGroup.style.display = 'none';
-    }
-
-    // 3. Show the modal (change display from none to flex)
-    document.getElementById('ticketModal').style.display = 'flex';
-}
-
-function closeTicketModal() {
-    document.getElementById('ticketModal').style.display = 'none';
-}
-
-// Close modal if user clicks outside the box
-window.onclick = function (event) {
-    const modal = document.getElementById('ticketModal');
-    if (event.target == modal) {
-        modal.style.display = "none";
-    }
-}
 function openTicketModal(ticketId, description, screenshotPath) {
     // 1. Set description - use textContent to preserve newlines
     document.getElementById('modalDescriptionContent').textContent = description;

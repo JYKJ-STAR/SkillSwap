@@ -280,26 +280,42 @@
                 // Get data from data attributes
                 const ticketId = card.getAttribute('data-id');
                 const subject = card.getAttribute('data-subject');
-                const eventName = card.getAttribute('data-event');
-                const personInvolved = card.getAttribute('data-user');
                 const description = card.getAttribute('data-description');
                 const screenshotPath = card.getAttribute('data-screenshot');
                 const reply = card.getAttribute('data-reply');
                 const status = card.getAttribute('data-status');
                 const createdAt = card.getAttribute('data-created');
 
+                // Parse the description to extract event, involved person, and details
+                // Expected format: "Event: {event}\n\nInvolved: {person}\n\nDetails:\n{details}"
+                let eventText = 'Other / Not Event Related';
+                let involvedText = 'N/A';
+                let detailsText = description || 'No description provided';
+
+                if (description) {
+                    const lines = description.split('\n\n');
+
+                    for (let i = 0; i < lines.length; i++) {
+                        const line = lines[i].trim();
+
+                        if (line.startsWith('Event:')) {
+                            eventText = line.replace('Event:', '').trim();
+                        } else if (line.startsWith('Involved:')) {
+                            involvedText = line.replace('Involved:', '').trim();
+                        } else if (line.startsWith('Details:')) {
+                            // Everything after "Details:" is the actual incident description
+                            detailsText = lines.slice(i).join('\n\n').replace('Details:', '').trim();
+                            break;
+                        }
+                    }
+                }
+
                 // Populate modal content
                 document.getElementById('modal-ticket-id').textContent = 'ID: #' + ticketId;
                 document.getElementById('modal-issue-type').textContent = subject || 'N/A';
-                document.getElementById('modal-event').textContent = eventName || 'Other / Not Event Related';
-                document.getElementById('modal-person').textContent = personInvolved || 'You';
-
-                // Clean description - remove "Event:" prefix if it exists
-                let cleanDescription = description || 'No description provided';
-                if (cleanDescription.startsWith('Event:')) {
-                    cleanDescription = cleanDescription.replace(/^Event:.*?Details:/, '').trim();
-                }
-                document.getElementById('modal-description').textContent = cleanDescription;
+                document.getElementById('modal-event').textContent = eventText;
+                document.getElementById('modal-person').textContent = involvedText;
+                document.getElementById('modal-description').textContent = detailsText;
 
                 // Handle screenshot
                 const screenshotSection = document.getElementById('modal-screenshot-section');

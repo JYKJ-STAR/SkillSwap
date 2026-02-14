@@ -1,0 +1,233 @@
+{% extends "shared/base.html" %}
+
+{% block title %}SkillSwap - Support Center{% endblock %}
+
+{% block styles %}
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/senior/seniorsupportcentre.css') }}?v=4">
+{% endblock %}
+
+{% block content %}
+<div class="main-container">
+    <aside class="sidebar">
+        <a href="{{ url_for('dashboard.dashboard') }}" class="back-link">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12" />
+                <polyline points="12 19 5 12 12 5" />
+            </svg>
+            Back to Dashboard
+        </a>
+        <h1 class="sidebar-title">Support Center</h1>
+        <p class="sidebar-subtitle">We're here to help you</p>
+        <nav class="sidebar-nav">
+            <a href="#" class="active" data-page="get-help-page">Get Help</a>
+        </nav>
+    </aside>
+
+    <main class="content">
+        <div id="get-help-page" class="page active">
+            <!-- Prominent Call Support Section -->
+            <div class="call-support-section">
+                <h2 class="section-title">Need Help? Call Us</h2>
+                <p class="section-subtitle">Our friendly support team is ready to assist you</p>
+
+                <button class="call-button" onclick="showCallModal()">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path
+                            d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+                    </svg>
+                    <span class="call-button-text">Call Support</span>
+                    <span class="call-button-number">6273 8328</span>
+                </button>
+
+                <div class="call-info">
+                    <div class="call-info-item">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10" />
+                            <polyline points="12 6 12 12 16 14" />
+                        </svg>
+                        Monday - Friday, 9am - 6pm
+                    </div>
+                    <div class="call-info-item">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                            <polyline points="22 4 12 14.01 9 11.01" />
+                        </svg>
+                        Free call
+                    </div>
+                </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- Email Support Section -->
+            <h3 class="section-title">Other Ways to Contact Us</h3>
+            <div class="contact-cards">
+                <a href="https://mail.google.com/mail/?view=cm&fs=1&to=support@skillswap.sg" class="contact-card"
+                    target="_blank" rel="noopener noreferrer">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                        <polyline points="22,6 12,13 2,6" />
+                    </svg>
+                    <div class="contact-card-title">Email Support</div>
+                    <div class="contact-card-subtitle">Response within 24 hours</div>
+                </a>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- Simplified FAQ Section -->
+            <h2 class="section-title">Frequently Asked Questions</h2>
+
+            <div class="faq-list">
+                <div class="faq-item">
+                    <button class="faq-question">
+                        How do I sign up for events?
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="6 9 12 15 18 9" />
+                        </svg>
+                    </button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            Go to the 'Events' tab in the top navigation bar to browse upcoming workshops. Once you find
+                            an event you like, simply click the 'Register' button. You will receive a confirmation email
+                            with the event details.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question">
+                        How do I earn points?
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="6 9 12 15 18 9" />
+                        </svg>
+                    </button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            You earn points by being an active community member! You can gain points by hosting a skill
+                            workshop, attending events, or leaving helpful reviews for others. Check the 'Rewards' tab
+                            to see how you can redeem your points for vouchers and badges.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question">
+                        Is my personal information safe?
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="6 9 12 15 18 9" />
+                        </svg>
+                    </button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            Yes, your privacy is our top priority. We use industry-standard encryption to protect your
+                            personal information. We never share your contact details with other users until you
+                            explicitly agree to connect with them.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question">
+                        How do I verify my account?
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="6 9 12 15 18 9" />
+                        </svg>
+                    </button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            To verify your account, navigate to your Profile Settings and select 'Verify Identity'. You
+                            will need to upload a valid photo ID. Verification helps us maintain a safe community for
+                            everyone.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- Call Modal -->
+<div id="call-modal" class="call-modal" style="display: none;" onclick="closeCallModal()">
+    <div class="call-modal-content" onclick="event.stopPropagation()">
+        <h3>Call Support</h3>
+        <div class="modal-number">6273 8328</div>
+        <p class="modal-message">Available Monday - Friday, 9am - 6pm</p>
+        <div class="modal-buttons">
+            <button class="modal-btn copy-btn" onclick="copyPhoneNumber()">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                </svg>
+                Copy Number
+            </button>
+            <button class="modal-btn close-btn" onclick="closeCallModal()">Close</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // FAQ accordion functionality
+    document.addEventListener('DOMContentLoaded', function () {
+        const faqQuestions = document.querySelectorAll('.faq-question');
+
+        faqQuestions.forEach(question => {
+            question.addEventListener('click', function () {
+                const faqItem = this.parentElement;
+                const isActive = faqItem.classList.contains('active');
+
+                // Close all FAQ items
+                document.querySelectorAll('.faq-item').forEach(item => {
+                    item.classList.remove('active');
+                });
+
+                // Open clicked item if it wasn't active
+                if (!isActive) {
+                    faqItem.classList.add('active');
+                }
+            });
+        });
+    });
+
+    // Call modal functions
+    function showCallModal() {
+        document.getElementById('call-modal').style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeCallModal() {
+        document.getElementById('call-modal').style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+
+    function copyPhoneNumber() {
+        const phoneNumber = '62738328';
+        navigator.clipboard.writeText(phoneNumber).then(() => {
+            const btn = document.querySelector('.copy-btn');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                    <polyline points="22 4 12 14.01 9 11.01" />
+                </svg>
+                Copied!
+            `;
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+            }, 2000);
+        });
+    }
+</script>
+{% endblock %}

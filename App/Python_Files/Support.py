@@ -87,6 +87,13 @@ def support():
     return render_template('youth/youth_support.html', tickets=tickets_list, attended_events=events_list)
 
 
+@support_bp.route('/senior-support')
+def senior_support():
+    """Simplified support page for senior users"""
+    return render_template('senior/senior_support.html')
+
+
+
 @support_bp.route('/submit-ticket', methods=['POST'])
 def submit_ticket():
     # Handle FormData instead of JSON
