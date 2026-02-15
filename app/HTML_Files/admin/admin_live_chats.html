@@ -168,8 +168,8 @@
                 <tbody id="chats-table-body">
                     {% if chats %}
                     {% for chat in chats %}
-                    <tr class="chat-row" data-status="{{ chat.status }}" onclick="openChatModal({{ chat.session_id }})"
-                        class="clickable-row">
+                    <tr class="chat-row clickable-row" data-status="{{ chat.status }}"
+                        onclick="openChatModal({{ chat.session_id }})">
                         <td>#{{ chat.session_id }}</td>
                         <td>{{ chat.user_name }}</td>
                         <td class="last-message">

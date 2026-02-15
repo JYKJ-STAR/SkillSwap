@@ -733,6 +733,30 @@ ${descriptionText}`);
     </main>
 </div>
 
+<!-- End Chat Confirmation Modal -->
+<div id="end-chat-modal" class="ticket-modal" style="display: none;" onclick="closeEndChatModal()">
+    <div class="ticket-modal-content" style="max-width: 450px;" onclick="event.stopPropagation()">
+        <span class="ticket-modal-close" onclick="closeEndChatModal()">&times;</span>
+        <div style="text-align: center; padding: 20px 0;">
+            <div style="font-size: 48px; margin-bottom: 16px;">⚠️</div>
+            <h3 style="margin: 0 0 12px 0; color: #1a1a1a; font-size: 1.5em;">End Chat Session?</h3>
+            <p style="color: #666; margin: 0 0 24px 0; line-height: 1.6;">
+                Are you sure you want to end this chat? You will not be able to send more messages after ending the
+                session.
+            </p>
+            <div style="display: flex; gap: 12px; justify-content: center;">
+                <button onclick="closeEndChatModal()"
+                    style="padding: 12px 24px; background: #f3f4f6; border: none; border-radius: 8px; cursor: pointer; font-weight: 500; color: #374151;">
+                    Cancel
+                </button>
+                <button onclick="confirmEndChat()"
+                    style="padding: 12px 24px; background: #dc2626; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 500;">
+                    End Chat
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- Image Lightbox Modal -->
 <div id="image-lightbox" class="image-lightbox" onclick="closeImageLightbox()">

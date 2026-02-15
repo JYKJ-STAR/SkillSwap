@@ -127,6 +127,12 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+    // End Chat button
+    const endChatBtn = document.querySelector('.end-chat-btn');
+    if (endChatBtn) {
+        endChatBtn.addEventListener('click', endCurrentChat);
+    }
 });
 
 async function startNewChat() {
@@ -410,6 +416,87 @@ function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
+}
+
+async function endCurrentChat() {
+    if (!currentChatSessionId) {
+        showCustomAlert('No active chat session');
+        return;
+    }
+
+    // Show custom confirmation modal instead of browser confirm
+    document.getElementById('end-chat-modal').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+}
+
+function closeEndChatModal() {
+    document.getElementById('end-chat-modal').style.display = 'none';
+    document.body.style.overflow = 'auto';
+}
+
+async function confirmEndChat() {
+    closeEndChatModal();
+
+    try {
+        console.log('Ending chat session:', currentChatSessionId);
+
+        const response = await fetch('/end-chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                session_id: currentChatSessionId
+            })
+        });
+
+        console.log('Response status:', response.status);
+        const data = await response.json();
+        console.log('Response data:', data);
+
+        if (response.ok && data.status === 'closed') {
+            // Stop auto-refresh
+            if (chatRefreshInterval) {
+                clearInterval(chatRefreshInterval);
+                chatRefreshInterval = null;
+            }
+
+            // Show success notification
+            showCustomAlert('Chat ended successfully', 'success');
+
+            // Return to chat list
+            showChatList();
+            currentChatSessionId = null;
+        } else {
+            console.error('Failed to end chat:', data);
+            showCustomAlert('Failed to end chat: ' + (data.error || data.message || 'Unknown error'), 'error');
+        }
+    } catch (error) {
+        console.error('Error ending chat:', error);
+        showCustomAlert('Failed to end chat. Please try again.', 'error');
+    }
+}
+
+function showCustomAlert(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: ${type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#3b82f6'};
+        color: white;
+        padding: 16px 24px;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        z-index: 10000;
+        font-family: 'DM Sans', sans-serif;
+        animation: slideIn 0.3s ease-out;
+    `;
+    notification.textContent = message;
+    document.body.appendChild(notification);
+
+    setTimeout(() => {
+        notification.style.animation = 'slideOut 0.3s ease-out';
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
 }
 
 function showAdminConnectedNotification() {

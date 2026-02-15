@@ -427,3 +427,40 @@ def get_chat_history():
     conn.close()
     
     return jsonify({'chats': [dict(c) for c in chats]})
+
+@support_bp.route('/end-chat', methods=['POST'])
+def end_chat():
+    """End/close the current user's active chat session"""
+    user_id = session.get('user_id')
+    
+    if not user_id:
+        return jsonify({'error': 'Not logged in'}), 401
+    
+    data = request.json
+    session_id = data.get('session_id')
+    
+    if not session_id:
+        return jsonify({'error': 'Missing session_id'}), 400
+    
+    conn = get_db_connection()
+    
+    # Verify user owns this chat session
+    chat = conn.execute(
+        "SELECT * FROM live_chat_session WHERE session_id = ? AND user_id = ?",
+        (session_id, user_id)
+    ).fetchone()
+    
+    if not chat:
+        conn.close()
+        return jsonify({'error': 'Unauthorized'}), 403
+    
+    # Close the chat session
+    conn.execute(
+        "UPDATE live_chat_session SET status = 'closed' WHERE session_id = ?",
+        (session_id,)
+    )
+    
+    conn.commit()
+    conn.close()
+    
+    return jsonify({'status': 'closed', 'message': 'Chat ended successfully'})
