@@ -1870,28 +1870,41 @@ def admin_live_chats():
 def get_chat_details(session_id):
     """Get details for a specific chat session"""
     conn = get_db_connection()
+    admin_id = session.get('admin_id')
     
-    # Mark admin as connected
-    conn.execute(
-        "UPDATE live_chat_session SET admin_connected = 1 WHERE session_id = ?",
-        (session_id,)
-    )
-    conn.commit()
-    
+    # Check if another admin is already connected
     chat = conn.execute(
-        """SELECT cs.*, u.name as user_name, u.email as user_email
+        """SELECT cs.*, u.name as user_name, u.email as user_email, a.name as connected_admin_name
            FROM live_chat_session cs
            JOIN user u ON cs.user_id = u.user_id
+           LEFT JOIN admin a ON cs.connected_admin_id = a.admin_id
            WHERE cs.session_id = ?""",
         (session_id,)
     ).fetchone()
     
-    conn.close()
-    
     if not chat:
+        conn.close()
         return jsonify({'error': 'Chat not found'}), 404
     
-    return jsonify(dict(chat))
+    # If another admin is connected and it's not this admin, return locked status
+    if chat['connected_admin_id'] and chat['connected_admin_id'] != admin_id:
+        conn.close()
+        result = dict(chat)
+        result['is_locked'] = True
+        result['locked_by_admin'] = chat['connected_admin_name']
+        return jsonify(result)
+    
+    # Mark this admin as connected
+    conn.execute(
+        "UPDATE live_chat_session SET admin_connected = 1, connected_admin_id = ? WHERE session_id = ?",
+        (admin_id, session_id)
+    )
+    conn.commit()
+    conn.close()
+    
+    result = dict(chat)
+    result['is_locked'] = False
+    return jsonify(result)
 
 @admin_bp.route('/get-chat-messages/<int:session_id>')
 @admin_required
@@ -1927,15 +1940,9 @@ def send_chat_message():
     
     conn = get_db_connection()
     
-    # Mark admin as connected when sending message
-    conn.execute(
-        "UPDATE live_chat_session SET admin_connected = 1 WHERE session_id = ?",
-        (session_id,)
-    )
-    
-    # Check if chat is closed
+    # Check if this admin is the connected admin
     chat = conn.execute(
-        "SELECT status FROM live_chat_session WHERE session_id = ?",
+        "SELECT status, connected_admin_id FROM live_chat_session WHERE session_id = ?",
         (session_id,)
     ).fetchone()
     
@@ -1943,9 +1950,20 @@ def send_chat_message():
         conn.close()
         return jsonify({'error': 'Chat session not found'}), 404
     
+    # Check if another admin is connected
+    if chat['connected_admin_id'] and chat['connected_admin_id'] != admin_id:
+        conn.close()
+        return jsonify({'error': 'Another admin is currently handling this chat'}), 403
+    
     if chat['status'] == 'closed':
         conn.close()
         return jsonify({'error': 'Cannot send message to a closed chat'}), 400
+    
+    # Mark this admin as connected if not already
+    conn.execute(
+        "UPDATE live_chat_session SET admin_connected = 1, connected_admin_id = ? WHERE session_id = ?",
+        (admin_id, session_id)
+    )
     
     # Insert admin message
     conn.execute(
@@ -1970,8 +1988,9 @@ def close_chat_session(session_id):
     """Close a chat session"""
     conn = get_db_connection()
     
+    # Clear the connected admin when closing
     conn.execute(
-        "UPDATE live_chat_session SET status = 'closed' WHERE session_id = ?",
+        "UPDATE live_chat_session SET status = 'closed', connected_admin_id = NULL, admin_connected = 0 WHERE session_id = ?",
         (session_id,)
     )
     

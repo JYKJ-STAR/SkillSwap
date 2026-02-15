@@ -234,10 +234,12 @@ CREATE TABLE IF NOT EXISTS live_chat_session (
     session_id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER NOT NULL,
     admin_connected INTEGER DEFAULT 0 CHECK (admin_connected IN (0, 1)),
+    connected_admin_id INTEGER,  -- Track which admin is connected
     status TEXT DEFAULT 'active' CHECK (status IN ('active', 'closed')),
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     last_message_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES user (user_id) ON DELETE CASCADE
+    FOREIGN KEY (user_id) REFERENCES user (user_id) ON DELETE CASCADE,
+    FOREIGN KEY (connected_admin_id) REFERENCES admin (admin_id) ON DELETE SET NULL
 );
 
 CREATE TABLE IF NOT EXISTS live_chat_message (

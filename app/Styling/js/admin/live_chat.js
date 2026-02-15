@@ -82,8 +82,35 @@ async function openChatModal(sessionId) {
         currentChatUserName = data.user_name;
         currentChatStatus = data.status;
 
-        // Update chat input state based on status
-        updateChatInputState();
+        // Check if chat is locked by another admin
+        if (data.is_locked) {
+            // Disable input and show locked message
+            const input = document.getElementById('adminMessageInput');
+            const sendBtn = document.querySelector('.chat-input-section button');
+            const chatActions = document.getElementById('chatActions');
+
+            if (input) {
+                input.disabled = true;
+                input.placeholder = `This chat is currently being handled by ${data.locked_by_admin}`;
+                input.style.backgroundColor = '#2d3748';
+                input.style.cursor = 'not-allowed';
+            }
+            if (sendBtn) {
+                sendBtn.disabled = true;
+                sendBtn.style.opacity = '0.5';
+                sendBtn.style.cursor = 'not-allowed';
+            }
+            if (chatActions) {
+                chatActions.innerHTML = `
+                    <div style="padding: 10px; background: rgba(251, 191, 36, 0.1); border: 1px solid rgba(251, 191, 36, 0.3); border-radius: 8px; color: #fbbf24;">
+                        <i class="bi bi-lock-fill"></i> This chat is currently being handled by ${data.locked_by_admin}
+                    </div>
+                `;
+            }
+        } else {
+            // Update chat input state based on status
+            updateChatInputState();
+        }
 
         // Load messages
         await loadChatMessages(sessionId);
